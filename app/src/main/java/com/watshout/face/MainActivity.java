@@ -14,8 +14,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
 
 import java.io.IOException;
 
@@ -25,15 +23,26 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     LocationListener locationListener;
+    DatabaseReference databaseReference;
 
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
-
-    // For testing purposes. Need to be static to be updated from other class
-    public static TextView text;
 
     @SuppressLint("HardwareIds")
     private String getID() {
@@ -46,8 +55,12 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        text = findViewById(R.id.text);
-        Button button = findViewById(R.id.button);
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("coords");
+
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
 
         if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -74,6 +87,27 @@ public class MainActivity extends AppCompatActivity {
         // See below LocationListener class
         locationListener = new MyLocationListener();
 
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                String post = dataSnapshot.getValue().toString();
+
+                Log.wtf("FIREBASE", post);
+
+                // ...
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.wtf("FIREBASE", "loadPost:onCancelled", databaseError.toException());
+                // ...
+            }
+        };
+
+        databaseReference.addValueEventListener(postListener);
+
         // Unsure which minTime and minDistance values work best
         assert locationManager != null;
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
@@ -99,6 +133,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        // Add a marker in Sydney, Australia,
+        // and move the map's camera to the same location.
+        LatLng sydney = new LatLng(-33.852, 151.211);
+        googleMap.addMarker(new MarkerOptions().position(sydney)
+                .title("Marker in Sydney"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
     }
 }
 
@@ -151,8 +196,6 @@ class MyLocationListener implements LocationListener {
         double time = location.getTime();
 
         String printMe = lat + ", " + lon;
-
-        MainActivity.text.setText(printMe);
 
         return "{\"lat\": " + lat + ", \"long\": " + lon + ", \"time\": " + time + "}";
     }

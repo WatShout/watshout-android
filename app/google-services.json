@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "675799163706",
+    "firebase_url": "https://gps-app-c31df.firebaseio.com",
+    "project_id": "gps-app-c31df",
+    "storage_bucket": "gps-app-c31df.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675799163706:android:78a915f03a78de48",
+        "android_client_info": {
+          "package_name": "com.watshout.face"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "675799163706-1igu8j7blsv6qkovi4gahr6kbt9736un.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbNwvEiyQgrrjy1iGawLPezntdMMhXHGw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
