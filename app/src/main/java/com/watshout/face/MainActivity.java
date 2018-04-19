@@ -28,18 +28,24 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     LocationListener locationListener;
     DatabaseReference databaseReference;
+    GoogleMap googleMapGlobal;
 
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
@@ -87,26 +93,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // See below LocationListener class
         locationListener = new MyLocationListener();
 
-        ValueEventListener postListener = new ValueEventListener() {
+        ChildEventListener childEventListener = new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                String post = dataSnapshot.getValue().toString();
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                //Log.wtf("FIREBASE", dataSnapshot.toString());
 
-                Log.wtf("FIREBASE", post);
+                Log.wtf("FIREBASE", dataSnapshot.toString());
 
-                // ...
+                Log.wtf("FIREBASELIST", (String) dataSnapshot.getValue());
+
+                Marker m1 = googleMapGlobal.addMarker(new MarkerOptions()
+                        //.position(new LatLng(lat, lon))
+                        .title("Title1"));
+
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.wtf("FIREBASE", "loadPost:onCancelled", databaseError.toException());
-                // ...
+
             }
         };
 
-        databaseReference.addValueEventListener(postListener);
+        databaseReference.addChildEventListener(childEventListener);
 
         // Unsure which minTime and minDistance values work best
         assert locationManager != null;
@@ -137,12 +161,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        // Add a marker in Sydney, Australia,
-        // and move the map's camera to the same location.
-        LatLng sydney = new LatLng(-33.852, 151.211);
-        googleMap.addMarker(new MarkerOptions().position(sydney)
-                .title("Marker in Sydney"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        googleMapGlobal = googleMap;
+
+        Marker m1 = googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(-33.852, 151.211))
+                .title("Title1"));
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(-33.852, 151.211)));
 
     }
 }
