@@ -120,7 +120,7 @@ class PostData extends AsyncTask<String, Void, Void> {
         // Builds a request then POSTs to Firebase
         RequestBody body = RequestBody.create(JSON, jsonData);
         Request request = new Request.Builder()
-                .url("https://personalsite-backend.firebaseio.com/coords.json")
+                .url("https://gps-app-c31df.firebaseio.com/coords.json")
                 .post(body)  // Changing this from put to post changes behavior
                 .build();
 
