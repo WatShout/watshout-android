@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -96,16 +97,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                //Log.wtf("FIREBASE", dataSnapshot.toString());
 
-                Log.wtf("FIREBASE", dataSnapshot.toString());
+                HashMap data = (HashMap) dataSnapshot.getValue();
 
-                Log.wtf("FIREBASELIST", (String) dataSnapshot.getValue());
+                assert data != null;
+                double lat = (double) data.get("lat");
+                double lon = (double) data.get("long");
 
-                Marker m1 = googleMapGlobal.addMarker(new MarkerOptions()
-                        //.position(new LatLng(lat, lon))
-                        .title("Title1"));
+                Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
+                        .position(new LatLng(lat, lon)));
 
+                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLng(newMarker.getPosition()));
 
             }
 
@@ -116,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                googleMapGlobal.clear();
 
             }
 
@@ -163,12 +167,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
 
         googleMapGlobal = googleMap;
-
-        Marker m1 = googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(-33.852, 151.211))
-                .title("Title1"));
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(-33.852, 151.211)));
 
     }
 }
