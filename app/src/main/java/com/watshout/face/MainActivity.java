@@ -15,6 +15,21 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -24,22 +39,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getSupportActionBar().hide();
 
         setContentView(R.layout.activity_main);
 
@@ -103,8 +105,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 double lat = (double) data.get("lat");
                 double lon = (double) data.get("long");
 
+                BitmapDescriptor ic = fromResource(R.drawable.beachflag);
+
                 Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
-                        .position(new LatLng(lat, lon)));
+                        .position(new LatLng(lat, lon))
+                        .icon(ic));
 
             }
 
@@ -164,6 +169,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
 
         googleMapGlobal = googleMap;
+
+        LatLng latLng = new LatLng(-117, 30);
+        float zoom = 1;
+
+        googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 
     }
 }
@@ -238,7 +248,7 @@ class MyLocationListener implements LocationListener {
     }
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
-                            /* This is called when the GPS status alters */
+
         switch (status) {
             case LocationProvider.OUT_OF_SERVICE:
                 Log.v("GPSDATA", "OUT_OF_SERVICE");
