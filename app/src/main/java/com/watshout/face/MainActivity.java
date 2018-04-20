@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -106,8 +105,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
                         .position(new LatLng(lat, lon)));
-
-                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLng(newMarker.getPosition()));
 
             }
 
