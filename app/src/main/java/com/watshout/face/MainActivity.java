@@ -20,7 +20,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -41,7 +40,6 @@ import okhttp3.Response;
 
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
 
-
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     LocationListener locationListener;
@@ -55,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String getID() {
         return Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +103,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 assert data != null;
                 double lat = (double) data.get("lat");
                 double lon = (double) data.get("long");
+                double time = (double) data.get("time");
 
-                BitmapDescriptor ic = fromResource(R.drawable.beachflag);
+                String stringTime = Double.toString(time);
+
+                char timeChar = stringTime.charAt(8);
+
+                int timeInt = (int) timeChar;
+
+                BitmapDescriptor ic;
+
+                if(timeInt % 2 == 0){
+                    ic = fromResource(R.drawable.beachflag);
+                } else {
+                    ic = fromResource(R.drawable.blueflag);
+                }
 
                 Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
                         .position(new LatLng(lat, lon))
@@ -225,8 +237,6 @@ class MyLocationListener implements LocationListener {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
         double time = location.getTime();
-
-        String printMe = lat + ", " + lon;
 
         return "{\"lat\": " + lat + ", \"long\": " + lon + ", \"time\": " + time + "}";
     }
