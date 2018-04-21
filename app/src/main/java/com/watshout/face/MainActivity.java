@@ -31,7 +31,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -66,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationManager locationManager;
     DatabaseReference databaseReference;
     GoogleMap googleMapGlobal;
+    LatLng home;
+    List<Marker> markers = new ArrayList<Marker>();
 
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
@@ -85,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Removes the top bar on top of the map
         getSupportActionBar().hide();
+
+        // Ideally we would want this to be the location one is at when they start the app
+        home = new LatLng(37.4419, -122.1430);
 
         // It will help to look at the Firebase DB. This gets a reference to the
         // 'coords' directory I've made
@@ -143,20 +150,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 int timeInt = (int) timeChar;
 
                 // Image file
-                BitmapDescriptor ic;
+                BitmapDescriptor currentLocation = fromResource(R.drawable.current);
+                BitmapDescriptor beachFlag = fromResource(R.drawable.beachflag);
 
-                // Again, just testing. Places a different marker depending on the time
-                if (timeInt % 2 == 0) {
-                    ic = fromResource(R.drawable.beachflag);
-                } else {
-                    ic = fromResource(R.drawable.blueflag);
-                }
 
                 // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
                 Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
                         .position(new LatLng(lat, lon))
-                        .icon(ic));
+                        .icon(currentLocation));
 
+                // Add the marker to an array containing all markers
+                markers.add(newMarker);
+
+                // This makes sure only the most recent marker has the 'current' icon
+                if (markers.size() > 0){
+
+                    for (int i = 0; i < markers.size() - 1; i++){
+
+                        markers.get(i).setIcon(beachFlag);
+
+                    }
+                }
             }
 
             @Override
@@ -226,12 +240,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // which is why we defined it globally
         googleMapGlobal = googleMap;
 
-        // This sets the starting position/zoom level
-        LatLng latLng = new LatLng(-117, 30);
+        // This sets the starting zoom level
         float zoom = 1;
 
         // This sets the initial view of the map
-        googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        // 'home' is declared earlier
+        googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoom));
 
     }
 }
