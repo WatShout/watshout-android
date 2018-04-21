@@ -142,12 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 assert data != null;
                 double lat = (double) data.get("lat");
                 double lon = (double) data.get("long");
-                double time = (double) data.get("time");
-
-                // Gets the 8th number in the timestamp. This is just for testing now
-                String stringTime = Double.toString(time);
-                char timeChar = stringTime.charAt(8);
-                int timeInt = (int) timeChar;
+                double time = (double) data.get("time"); // Not used yet
 
                 // Image file
                 BitmapDescriptor currentLocation = fromResource(R.drawable.current);
