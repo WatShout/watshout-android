@@ -3,6 +3,7 @@ package com.watshout.face;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -24,6 +25,8 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -70,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     GoogleMap googleMapGlobal;
     LatLng home;
     List<Marker> markers = new ArrayList<>();
+    Polyline currentPolyLine;
+    List<Polyline> polyLines = new ArrayList<>();
 
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
@@ -142,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 assert data != null;
                 double lat = (double) data.get("lat");
                 double lon = (double) data.get("long");
-                double time = (double) data.get("time"); // Not used yet
+                // double time = (double) data.get("time"); // Not used yet
 
                 LatLng currentLocation = new LatLng(lat, lon);
 
@@ -156,6 +161,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .position(currentLocation)
                         .icon(currentLocationIcon));
 
+
+                if(markers.size() > 0){
+
+                    LatLng previousLocation = markers.get(markers.size() - 1).getPosition();
+
+                    currentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
+                            .add(previousLocation, currentLocation)
+                            .width(5)
+                            .color(Color.RED));
+
+                    polyLines.add(currentPolyLine);
+                }
+
                 // Add the marker to an array containing all markers
                 markers.add(newMarker);
 
@@ -164,12 +182,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     for (int i = 0; i < markers.size() - 1; i++){
 
-                        markers.get(i).setIcon(beachFlag);
+                        // markers.get(i).setIcon(beachFlag);
+                        markers.get(i).setVisible(false);
 
                     }
                 }
 
-                float zoom = 4;
+                float zoom = 14;
                 googleMapGlobal.moveCamera(CameraUpdateFactory
                         .newLatLngZoom(currentLocation, zoom));
 
@@ -189,6 +208,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 // Remove all markers
                 markers = new ArrayList<>();
+
+                polyLines = new ArrayList<>();
 
             }
 
