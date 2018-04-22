@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     DatabaseReference databaseReference;
     GoogleMap googleMapGlobal;
     LatLng home;
-    List<Marker> markers = new ArrayList<Marker>();
+    List<Marker> markers = new ArrayList<>();
 
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
@@ -144,15 +144,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 double lon = (double) data.get("long");
                 double time = (double) data.get("time"); // Not used yet
 
+                LatLng currentLocation = new LatLng(lat, lon);
+
                 // Image file
-                BitmapDescriptor currentLocation = fromResource(R.drawable.current);
+                BitmapDescriptor currentLocationIcon = fromResource(R.drawable.current);
                 BitmapDescriptor beachFlag = fromResource(R.drawable.beachflag);
 
 
                 // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
                 Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
-                        .position(new LatLng(lat, lon))
-                        .icon(currentLocation));
+                        .position(currentLocation)
+                        .icon(currentLocationIcon));
 
                 // Add the marker to an array containing all markers
                 markers.add(newMarker);
@@ -166,6 +168,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     }
                 }
+
+                float zoom = 4;
+                googleMapGlobal.moveCamera(CameraUpdateFactory
+                        .newLatLngZoom(currentLocation, zoom));
+
+
             }
 
             @Override
@@ -178,6 +186,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 // Testing again. If children are removed, take everything off of the map
                 googleMapGlobal.clear();
+
+                // Remove all markers
+                markers = new ArrayList<>();
 
             }
 
