@@ -3,7 +3,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.watshout.face">
 
-
+    <uses-feature
+        android:name="android.hardware.type.watch"/>
 
     <uses-feature android:name="android.hardware.location.gps" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -21,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,10 +37,12 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyABz8PiPgffsfGQkedZbcfSKU7mdKL6Ti0"/>
+            android:value="AIzaSyANpjYeY5BZIGF5KGbY-GfResC0CK0K0gk"/>
         <meta-data
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
     </application>
+
+
 
 </manifest>

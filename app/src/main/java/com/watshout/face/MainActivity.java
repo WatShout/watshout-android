@@ -2,6 +2,8 @@ package com.watshout.face;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Application;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -45,6 +47,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import android.provider.Settings.Secure;
+
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
 import static com.watshout.face.MainActivity.gpsStatus;
 
@@ -85,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Gets a unique hardware ID for a device
     @SuppressLint("HardwareIds")
-    private String getID() {
+    String getID() {
         return Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
     }
 
@@ -104,9 +108,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
 
+        CurrentID.setCurrent(getID());
+
         // It will help to look at the Firebase DB. This gets a reference to the
         // 'coords' directory I've made
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("coords");
+        databaseReference = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("coords")
+                .child(CurrentID.getCurrent());
 
         // Defines a 'fragment' of the activity dedicated to the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -286,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 // This class deals with POSTing the data to Firebase
 class PostData extends AsyncTask<String, Void, Void> {
 
+
     // Init. client and data type
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private OkHttpClient client = new OkHttpClient();
@@ -299,11 +310,15 @@ class PostData extends AsyncTask<String, Void, Void> {
 
         // Gets the json string from the parameters
         String jsonData = strings[0];
+        String id = strings[1];
+
+        String url = "https://gps-app-c31df.firebaseio.com/coords/" + id + ".json";
+
 
         // Builds a request then POSTs to Firebase
         RequestBody body = RequestBody.create(JSON, jsonData);
         Request request = new Request.Builder()
-                .url("https://gps-app-c31df.firebaseio.com/coords.json")
+                .url(url)
                 .post(body)  // Changing this from put to post changes behavior
                 .build();
 
@@ -347,7 +362,10 @@ class MyLocationListener implements LocationListener {
         // Parse data, then POST using PostData class
         String data = parseGPSData(location);
         PostData post = new PostData();
-        post.execute(data);
+
+        String id = CurrentID.getCurrent();
+
+        post.execute(data, id);
 
         Log.v("GPSDATA", message);
 
@@ -380,3 +398,4 @@ class MyLocationListener implements LocationListener {
     }
 
 }
+
