@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,6 +46,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
+import static com.watshout.face.MainActivity.gpsStatus;
 
 
 /*
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Polyline currentPolyLine;
     List<Polyline> polyLines = new ArrayList<>();
 
+    static TextView gpsStatus;
+
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
 
@@ -91,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        gpsStatus = findViewById(R.id.gps);
 
         // Removes the top bar on top of the map
         getSupportActionBar().hide();
@@ -231,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // minTime is in milliseconds, distance in meters
         assert locationManager != null;
         locationManager.requestLocationUpdates(LocationManager
-                .GPS_PROVIDER, 1000, 0, locationListener);
+                .GPS_PROVIDER, 5000, 3, locationListener);
 
 
     }
@@ -344,6 +350,10 @@ class MyLocationListener implements LocationListener {
         post.execute(data);
 
         Log.v("GPSDATA", message);
+
+        gpsStatus.setText("GPS CONNECTED");
+        gpsStatus.setTextColor(Color.GREEN);
+
     }
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
