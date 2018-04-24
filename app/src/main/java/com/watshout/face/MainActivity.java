@@ -2,8 +2,6 @@ package com.watshout.face;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Application;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -47,8 +45,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import android.provider.Settings.Secure;
-
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
 import static com.watshout.face.MainActivity.gpsStatus;
 
@@ -75,12 +71,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Globally-defined
     LocationListener locationListener;
     LocationManager locationManager;
-    DatabaseReference databaseReference;
+    DatabaseReference deviceSpecificDatabaseReference;
+    DatabaseReference allDevicesDatabaseReference;
     GoogleMap googleMapGlobal;
     LatLng home;
-    List<Marker> markers = new ArrayList<>();
-    Polyline currentPolyLine;
-    List<Polyline> polyLines = new ArrayList<>();
+
+    List<Marker> myMarkers = new ArrayList<>();
+    List<Polyline> myPolyLines = new ArrayList<>();
+
+    List<Marker> theirMarkers = new ArrayList<>();
+    List<Polyline> theirPolyLines = new ArrayList<>();
+
+    Polyline myCurrentPolyLine;
+
+    String CURRENT_ID;
 
     static TextView gpsStatus;
 
@@ -108,15 +112,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
 
-        CurrentID.setCurrent(getID());
+        CURRENT_ID = getID();
+
+        CurrentID.setCurrent(CURRENT_ID);
 
         // It will help to look at the Firebase DB. This gets a reference to the
         // 'coords' directory I've made
-        databaseReference = FirebaseDatabase
+        deviceSpecificDatabaseReference = FirebaseDatabase
                 .getInstance()
                 .getReference()
-                .child("coords")
                 .child(CurrentID.getCurrent());
+
+        allDevicesDatabaseReference = FirebaseDatabase
+                .getInstance()
+                .getReference();
+
 
         // Defines a 'fragment' of the activity dedicated to the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -152,9 +162,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationListener = new MyLocationListener();
 
         // This listens for any 'change' in the child that's been selected ('coords')
-        ChildEventListener childEventListener = new ChildEventListener() {
+        ChildEventListener specificChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                String justAddedID = dataSnapshot.getRef().getParent().getKey();
+
+                Log.wtf("GPS", "SINGLE ADDED" + justAddedID);
 
                 // This takes the data from the database and converts it into a Java object
                 HashMap data = (HashMap) dataSnapshot.getValue();
@@ -178,28 +192,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .icon(currentLocationIcon));
 
 
-                if(markers.size() > 0){
+                if(myMarkers.size() > 0){
 
-                    LatLng previousLocation = markers.get(markers.size() - 1).getPosition();
+                    LatLng previousLocation = myMarkers.get(myMarkers.size() - 1).getPosition();
 
-                    currentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
+                    myCurrentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
                             .add(previousLocation, currentLocation)
                             .width(5)
                             .color(Color.RED));
 
-                    polyLines.add(currentPolyLine);
+                    myPolyLines.add(myCurrentPolyLine);
                 }
 
-                // Add the marker to an array containing all markers
-                markers.add(newMarker);
+                // Add the marker to an array containing all myMarkers
+                myMarkers.add(newMarker);
 
                 // This makes sure only the most recent marker has the 'current' icon
-                if (markers.size() > 0){
+                if (myMarkers.size() > 0){
 
-                    for (int i = 0; i < markers.size() - 1; i++){
+                    for (int i = 0; i < myMarkers.size() - 1; i++){
 
-                        // markers.get(i).setIcon(beachFlag);
-                        markers.get(i).setVisible(false);
+                        // myMarkers.get(i).setIcon(beachFlag);
+                        myMarkers.get(i).setVisible(false);
 
                     }
                 }
@@ -213,7 +227,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                String justAddedID = dataSnapshot.getRef().getParent().getKey();
 
+                Log.wtf("GPS", "SINGLE CHANGED" + justAddedID);
             }
 
             @Override
@@ -222,10 +238,100 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Testing again. If children are removed, take everything off of the map
                 googleMapGlobal.clear();
 
-                // Remove all markers
-                markers = new ArrayList<>();
+                // Remove all myMarkers
+                myMarkers = new ArrayList<>();
 
-                polyLines = new ArrayList<>();
+                myPolyLines = new ArrayList<>();
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+
+        ChildEventListener everyChildEventListener = new ChildEventListener() {
+
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String justAddedID = dataSnapshot.getRef().getKey();
+
+                Log.wtf("GPS", justAddedID);
+
+                // If added ID is different
+                if (!justAddedID.equals(CURRENT_ID)){
+                    Log.wtf("GPS", "EVERY ADDED" + justAddedID);
+
+                    // This takes the data from the database and converts it into a Java object
+                    HashMap data = (HashMap) dataSnapshot.getValue();
+
+                    // Gets individual values from the HashMap
+                    assert data != null;
+                    double lat = (double) data.get("lat");
+                    double lon = (double) data.get("long");
+                    // double time = (double) data.get("time"); // Not used yet
+
+                    LatLng currentLocation = new LatLng(lat, lon);
+
+                    // Image file
+                    BitmapDescriptor currentLocationIcon = fromResource(R.drawable.current);
+                    BitmapDescriptor beachFlag = fromResource(R.drawable.beachflag);
+
+
+                    // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
+                    Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
+                            .position(currentLocation)
+                            .icon(currentLocationIcon));
+
+
+                    if(theirMarkers.size() > 0){
+
+                        LatLng previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+
+                        myCurrentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
+                                .add(previousLocation, currentLocation)
+                                .width(5)
+                                .color(Color.BLUE));
+
+                        theirPolyLines.add(myCurrentPolyLine);
+                    }
+
+                    // Add the marker to an array containing all myMarkers
+                    theirMarkers.add(newMarker);
+
+                    // This makes sure only the most recent marker has the 'current' icon
+                    if (theirMarkers.size() > 0){
+
+                        for (int i = 0; i < theirMarkers.size() - 1; i++){
+
+                            // myMarkers.get(i).setIcon(beachFlag);
+                            theirMarkers.get(i).setVisible(false);
+
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                String justAddedID = dataSnapshot.getRef().getKey();
+
+                // If added ID is different
+                if (!justAddedID.equals(CURRENT_ID)){
+                    Log.wtf("GPS", "EVERY CHANGED" + justAddedID);
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
             }
 
@@ -241,7 +347,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
         // Attaches the above listener to the DB reference
-        databaseReference.addChildEventListener(childEventListener);
+        deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
+
+        allDevicesDatabaseReference.addChildEventListener(everyChildEventListener);
 
         // Unsure which minTime and minDistance values work best
         // minTime is in milliseconds, distance in meters
@@ -312,7 +420,7 @@ class PostData extends AsyncTask<String, Void, Void> {
         String jsonData = strings[0];
         String id = strings[1];
 
-        String url = "https://gps-app-c31df.firebaseio.com/coords/" + id + ".json";
+        String url = "https://gps-app-c31df.firebaseio.com/" + id + ".json";
 
 
         // Builds a request then POSTs to Firebase
