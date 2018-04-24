@@ -51,7 +51,6 @@ import static com.watshout.face.MainActivity.gpsStatus;
 
 
 /*
-
 ===================================
 Welcome to the GPS app source code!
 
@@ -64,7 +63,6 @@ implemented methods for various methods
 like the maps and Firebase things, etc.
 
 ====================================
-
  */
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
