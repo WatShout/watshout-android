@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     List<Polyline> theirPolyLines = new ArrayList<>();
 
     Polyline myCurrentPolyLine;
+    Polyline theirCurrentPolyLine;
 
     String CURRENT_ID;
 
@@ -179,6 +181,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 double lon = (double) data.get("long");
                 // double time = (double) data.get("time"); // Not used yet
 
+                addMarker(lat, lon, myMarkers, myPolyLines, myCurrentPolyLine,
+                        Color.RED);
+
+                /*
+
                 LatLng currentLocation = new LatLng(lat, lon);
 
                 // Image file
@@ -218,9 +225,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
 
-                float zoom = 14;
+
+
+                float zoom = 1;
                 googleMapGlobal.moveCamera(CameraUpdateFactory
                         .newLatLngZoom(currentLocation, zoom));
+
+              */
 
 
             }
@@ -263,60 +274,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String justAddedID = dataSnapshot.getRef().getKey();
 
-                Log.wtf("GPS", justAddedID);
+                ArrayList<Double> lats = new ArrayList<>();
+                ArrayList<Double> longs = new ArrayList<>();
 
-                // If added ID is different
-                if (!justAddedID.equals(CURRENT_ID)){
-                    Log.wtf("GPS", "EVERY ADDED" + justAddedID);
+                if (!justAddedID.equals(CURRENT_ID)) {
 
-                    // This takes the data from the database and converts it into a Java object
                     HashMap data = (HashMap) dataSnapshot.getValue();
 
-                    // Gets individual values from the HashMap
                     assert data != null;
-                    double lat = (double) data.get("lat");
-                    double lon = (double) data.get("long");
-                    // double time = (double) data.get("time"); // Not used yet
+                    Set children = data.keySet();
 
-                    LatLng currentLocation = new LatLng(lat, lon);
+                    for (Object child : children){
 
-                    // Image file
-                    BitmapDescriptor currentLocationIcon = fromResource(R.drawable.current);
-                    BitmapDescriptor beachFlag = fromResource(R.drawable.beachflag);
+                        HashMap currentData = (HashMap) dataSnapshot.child(child.toString()).getValue();
 
+                        assert currentData != null;
+                        double lat = (double) currentData.get("lat");
+                        double lon = (double) currentData.get("long");
 
-                    // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
-                    Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
-                            .position(currentLocation)
-                            .icon(currentLocationIcon));
+                        lats.add(lat);
+                        longs.add(lon);
 
 
-                    if(theirMarkers.size() > 0){
+                        addMarker(lat, lon, theirMarkers, theirPolyLines, theirCurrentPolyLine,
+                                Color.BLUE);
 
-                        LatLng previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
-
-                        myCurrentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
-                                .add(previousLocation, currentLocation)
-                                .width(5)
-                                .color(Color.BLUE));
-
-                        theirPolyLines.add(myCurrentPolyLine);
                     }
 
-                    // Add the marker to an array containing all myMarkers
-                    theirMarkers.add(newMarker);
-
-                    // This makes sure only the most recent marker has the 'current' icon
-                    if (theirMarkers.size() > 0){
-
-                        for (int i = 0; i < theirMarkers.size() - 1; i++){
-
-                            // myMarkers.get(i).setIcon(beachFlag);
-                            theirMarkers.get(i).setVisible(false);
-
-                        }
-                    }
                 }
+
             }
 
             @Override
@@ -357,6 +343,52 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationManager.requestLocationUpdates(LocationManager
                 .GPS_PROVIDER, 5000, 3, locationListener);
 
+
+    }
+
+    public void addMarker(double lat, double lon, List<Marker> markers,
+                          List<Polyline> polylines, Polyline currentPolyLine, int color){
+
+        LatLng currentLocation = new LatLng(lat, lon);
+
+        BitmapDescriptor currentLocationIcon = fromResource(R.drawable.current);
+        BitmapDescriptor beachFlag = fromResource(R.drawable.beachflag);
+
+        // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
+        Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
+                .position(currentLocation)
+                .icon(currentLocationIcon));
+
+
+        if(markers.size() > 0){
+
+            LatLng previousLocation = markers.get(markers.size() - 1).getPosition();
+
+            currentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
+                    .add(previousLocation, currentLocation)
+                    .width(5)
+                    .color(color));
+
+            polylines.add(currentPolyLine);
+        }
+
+        // Add the marker to an array containing all myMarkers
+        markers.add(newMarker);
+
+        // This makes sure only the most recent marker has the 'current' icon
+        if (markers.size() > 0){
+
+            for (int i = 0; i < markers.size() - 1; i++){
+
+                // myMarkers.get(i).setIcon(beachFlag);
+                markers.get(i).setVisible(false);
+
+            }
+        }
+
+        float zoom = 1;
+        googleMapGlobal.moveCamera(CameraUpdateFactory
+                .newLatLngZoom(currentLocation, zoom));
 
     }
 
