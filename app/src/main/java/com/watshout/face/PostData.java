@@ -31,7 +31,6 @@ class PostData extends AsyncTask<String, Void, Void> {
 
         String url = "https://gps-app-c31df.firebaseio.com/" + id + ".json";
 
-
         // Builds a request then POSTs to Firebase
         RequestBody body = RequestBody.create(JSON, jsonData);
         Request request = new Request.Builder()
