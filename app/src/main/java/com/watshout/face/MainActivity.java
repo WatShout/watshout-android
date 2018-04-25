@@ -36,6 +36,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -180,62 +181,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 Log.wtf("GPS", "SINGLE ADDED" + printMe);
 
-                LatLng currentLocation = addMarker(lat, lon, myMarkers, myPolyLines, myCurrentPolyLine,
+                LatLng currentLocation = addMarker(lat, lon, myMarkers, myPolyLines,
                         Color.RED);
 
                 float zoom = 1;
                 googleMapGlobal.moveCamera(CameraUpdateFactory
                         .newLatLngZoom(currentLocation, zoom));
-
-                /*
-
-                LatLng currentLocation = new LatLng(lat, lon);
-
-                // Image file
-                BitmapDescriptor currentLocationIcon = fromResource(R.drawable.current);
-                BitmapDescriptor beachFlag = fromResource(R.drawable.beachflag);
-
-
-                // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
-                Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
-                        .position(currentLocation)
-                        .icon(currentLocationIcon));
-
-
-                if(myMarkers.size() > 0){
-
-                    LatLng previousLocation = myMarkers.get(myMarkers.size() - 1).getPosition();
-
-                    myCurrentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
-                            .add(previousLocation, currentLocation)
-                            .width(5)
-                            .color(Color.RED));
-
-                    myPolyLines.add(myCurrentPolyLine);
-                }
-
-                // Add the marker to an array containing all myMarkers
-                myMarkers.add(newMarker);
-
-                // This makes sure only the most recent marker has the 'current' icon
-                if (myMarkers.size() > 0){
-
-                    for (int i = 0; i < myMarkers.size() - 1; i++){
-
-                        // myMarkers.get(i).setIcon(beachFlag);
-                        myMarkers.get(i).setVisible(false);
-
-                    }
-                }
-
-
-
-                float zoom = 1;
-                googleMapGlobal.moveCamera(CameraUpdateFactory
-                        .newLatLngZoom(currentLocation, zoom));
-
-              */
-
 
             }
 
@@ -302,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         longs.add(lon);
 
 
-                        LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines, theirCurrentPolyLine,
+                        LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines,
                                 Color.BLUE);
 
                     }
@@ -323,25 +274,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     HashMap data = (HashMap) dataSnapshot.getValue();
 
+                    for (DataSnapshot direction: dataSnapshot.getChildren()) {
+                        Log.wtf("GPS", direction.getValue().toString());
+                    }
+
                     assert data != null;
                     Set children = data.keySet();
 
+
                     for (Object child : children){
 
-                        HashMap currentData = (HashMap) dataSnapshot.child(child.toString()).getValue();
+                        HashMap currentData = (HashMap) dataSnapshot
+                                .child(child.toString())
+                                .getValue();
+
+                        //Log.wtf("GPS", "CURRENT" + currentData.toString());
 
                         assert currentData != null;
                         double lat = (double) currentData.get("lat");
                         double lon = (double) currentData.get("long");
 
                         String printMe = ": " + justAddedID + "\nLat: " + Double.toString(lat) + "\nLong: " + Double.toString(lon);
-                        Log.wtf("GPS", "EVERY CHANGED" + printMe);
+                        //Log.wtf("GPS", "EVERY CHANGED" + printMe);
 
                         lats.add(lat);
                         longs.add(lon);
 
 
-                        LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines, theirCurrentPolyLine,
+                        LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines,
                                 Color.BLUE);
 
                     }
@@ -352,6 +312,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
 
+                // Testing again. If children are removed, take everything off of the map
+                googleMapGlobal.clear();
+
+                // Remove all myMarkers
+                theirMarkers = new ArrayList<>();
+                theirPolyLines = new ArrayList<>();
             }
 
             @Override
@@ -380,12 +346,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public LatLng addMarker(double lat, double lon, List<Marker> markers,
-                          List<Polyline> polylines, Polyline currentPolyLine, int color){
+                          List<Polyline> polylines, int color){
 
         LatLng currentLocation = new LatLng(lat, lon);
 
         BitmapDescriptor currentLocationIcon = fromResource(R.drawable.current);
-        BitmapDescriptor beachFlag = fromResource(R.drawable.beachflag);
 
         // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
         Marker newMarker = googleMapGlobal.addMarker(new MarkerOptions()
@@ -397,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             LatLng previousLocation = markers.get(markers.size() - 1).getPosition();
 
-            currentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
+            Polyline currentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
                     .add(previousLocation, currentLocation)
                     .width(5)
                     .color(color));
