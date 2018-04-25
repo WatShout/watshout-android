@@ -228,36 +228,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String justAddedID = dataSnapshot.getRef().getKey();
 
-                ArrayList<Double> lats = new ArrayList<>();
-                ArrayList<Double> longs = new ArrayList<>();
-
                 if (!justAddedID.equals(CURRENT_ID)) {
 
-                    HashMap data = (HashMap) dataSnapshot.getValue();
+                    for (DataSnapshot child: dataSnapshot.getChildren()) {
 
-                    assert data != null;
-                    Set children = data.keySet();
+                        HashMap current = (HashMap) child.getValue();
 
-                    for (Object child : children){
-
-                        HashMap currentData = (HashMap) dataSnapshot.child(child.toString()).getValue();
-
-                        assert currentData != null;
-                        double lat = (double) currentData.get("lat");
-                        double lon = (double) currentData.get("long");
-
-                        String printMe = ": " + justAddedID + "\nLat: " + Double.toString(lat) + "\nLong: " + Double.toString(lon);
-                        Log.wtf("GPS", "EVERY ADDED" + printMe);
-
-                        lats.add(lat);
-                        longs.add(lon);
-
+                        assert current != null;
+                        double lat = (double) current.get("lat");
+                        double lon = (double) current.get("long");
+                        //double time = (double) current.get("time");
 
                         LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines,
                                 Color.BLUE);
 
                     }
-
                 }
 
             }
@@ -267,45 +252,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 String justAddedID = dataSnapshot.getRef().getKey();
 
-                ArrayList<Double> lats = new ArrayList<>();
-                ArrayList<Double> longs = new ArrayList<>();
+                for(int i = 0; i < theirMarkers.size(); i++){
+                    Log.wtf("MARKER", theirMarkers.get(i).getPosition().toString());
+
+                    //String previ
+                }
 
                 if (!justAddedID.equals(CURRENT_ID)) {
 
-                    HashMap data = (HashMap) dataSnapshot.getValue();
+                    for (DataSnapshot child: dataSnapshot.getChildren()) {
 
-                    for (DataSnapshot direction: dataSnapshot.getChildren()) {
-                        Log.wtf("GPS", direction.getValue().toString());
-                    }
+                        HashMap current = (HashMap) child.getValue();
 
-                    assert data != null;
-                    Set children = data.keySet();
-
-
-                    for (Object child : children){
-
-                        HashMap currentData = (HashMap) dataSnapshot
-                                .child(child.toString())
-                                .getValue();
-
-                        //Log.wtf("GPS", "CURRENT" + currentData.toString());
-
-                        assert currentData != null;
-                        double lat = (double) currentData.get("lat");
-                        double lon = (double) currentData.get("long");
-
-                        String printMe = ": " + justAddedID + "\nLat: " + Double.toString(lat) + "\nLong: " + Double.toString(lon);
-                        //Log.wtf("GPS", "EVERY CHANGED" + printMe);
-
-                        lats.add(lat);
-                        longs.add(lon);
-
+                        assert current != null;
+                        double lat = (double) current.get("lat");
+                        double lon = (double) current.get("long");
+                        double time = (double) current.get("time");
 
                         LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines,
                                 Color.BLUE);
 
                     }
-
                 }
             }
 
@@ -357,8 +324,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .position(currentLocation)
                 .icon(currentLocationIcon));
 
+        // Add the marker to an array containing all myMarkers
+        markers.add(newMarker);
 
         if(markers.size() > 0){
+
+            Log.wtf("LOC_PREVIOUS", markers.get(markers.size() - 1).getPosition().toString());
+            Log.wtf("LOC_CURRENT", currentLocation.toString());
 
             LatLng previousLocation = markers.get(markers.size() - 1).getPosition();
 
@@ -370,15 +342,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             polylines.add(currentPolyLine);
         }
 
-        // Add the marker to an array containing all myMarkers
-        markers.add(newMarker);
 
         // This makes sure only the most recent marker has the 'current' icon
         if (markers.size() > 0){
 
             for (int i = 0; i < markers.size() - 1; i++){
-
-                // myMarkers.get(i).setIcon(beachFlag);
                 markers.get(i).setVisible(false);
 
             }
