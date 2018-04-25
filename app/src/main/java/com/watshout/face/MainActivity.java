@@ -167,8 +167,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 String justAddedID = dataSnapshot.getRef().getParent().getKey();
 
-                Log.wtf("GPS", "SINGLE ADDED" + justAddedID);
-
                 // This takes the data from the database and converts it into a Java object
                 HashMap data = (HashMap) dataSnapshot.getValue();
 
@@ -178,8 +176,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 double lon = (double) data.get("long");
                 // double time = (double) data.get("time"); // Not used yet
 
-                addMarker(lat, lon, myMarkers, myPolyLines, myCurrentPolyLine,
+                String printMe = ": " + justAddedID + "\nLat: " + Double.toString(lat) + "\nLong: " + Double.toString(lon);
+
+                Log.wtf("GPS", "SINGLE ADDED" + printMe);
+
+                LatLng currentLocation = addMarker(lat, lon, myMarkers, myPolyLines, myCurrentPolyLine,
                         Color.RED);
+
+                float zoom = 1;
+                googleMapGlobal.moveCamera(CameraUpdateFactory
+                        .newLatLngZoom(currentLocation, zoom));
 
                 /*
 
@@ -289,11 +295,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         double lat = (double) currentData.get("lat");
                         double lon = (double) currentData.get("long");
 
+                        String printMe = ": " + justAddedID + "\nLat: " + Double.toString(lat) + "\nLong: " + Double.toString(lon);
+                        Log.wtf("GPS", "EVERY ADDED" + printMe);
+
                         lats.add(lat);
                         longs.add(lon);
 
 
-                        addMarker(lat, lon, theirMarkers, theirPolyLines, theirCurrentPolyLine,
+                        LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines, theirCurrentPolyLine,
                                 Color.BLUE);
 
                     }
@@ -307,9 +316,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 String justAddedID = dataSnapshot.getRef().getKey();
 
-                // If added ID is different
-                if (!justAddedID.equals(CURRENT_ID)){
-                    Log.wtf("GPS", "EVERY CHANGED" + justAddedID);
+                ArrayList<Double> lats = new ArrayList<>();
+                ArrayList<Double> longs = new ArrayList<>();
+
+                if (!justAddedID.equals(CURRENT_ID)) {
+
+                    HashMap data = (HashMap) dataSnapshot.getValue();
+
+                    assert data != null;
+                    Set children = data.keySet();
+
+                    for (Object child : children){
+
+                        HashMap currentData = (HashMap) dataSnapshot.child(child.toString()).getValue();
+
+                        assert currentData != null;
+                        double lat = (double) currentData.get("lat");
+                        double lon = (double) currentData.get("long");
+
+                        String printMe = ": " + justAddedID + "\nLat: " + Double.toString(lat) + "\nLong: " + Double.toString(lon);
+                        Log.wtf("GPS", "EVERY CHANGED" + printMe);
+
+                        lats.add(lat);
+                        longs.add(lon);
+
+
+                        LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines, theirCurrentPolyLine,
+                                Color.BLUE);
+
+                    }
+
                 }
             }
 
@@ -343,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    public void addMarker(double lat, double lon, List<Marker> markers,
+    public LatLng addMarker(double lat, double lon, List<Marker> markers,
                           List<Polyline> polylines, Polyline currentPolyLine, int color){
 
         LatLng currentLocation = new LatLng(lat, lon);
@@ -383,9 +419,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        float zoom = 1;
-        googleMapGlobal.moveCamera(CameraUpdateFactory
-                .newLatLngZoom(currentLocation, zoom));
+        return currentLocation;
 
     }
 
