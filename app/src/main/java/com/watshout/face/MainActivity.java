@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
 
+        // I know global variables are bad but I have no clue how else to do this
         CURRENT_ID = getID();
-
         CurrentID.setCurrent(CURRENT_ID);
 
         // Gets a reference for THIS device
@@ -138,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Defines a 'fragment' of the activity dedicated to the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-
         mapFragment.getMapAsync(this);
 
         // Defines a location service
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // See below LocationListener class
         locationListener = new MyLocationListener();
 
-        // This listens for any 'change' in the child that's been selected ('coords')
+        // This listens for any 'change' in the child that's been selected (this specific device)
         ChildEventListener specificChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -277,13 +276,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Attaches the above listener to the DB reference
         deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
 
-        allDevicesDatabaseReference.addChildEventListener(everyChildEventListener);
-
-        //allDevicesDatabaseReference.addValueEventListener(test);
-        //Query query = allDevicesDatabaseReference.orderByKey().limitToLast(1);
-        //query.addListenerForSingleValueEvent(everyChildEventListener);
-
-        // Unsure which minTime and minDistance values work best
+        // TODO: Figure out best values for these
         // minTime is in milliseconds, distance in meters
         assert locationManager != null;
         locationManager.requestLocationUpdates(LocationManager
@@ -304,7 +297,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    // This whole function is some voodoo magic.
     public void processTheirLocation(DataSnapshot dataSnapshot){
+
         LatLng previousLocation;
 
         ArrayList<DataSnapshot> totalList = new ArrayList<>();
@@ -331,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE);
     }
+
 
     public void addMarker(double lat, double lon, List<Marker> markers,
                           LatLng previousLocation, int color){
