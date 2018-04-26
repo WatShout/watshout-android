@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     static TextView gpsStatus;
 
     // Log tags
-    final String GPS = "GPS";
+    final String GPS = "GPSDATA";
     final String DATABASE = "DATABASE";
 
     // Identifies fine location permission

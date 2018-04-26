@@ -7,6 +7,7 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -15,7 +16,7 @@ import static com.watshout.face.MainActivity.gpsStatus;
 
 class MyLocationListener implements LocationListener {
 
-    // Takes location data and turns it into JSON-like string
+    // Takes location data and (eventually) gets it into JSON format
     private String parseGPSData(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
@@ -23,43 +24,49 @@ class MyLocationListener implements LocationListener {
         double speed = location.getSpeed();
         double bearing = (double) location.getBearing();
 
-        HashMap<String, Double> allParams = new HashMap<>();
+        ArrayList<String> keys = new ArrayList<>();
+        keys.add("lat");
+        keys.add("long");
+        keys.add("time");
+        keys.add("speed");
+        keys.add("bearing");
 
-        allParams.put("lat", lat);
-        allParams.put("long", lon);
-        allParams.put("time", (double) time);
-        allParams.put("speed", speed);
-        allParams.put("bearing", bearing);
+        ArrayList<Double> values = new ArrayList<>();
+        values.add(lat);
+        values.add(lon);
+        values.add((double) time);
+        values.add(speed);
+        values.add(bearing);
 
-        Log.v("JSON", makeJSON(allParams));
+        return makeJSON(keys, values);
 
-
-        return "{\"lat\": " + lat + ", \"long\": " + lon + ", \"speed\": " + speed + ", \"time\": " + time + "}";
     }
 
-    private String makeJSON(HashMap params){
+    // Creates beautiful JSON without having to rip your hair out
+    private String makeJSON(ArrayList keys, ArrayList values){
 
         String returnMe = "{";
 
-        ArrayList keySet = (ArrayList) params.keySet();
+        if (keys.size() == values.size()){
 
-        for (int i = 0; i < params.size();  i++){
+            for (int i = 0; i < keys.size(); i++) {
 
-            String key = keySet.get(i).toString();
-            String value = params.get(key).toString();
+                String key = (String) keys.get(i);
+                double value = (double) values.get(i);
 
-            returnMe += "\"" + key + "\": " + value;
+                returnMe += "\"" + key + "\": " + value;
 
-            if (i != params.size() - 1){
-                returnMe += ", ";
+                if (i != keys.size() - 1) {
+                    returnMe += ", ";
+
+                }
             }
-
         }
 
         returnMe += "}";
 
         return returnMe;
-    };
+    }
 
     public void onLocationChanged(Location location) {
 
