@@ -33,6 +33,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,9 +84,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     List<Marker> theirMarkers = new ArrayList<>();
     List<Polyline> theirPolyLines = new ArrayList<>();
 
-    Polyline myCurrentPolyLine;
-    Polyline theirCurrentPolyLine;
-
     String CURRENT_ID;
 
     static TextView gpsStatus;
@@ -97,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     String getID() {
         return Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+                LatLng previousLocation;
+
                 String justAddedID = dataSnapshot.getRef().getParent().getKey();
 
                 // This takes the data from the database and converts it into a Java object
@@ -175,13 +175,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 assert data != null;
                 double lat = (double) data.get("lat");
                 double lon = (double) data.get("long");
-                // double time = (double) data.get("time"); // Not used yet
 
-                String printMe = ": " + justAddedID + "\nLat: " + Double.toString(lat) + "\nLong: " + Double.toString(lon);
+                if (myMarkers.size() > 0){
+                    previousLocation = myMarkers.get(myMarkers.size() - 1).getPosition();
+                } else {
+                    previousLocation = null;
+                }
 
-                Log.wtf("GPS", "SINGLE ADDED" + printMe);
-
-                LatLng currentLocation = addMarker(lat, lon, myMarkers, myPolyLines,
+                LatLng currentLocation = addMarker(lat, lon, myMarkers,
+                        previousLocation,
+                        myPolyLines,
                         Color.RED);
 
                 float zoom = 1;
@@ -221,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
-
         ChildEventListener everyChildEventListener = new ChildEventListener() {
 
             @Override
@@ -230,21 +232,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if (!justAddedID.equals(CURRENT_ID)) {
 
-                    for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    LatLng previousLocation;
 
-                        HashMap current = (HashMap) child.getValue();
+                    ArrayList<DataSnapshot> totalList = new ArrayList<>();
 
-                        assert current != null;
-                        double lat = (double) current.get("lat");
-                        double lon = (double) current.get("long");
-                        //double time = (double) current.get("time");
+                    Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
 
-                        LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines,
-                                Color.BLUE);
-
+                    if(iterable != null){
+                        for(DataSnapshot ds : iterable){
+                            totalList.add(ds);
+                        }
                     }
-                }
 
+                    HashMap latest = (HashMap) totalList.get(totalList.size() - 1).getValue();
+
+                    assert latest != null;
+                    double lat = (double) latest.get("lat");
+                    double lon = (double) latest.get("long");
+
+                    if (theirMarkers.size() > 0){
+                        previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+                    } else {
+                        previousLocation = null;
+                    }
+
+                    LatLng currentLocation = addMarker(lat, lon, theirMarkers,
+                            previousLocation,
+                            theirPolyLines,
+                            Color.BLUE);
+
+                }
             }
 
             @Override
@@ -252,27 +269,37 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 String justAddedID = dataSnapshot.getRef().getKey();
 
-                for(int i = 0; i < theirMarkers.size(); i++){
-                    Log.wtf("MARKER", theirMarkers.get(i).getPosition().toString());
-
-                    //String previ
-                }
-
                 if (!justAddedID.equals(CURRENT_ID)) {
 
-                    for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    LatLng previousLocation;
 
-                        HashMap current = (HashMap) child.getValue();
+                    ArrayList<DataSnapshot> totalList = new ArrayList<>();
 
-                        assert current != null;
-                        double lat = (double) current.get("lat");
-                        double lon = (double) current.get("long");
-                        double time = (double) current.get("time");
+                    Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
 
-                        LatLng currentLocation = addMarker(lat, lon, theirMarkers, theirPolyLines,
-                                Color.BLUE);
-
+                    if(iterable != null){
+                        for(DataSnapshot ds : iterable){
+                            totalList.add(ds);
+                        }
                     }
+
+                    HashMap latest = (HashMap) totalList.get(totalList.size() - 1).getValue();
+
+                    assert latest != null;
+                    double lat = (double) latest.get("lat");
+                    double lon = (double) latest.get("long");
+
+                    if (theirMarkers.size() > 0){
+                        previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+                    } else {
+                        previousLocation = null;
+                    }
+
+                    LatLng currentLocation = addMarker(lat, lon, theirMarkers,
+                            previousLocation,
+                            theirPolyLines,
+                            Color.BLUE);
+
                 }
             }
 
@@ -298,10 +325,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
+
         // Attaches the above listener to the DB reference
         deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
 
         allDevicesDatabaseReference.addChildEventListener(everyChildEventListener);
+
+        //allDevicesDatabaseReference.addValueEventListener(test);
+        //Query query = allDevicesDatabaseReference.orderByKey().limitToLast(1);
+        //query.addListenerForSingleValueEvent(everyChildEventListener);
 
         // Unsure which minTime and minDistance values work best
         // minTime is in milliseconds, distance in meters
@@ -313,6 +345,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public LatLng addMarker(double lat, double lon, List<Marker> markers,
+                          LatLng previousLocation,
                           List<Polyline> polylines, int color){
 
         LatLng currentLocation = new LatLng(lat, lon);
@@ -327,12 +360,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Add the marker to an array containing all myMarkers
         markers.add(newMarker);
 
+        if (previousLocation == null){
+            previousLocation = currentLocation;
+        }
+
         if(markers.size() > 0){
-
-            Log.wtf("LOC_PREVIOUS", markers.get(markers.size() - 1).getPosition().toString());
-            Log.wtf("LOC_CURRENT", currentLocation.toString());
-
-            LatLng previousLocation = markers.get(markers.size() - 1).getPosition();
 
             Polyline currentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
                     .add(previousLocation, currentLocation)
@@ -396,4 +428,3 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 }
-
