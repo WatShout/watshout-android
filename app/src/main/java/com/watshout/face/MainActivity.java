@@ -4,11 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
@@ -16,6 +13,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,31 +25,18 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
-import static com.watshout.face.MainActivity.gpsStatus;
 
 
 /*
@@ -77,16 +63,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     DatabaseReference allDevicesDatabaseReference;
     GoogleMap googleMapGlobal;
     LatLng home;
-
-    List<Marker> myMarkers = new ArrayList<>();
-    List<Polyline> myPolyLines = new ArrayList<>();
-
-    List<Marker> theirMarkers = new ArrayList<>();
-    List<Polyline> theirPolyLines = new ArrayList<>();
-
     String CURRENT_ID;
+    List<Marker> myMarkers = new ArrayList<>();
+    List<Marker> theirMarkers = new ArrayList<>();
 
+    // Find a better solution for this
     static TextView gpsStatus;
+
+    // Log tags
+    final String GPS = "GPS";
+    final String DATABASE = "DATABASE";
 
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
@@ -125,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         gpsStatus = findViewById(R.id.gps);
 
+        Button resize = findViewById(R.id.size);
+
         // Removes the top bar on top of the map
         getSupportActionBar().hide();
 
@@ -135,13 +123,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         CurrentID.setCurrent(CURRENT_ID);
 
-        // It will help to look at the Firebase DB. This gets a reference to the
-        // 'coords' directory I've made
+        // Gets a reference for THIS device
         deviceSpecificDatabaseReference = FirebaseDatabase
                 .getInstance()
                 .getReference()
                 .child(CurrentID.getCurrent());
 
+        // Gets a reference for ALL devices (including this one)
         allDevicesDatabaseReference = FirebaseDatabase
                 .getInstance()
                 .getReference();
@@ -150,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Defines a 'fragment' of the activity dedicated to the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
         mapFragment.getMapAsync(this);
 
         // Defines a location service
@@ -164,9 +153,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                LatLng previousLocation;
-
                 String justAddedID = dataSnapshot.getRef().getParent().getKey();
+
+                Log.v(DATABASE, "THIS ADDED: " + justAddedID);
+
+                LatLng previousLocation;
 
                 // This takes the data from the database and converts it into a Java object
                 HashMap data = (HashMap) dataSnapshot.getValue();
@@ -182,34 +173,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     previousLocation = null;
                 }
 
-                LatLng currentLocation = addMarker(lat, lon, myMarkers,
-                        previousLocation,
-                        myPolyLines,
-                        Color.RED);
+                addMarker(lat, lon, myMarkers, previousLocation, Color.RED);
+
+                LatLng currentLocation = new LatLng(lat, lon);
 
                 float zoom = 1;
                 googleMapGlobal.moveCamera(CameraUpdateFactory
                         .newLatLngZoom(currentLocation, zoom));
 
+
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
                 String justAddedID = dataSnapshot.getRef().getParent().getKey();
 
-                Log.wtf("GPS", "SINGLE CHANGED" + justAddedID);
+                Log.v(DATABASE, "THIS CHANGED: " + justAddedID);
+
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                String justAddedID = dataSnapshot.getRef().getParent().getKey();
+
+                Log.v(DATABASE, "THIS REMOVED: " + justAddedID);
 
                 // Testing again. If children are removed, take everything off of the map
                 googleMapGlobal.clear();
 
                 // Remove all myMarkers
                 myMarkers = new ArrayList<>();
-
-                myPolyLines = new ArrayList<>();
 
             }
 
@@ -232,34 +227,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if (!justAddedID.equals(CURRENT_ID)) {
 
-                    LatLng previousLocation;
+                    Log.v(DATABASE, "THAT ADDED: " + justAddedID);
 
-                    ArrayList<DataSnapshot> totalList = new ArrayList<>();
-
-                    Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
-
-                    if(iterable != null){
-                        for(DataSnapshot ds : iterable){
-                            totalList.add(ds);
-                        }
-                    }
-
-                    HashMap latest = (HashMap) totalList.get(totalList.size() - 1).getValue();
-
-                    assert latest != null;
-                    double lat = (double) latest.get("lat");
-                    double lon = (double) latest.get("long");
-
-                    if (theirMarkers.size() > 0){
-                        previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
-                    } else {
-                        previousLocation = null;
-                    }
-
-                    LatLng currentLocation = addMarker(lat, lon, theirMarkers,
-                            previousLocation,
-                            theirPolyLines,
-                            Color.BLUE);
+                    processTheirLocation(dataSnapshot);
 
                 }
             }
@@ -271,34 +241,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if (!justAddedID.equals(CURRENT_ID)) {
 
-                    LatLng previousLocation;
+                    Log.v(DATABASE, "THAT CHANGED: " + justAddedID);
 
-                    ArrayList<DataSnapshot> totalList = new ArrayList<>();
-
-                    Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
-
-                    if(iterable != null){
-                        for(DataSnapshot ds : iterable){
-                            totalList.add(ds);
-                        }
-                    }
-
-                    HashMap latest = (HashMap) totalList.get(totalList.size() - 1).getValue();
-
-                    assert latest != null;
-                    double lat = (double) latest.get("lat");
-                    double lon = (double) latest.get("long");
-
-                    if (theirMarkers.size() > 0){
-                        previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
-                    } else {
-                        previousLocation = null;
-                    }
-
-                    LatLng currentLocation = addMarker(lat, lon, theirMarkers,
-                            previousLocation,
-                            theirPolyLines,
-                            Color.BLUE);
+                    processTheirLocation(dataSnapshot);
 
                 }
             }
@@ -306,12 +251,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
 
+                String justAddedID = dataSnapshot.getRef().getParent().getKey();
+
+                Log.v(DATABASE, "THAT REMOVED: " + justAddedID);
+
                 // Testing again. If children are removed, take everything off of the map
                 googleMapGlobal.clear();
 
                 // Remove all myMarkers
                 theirMarkers = new ArrayList<>();
-                theirPolyLines = new ArrayList<>();
             }
 
             @Override
@@ -342,11 +290,50 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .GPS_PROVIDER, 5000, 3, locationListener);
 
 
+        resize.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                LatLng friendLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+
+                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        friendLocation, 1));
+            }
+        });
+
+
     }
 
-    public LatLng addMarker(double lat, double lon, List<Marker> markers,
-                          LatLng previousLocation,
-                          List<Polyline> polylines, int color){
+    public void processTheirLocation(DataSnapshot dataSnapshot){
+        LatLng previousLocation;
+
+        ArrayList<DataSnapshot> totalList = new ArrayList<>();
+
+        Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
+
+        if(iterable != null){
+            for(DataSnapshot ds : iterable){
+                totalList.add(ds);
+            }
+        }
+
+        HashMap latest = (HashMap) totalList.get(totalList.size() - 1).getValue();
+
+        assert latest != null;
+        double lat = (double) latest.get("lat");
+        double lon = (double) latest.get("long");
+
+        if (theirMarkers.size() > 0){
+            previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+        } else {
+            previousLocation = null;
+        }
+
+            addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE);
+    }
+
+    public void addMarker(double lat, double lon, List<Marker> markers,
+                          LatLng previousLocation, int color){
 
         LatLng currentLocation = new LatLng(lat, lon);
 
@@ -366,26 +353,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if(markers.size() > 0){
 
-            Polyline currentPolyLine = googleMapGlobal.addPolyline(new PolylineOptions()
+            googleMapGlobal.addPolyline(new PolylineOptions()
                     .add(previousLocation, currentLocation)
                     .width(5)
                     .color(color));
 
-            polylines.add(currentPolyLine);
         }
-
 
         // This makes sure only the most recent marker has the 'current' icon
         if (markers.size() > 0){
 
             for (int i = 0; i < markers.size() - 1; i++){
                 markers.get(i).setVisible(false);
-
             }
         }
-
-        return currentLocation;
-
     }
 
     // This is from StackOverflow too

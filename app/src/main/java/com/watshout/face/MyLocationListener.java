@@ -7,6 +7,10 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+
 import static com.watshout.face.MainActivity.gpsStatus;
 
 class MyLocationListener implements LocationListener {
@@ -15,10 +19,47 @@ class MyLocationListener implements LocationListener {
     private String parseGPSData(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
-        double time = location.getTime();
+        long time = location.getTime();
+        double speed = location.getSpeed();
+        double bearing = (double) location.getBearing();
 
-        return "{\"lat\": " + lat + ", \"long\": " + lon + ", \"time\": " + time + "}";
+        HashMap<String, Double> allParams = new HashMap<>();
+
+        allParams.put("lat", lat);
+        allParams.put("long", lon);
+        allParams.put("time", (double) time);
+        allParams.put("speed", speed);
+        allParams.put("bearing", bearing);
+
+        Log.v("JSON", makeJSON(allParams));
+
+
+        return "{\"lat\": " + lat + ", \"long\": " + lon + ", \"speed\": " + speed + ", \"time\": " + time + "}";
     }
+
+    private String makeJSON(HashMap params){
+
+        String returnMe = "{";
+
+        ArrayList keySet = (ArrayList) params.keySet();
+
+        for (int i = 0; i < params.size();  i++){
+
+            String key = keySet.get(i).toString();
+            String value = params.get(key).toString();
+
+            returnMe += "\"" + key + "\": " + value;
+
+            if (i != params.size() - 1){
+                returnMe += ", ";
+            }
+
+        }
+
+        returnMe += "}";
+
+        return returnMe;
+    };
 
     public void onLocationChanged(Location location) {
 
