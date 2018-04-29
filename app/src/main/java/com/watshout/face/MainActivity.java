@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     Log.v(DATABASE, "THAT ADDED: " + justAddedID);
 
-                    processTheirLocation(dataSnapshot);
+                    processTheirLocation(dataSnapshot, true);
 
                 }
             }
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     Log.v(DATABASE, "THAT CHANGED: " + justAddedID);
 
-                    processTheirLocation(dataSnapshot);
+                    processTheirLocation(dataSnapshot, false);
 
                 }
             }
@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // This whole function is some voodoo magic.
-    public void processTheirLocation(DataSnapshot dataSnapshot){
+    public void processTheirLocation(DataSnapshot dataSnapshot, Boolean alreadyExists){
 
         LatLng previousLocation;
 
@@ -312,19 +312,40 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        HashMap latest = (HashMap) totalList.get(totalList.size() - 1).getValue();
+        if (!alreadyExists){
+            HashMap latest = (HashMap) totalList.get(totalList.size() - 1).getValue();
 
-        assert latest != null;
-        double lat = (double) latest.get("lat");
-        double lon = (double) latest.get("long");
+            assert latest != null;
+            double lat = (double) latest.get("lat");
+            double lon = (double) latest.get("long");
 
-        if (theirMarkers.size() > 0){
-            previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
-        } else {
-            previousLocation = null;
-        }
+            if (theirMarkers.size() > 0){
+                previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+            } else {
+                previousLocation = null;
+            }
 
             addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE);
+        } else {
+
+            for (DataSnapshot ds : totalList){
+
+                HashMap current = (HashMap) ds.getValue();
+
+                assert current != null;
+                double lat = (double) current.get("lat");
+                double lon = (double) current.get("long");
+
+                if (theirMarkers.size() > 0){
+                    previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+                } else {
+                    previousLocation = null;
+                }
+
+                addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE);
+
+            }
+        }
     }
 
 
