@@ -7,6 +7,9 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,7 +85,17 @@ class MyLocationListener implements LocationListener {
 
         String id = CurrentID.getCurrent();
 
-        post.execute(data, id);
+
+        LocationData test = new LocationData(location.getLatitude(), location.getLongitude());
+
+        DatabaseReference thisDB = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child(CurrentID.getCurrent());
+
+        thisDB.push().setValue(test);
+
+        //post.execute(data, id);
 
         Log.v("GPSDATA", message);
 

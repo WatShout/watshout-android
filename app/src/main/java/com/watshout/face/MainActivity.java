@@ -147,6 +147,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // See below LocationListener class
         locationListener = new MyLocationListener();
 
+        ChildEventListener test = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                HashMap data = (HashMap) dataSnapshot.getValue();
+
+                Log.e("DATA", data.toString());
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        deviceSpecificDatabaseReference.addChildEventListener(test);
+
         // This listens for any 'change' in the child that's been selected (this specific device)
         ChildEventListener specificChildEventListener = new ChildEventListener() {
             @Override
@@ -274,7 +307,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         // Attaches the above listener to the DB reference
-        deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
+        //deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
+
+        //allDevicesDatabaseReference.addChildEventListener(everyChildEventListener);
 
         // TODO: Figure out best values for these
         // minTime is in milliseconds, distance in meters
