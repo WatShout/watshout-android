@@ -93,9 +93,9 @@ class MyLocationListener implements LocationListener {
                 .getReference()
                 .child(CurrentID.getCurrent());
 
-        thisDB.push().setValue(test);
+        //thisDB.push().setValue(test);
 
-        //post.execute(data, id);
+        post.execute(data, id);
 
         Log.v("GPSDATA", message);
 

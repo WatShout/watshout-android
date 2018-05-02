@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
-        deviceSpecificDatabaseReference.addChildEventListener(test);
+        //deviceSpecificDatabaseReference.addChildEventListener(test);
 
         // This listens for any 'change' in the child that's been selected (this specific device)
         ChildEventListener specificChildEventListener = new ChildEventListener() {
@@ -307,9 +307,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         // Attaches the above listener to the DB reference
-        //deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
+        deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
 
-        //allDevicesDatabaseReference.addChildEventListener(everyChildEventListener);
+        allDevicesDatabaseReference.addChildEventListener(everyChildEventListener);
 
         // TODO: Figure out best values for these
         // minTime is in milliseconds, distance in meters
