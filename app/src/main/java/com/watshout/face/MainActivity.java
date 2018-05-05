@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Find a better solution for this
     static TextView gpsStatus;
+    static TextView speed;
 
     // Log tags
     final String GPS = "GPSDATA";
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         gpsStatus = findViewById(R.id.gps);
+        speed = findViewById(R.id.speed);
 
         Button resize = findViewById(R.id.size);
 
@@ -353,6 +355,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             assert latest != null;
             double lat = (double) latest.get("lat");
             double lon = (double) latest.get("long");
+            double speed = (double) latest.get("speed");
 
             if (theirMarkers.size() > 0){
                 previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
@@ -370,6 +373,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 assert current != null;
                 double lat = (double) current.get("lat");
                 double lon = (double) current.get("long");
+                double speed = (double) current.get("speed");
 
                 if (theirMarkers.size() > 0){
                     previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();

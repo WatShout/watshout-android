@@ -17,9 +17,9 @@
         android:id="@+id/gps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/map"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"
+        android:layout_marginBottom="119dp"
         android:text="GPS DISCONNECTED"
         android:textColor="@color/colorAccent" />
 
@@ -31,6 +31,24 @@
         android:layout_centerHorizontal="true"
         android:text="Find Friend"
         android:textSize="6sp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="85dp"
+        android:text="Current Speed:" />
+
+    <TextView
+        android:id="@+id/speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-85dp"
+        android:text="0.0" />
 
 
 </RelativeLayout>
