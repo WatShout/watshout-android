@@ -85,7 +85,6 @@ class MyLocationListener implements LocationListener {
 
         String id = CurrentID.getCurrent();
 
-
         LocationData test = new LocationData(location.getLatitude(), location.getLongitude());
 
         DatabaseReference thisDB = FirebaseDatabase
