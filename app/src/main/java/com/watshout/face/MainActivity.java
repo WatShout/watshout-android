@@ -6,9 +6,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -31,10 +33,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
 
@@ -77,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
+
+    // HashMap that stores all OTHER devices
+    HashMap<String, ArrayList> otherDevices = new HashMap();
+    List<String> deviceList = new ArrayList<>();
 
     // Gets a unique hardware ID for a device
     @SuppressLint("HardwareIds")
@@ -137,6 +145,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .getReference();
 
 
+        allDevicesDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+                    deviceList.add(Objects.requireNonNull(childSnapshot.getKey()));
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        for (int i = 0; i < deviceList.size(); i++){
+
+                /* Dictionary that keeps track of every device
+                    deviceDict = {
+                                0                1                  2
+                    deviceID = [[Marker Values],[Co-Ordinate Value],[Test]]
+
+                    }
+                */
+
+            ArrayList<ArrayList> currentLists = new ArrayList<>();
+
+            ArrayList<Marker> markers = new ArrayList<>();
+            ArrayList<LatLng> coords = new ArrayList<>();
+
+            currentLists.add(markers);
+            currentLists.add(coords);
+
+            otherDevices.put(deviceList.get(i), currentLists);
+        }
+
         // Defines a 'fragment' of the activity dedicated to the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -148,39 +194,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // See below LocationListener class
         locationListener = new MyLocationListener();
-
-        ChildEventListener test = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                HashMap data = (HashMap) dataSnapshot.getValue();
-
-                Log.e("DATA", data.toString());
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-
-        //deviceSpecificDatabaseReference.addChildEventListener(test);
 
         // This listens for any 'change' in the child that's been selected (this specific device)
         ChildEventListener specificChildEventListener = new ChildEventListener() {
@@ -207,15 +220,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     previousLocation = null;
                 }
 
-                addMarker(lat, lon, myMarkers, previousLocation, Color.RED);
+                addMarker(lat, lon, myMarkers, previousLocation, Color.RED, CURRENT_ID);
 
                 LatLng currentLocation = new LatLng(lat, lon);
 
                 float zoom = 1;
                 googleMapGlobal.moveCamera(CameraUpdateFactory
                         .newLatLngZoom(currentLocation, zoom));
-
-
             }
 
             @Override
@@ -263,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     Log.v(DATABASE, "THAT ADDED: " + justAddedID);
 
-                    processTheirLocation(dataSnapshot, true);
+                    processTheirLocation(dataSnapshot, true, justAddedID);
 
                 }
             }
@@ -277,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     Log.v(DATABASE, "THAT CHANGED: " + justAddedID);
 
-                    processTheirLocation(dataSnapshot, false);
+                    processTheirLocation(dataSnapshot, false, justAddedID);
 
                 }
             }
@@ -335,7 +346,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // This whole function is some voodoo magic.
-    public void processTheirLocation(DataSnapshot dataSnapshot, Boolean alreadyExists){
+    public void processTheirLocation(DataSnapshot dataSnapshot, Boolean alreadyExists, String ID){
+
+        if(!deviceList.contains(ID)) {
+
+            ArrayList<ArrayList> currentLists = new ArrayList<>();
+
+            ArrayList<Marker> markers = new ArrayList<>();
+            ArrayList<LatLng> coords = new ArrayList<>();
+
+            currentLists.add(markers);
+            currentLists.add(coords);
+
+            otherDevices.put(ID, currentLists);
+
+        }
 
         LatLng previousLocation;
 
@@ -363,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 previousLocation = null;
             }
 
-            addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE);
+            addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE, ID);
         } else {
 
             for (DataSnapshot ds : totalList){
@@ -381,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     previousLocation = null;
                 }
 
-                addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE);
+                addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE, ID);
 
             }
         }
@@ -389,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     public void addMarker(double lat, double lon, List<Marker> markers,
-                          LatLng previousLocation, int color){
+                          LatLng previousLocation, int color, String ID){
 
         LatLng currentLocation = new LatLng(lat, lon);
 
@@ -400,29 +425,66 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .position(currentLocation)
                 .icon(currentLocationIcon));
 
-        // Add the marker to an array containing all myMarkers
-        markers.add(newMarker);
 
-        if (previousLocation == null){
-            previousLocation = currentLocation;
-        }
+        if(ID.equals(CURRENT_ID)){
+            myMarkers.add(newMarker);
 
-        if(markers.size() > 0){
+            // Add the marker to an array containing all myMarkers
+            //markers.add(newMarker);
 
-            googleMapGlobal.addPolyline(new PolylineOptions()
-                    .add(previousLocation, currentLocation)
-                    .width(5)
-                    .color(color));
+            if (previousLocation == null){
+                previousLocation = currentLocation;
+            }
 
-        }
+            if(markers.size() > 0){
 
-        // This makes sure only the most recent marker has the 'current' icon
-        if (markers.size() > 0){
+                googleMapGlobal.addPolyline(new PolylineOptions()
+                        .add(previousLocation, currentLocation)
+                        .width(5)
+                        .color(color));
 
-            for (int i = 0; i < markers.size() - 1; i++){
-                markers.get(i).setVisible(false);
+            }
+
+            // This makes sure only the most recent marker has the 'current' icon
+            if (markers.size() > 0){
+
+                for (int i = 0; i < markers.size() - 1; i++){
+                    markers.get(i).setVisible(false);
+                }
+            }
+        } else{
+            //theirMarkers.add(newMarker);
+            ArrayList current = (ArrayList) otherDevices.get(ID).get(0);
+            current.add(newMarker);
+
+            // Add the marker to an array containing all myMarkers
+            //markers.add(newMarker);
+
+            if (previousLocation == null){
+                previousLocation = currentLocation;
+            }
+
+            if(current.size() > 0){
+
+                googleMapGlobal.addPolyline(new PolylineOptions()
+                        .add(previousLocation, currentLocation)
+                        .width(5)
+                        .color(color));
+
+            }
+
+            // This makes sure only the most recent marker has the 'current' icon
+            if (current.size() > 0){
+
+                for (int i = 0; i < current.size() - 1; i++){
+
+                    Marker previousMarker = (Marker) current.get(i);
+
+                    previousMarker.setVisible(false);
+                }
             }
         }
+
     }
 
     // This is from StackOverflow too
