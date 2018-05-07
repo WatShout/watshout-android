@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     deviceList.add(Objects.requireNonNull(childSnapshot.getKey()));
                 }
 
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        for (int i = 0; i < deviceList.size(); i++){
+        for (int i = 0; i < deviceList.size(); i++) {
 
                 /* Dictionary that keeps track of every device
                     deviceDict = {
@@ -214,13 +214,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 double lat = (double) data.get("lat");
                 double lon = (double) data.get("long");
 
-                if (myMarkers.size() > 0){
+                if (myMarkers.size() > 0) {
                     previousLocation = myMarkers.get(myMarkers.size() - 1).getPosition();
                 } else {
                     previousLocation = null;
                 }
 
-                addMarker(lat, lon, myMarkers, previousLocation, Color.RED, CURRENT_ID);
+                addMarker(lat, lon, previousLocation, Color.RED, CURRENT_ID);
 
                 LatLng currentLocation = new LatLng(lat, lon);
 
@@ -346,9 +346,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // This whole function is some voodoo magic.
-    public void processTheirLocation(DataSnapshot dataSnapshot, Boolean alreadyExists, String ID){
+    public void processTheirLocation(DataSnapshot dataSnapshot, Boolean alreadyExists, String ID) {
 
-        if(!deviceList.contains(ID)) {
+        if (!deviceList.contains(ID)) {
 
             ArrayList<ArrayList> currentLists = new ArrayList<>();
 
@@ -360,6 +360,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             otherDevices.put(ID, currentLists);
 
+            deviceList.add(ID);
+
         }
 
         LatLng previousLocation;
@@ -368,13 +370,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
 
-        if(iterable != null){
-            for(DataSnapshot ds : iterable){
+        if (iterable != null) {
+            for (DataSnapshot ds : iterable) {
                 totalList.add(ds);
             }
         }
 
-        if (!alreadyExists){
+
+        ArrayList<Marker> currentTheirMarkers = (ArrayList) otherDevices.get(ID).get(0);
+
+        if (!alreadyExists) {
             HashMap latest = (HashMap) totalList.get(totalList.size() - 1).getValue();
 
             assert latest != null;
@@ -382,16 +387,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             double lon = (double) latest.get("long");
             double speed = (double) latest.get("speed");
 
-            if (theirMarkers.size() > 0){
-                previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+            if (currentTheirMarkers.size() > 0) {
+                previousLocation = currentTheirMarkers.get(currentTheirMarkers.size() - 1).getPosition();
             } else {
                 previousLocation = null;
             }
 
-            addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE, ID);
+            addMarker(lat, lon, previousLocation, Color.BLUE, ID);
         } else {
 
-            for (DataSnapshot ds : totalList){
+            for (DataSnapshot ds : totalList) {
 
                 HashMap current = (HashMap) ds.getValue();
 
@@ -400,21 +405,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 double lon = (double) current.get("long");
                 double speed = (double) current.get("speed");
 
-                if (theirMarkers.size() > 0){
-                    previousLocation = theirMarkers.get(theirMarkers.size() - 1).getPosition();
+                if (currentTheirMarkers.size() > 0) {
+                    previousLocation = currentTheirMarkers.get(currentTheirMarkers.size() - 1).getPosition();
                 } else {
                     previousLocation = null;
                 }
 
-                addMarker(lat, lon, theirMarkers, previousLocation, Color.BLUE, ID);
+                addMarker(lat, lon, previousLocation, Color.BLUE, ID);
 
             }
         }
     }
 
 
-    public void addMarker(double lat, double lon, List<Marker> markers,
-                          LatLng previousLocation, int color, String ID){
+    public void addMarker(double lat, double lon,
+                          LatLng previousLocation, int color, String ID) {
 
         LatLng currentLocation = new LatLng(lat, lon);
 
@@ -425,58 +430,48 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .position(currentLocation)
                 .icon(currentLocationIcon));
 
+        if (previousLocation == null) {
+            previousLocation = currentLocation;
+        }
 
-        if(ID.equals(CURRENT_ID)){
+        if (ID.equals(CURRENT_ID)) {
+
             myMarkers.add(newMarker);
 
-            // Add the marker to an array containing all myMarkers
-            //markers.add(newMarker);
+            //Log.e("GPS", "Previous: " + previousLocation + "\nCurrent: " + currentLocation);
 
-            if (previousLocation == null){
-                previousLocation = currentLocation;
-            }
+            googleMapGlobal.addPolyline(new PolylineOptions()
+                    .add(previousLocation, currentLocation)
+                    .width(5)
+                    .color(color));
 
-            if(markers.size() > 0){
 
-                googleMapGlobal.addPolyline(new PolylineOptions()
-                        .add(previousLocation, currentLocation)
-                        .width(5)
-                        .color(color));
+            for (int i = 0; i < myMarkers.size() - 1; i++) {
+                myMarkers.get(i).setVisible(false);
 
             }
+        } else {
 
-            // This makes sure only the most recent marker has the 'current' icon
-            if (markers.size() > 0){
-
-                for (int i = 0; i < markers.size() - 1; i++){
-                    markers.get(i).setVisible(false);
-                }
-            }
-        } else{
-            //theirMarkers.add(newMarker);
             ArrayList current = (ArrayList) otherDevices.get(ID).get(0);
             current.add(newMarker);
 
-            // Add the marker to an array containing all myMarkers
-            //markers.add(newMarker);
+            if (current.size() > 0) {
 
-            if (previousLocation == null){
-                previousLocation = currentLocation;
-            }
-
-            if(current.size() > 0){
+                // Log.e("GPS", "Previous: " + previousLocation + "\nCurrent: " + currentLocation);
 
                 googleMapGlobal.addPolyline(new PolylineOptions()
                         .add(previousLocation, currentLocation)
                         .width(5)
                         .color(color));
 
+                Log.e("GPS", "Just drew a line from " + previousLocation + " to " + currentLocation);
+
             }
 
             // This makes sure only the most recent marker has the 'current' icon
-            if (current.size() > 0){
+            if (current.size() > 0) {
 
-                for (int i = 0; i < current.size() - 1; i++){
+                for (int i = 0; i < current.size() - 1; i++) {
 
                     Marker previousMarker = (Marker) current.get(i);
 
