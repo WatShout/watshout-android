@@ -23,15 +23,6 @@
         android:text="GPS DISCONNECTED"
         android:textColor="@color/colorAccent" />
 
-    <Button
-        android:id="@+id/size"
-        android:layout_width="57dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="Find Friend"
-        android:textSize="6sp" />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
