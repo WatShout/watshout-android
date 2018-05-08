@@ -75,7 +75,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Find a better solution for this
     static TextView gpsStatus;
-    static TextView speed;
+    static TextView mSpeed;
+    static TextView mBearing;
 
     static boolean GPSconnected = false;
 
@@ -131,7 +132,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         gpsStatus = findViewById(R.id.gps);
-        speed = findViewById(R.id.speed);
+        mSpeed = findViewById(R.id.speed);
+        mBearing = findViewById(R.id.bearing);
         Button current = findViewById(R.id.current);
 
         tracking = true;
@@ -226,6 +228,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 assert data != null;
                 double lat = (double) data.get("lat");
                 double lon = (double) data.get("long");
+                double speed = (double) data.get("speed");
+                double bearing = (double) data.get("bearing");
+
+                mSpeed.setText(Double.toString(speed));
+                mBearing.setText(Double.toString(bearing));
 
                 if (myMarkers.size() > 0) {
                     previousLocation = myMarkers.get(myMarkers.size() - 1).getPosition();

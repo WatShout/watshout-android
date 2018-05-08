@@ -6,6 +6,22 @@
     android:layout_height="match_parent"
     tools:context="com.watshout.face.MainActivity">
 
+    <TextView
+        android:id="@+id/bearing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/gps"
+        android:layout_alignParentEnd="true"
+        android:text="0.0" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/textView"
+        android:text="Current Bearing" />
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
@@ -27,18 +43,16 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/current"
         android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/gps"
         android:text="Current Speed:" />
 
     <TextView
         android:id="@+id/speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/gps"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/gps"
-        android:layout_marginStart="33dp"
-        android:layout_marginTop="-54dp"
         android:text="0.0" />
 
     <Button
