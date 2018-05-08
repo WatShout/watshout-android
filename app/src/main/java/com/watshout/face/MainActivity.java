@@ -63,22 +63,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Globally-defined
     LocationListener locationListener;
     LocationManager locationManager;
-    DatabaseReference deviceSpecificDatabaseReference;
-    DatabaseReference allDevicesDatabaseReference;
+
+    DatabaseReference thisDeviceDatabase;
+    DatabaseReference otherDeviceDatabase;
+
     GoogleMap googleMapGlobal;
     LatLng home;
+
     String CURRENT_ID;
-    List<Marker> myMarkers = new ArrayList<>();
-    List<Marker> theirMarkers = new ArrayList<>();
+
+    // Storing information for other devices
+    HashMap<String, List> otherDevices = new HashMap<>();
+    List<String> deviceList = new ArrayList<>();
 
     Boolean tracking;
 
-    // Find a better solution for this
-    static TextView gpsStatus;
-    static TextView mSpeed;
-    static TextView mBearing;
-
+    List<Marker> myMarkers = new ArrayList<>();
     static boolean GPSconnected = false;
+
+
+    // Resource file declarations
+    Button mCurrent;
+    Button mZoom;
+
+    @SuppressLint("StaticFieldLeak")  // Note: eventually fix this static leak
+    static TextView gpsStatus;
+    @SuppressLint("StaticFieldLeak")
+    static TextView mSpeed;
+    @SuppressLint("StaticFieldLeak")
+    static TextView mBearing;
 
     // Log tags
     final String GPS = "GPSDATA";
@@ -87,16 +100,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
 
-    // HashMap that stores all OTHER devices
-    HashMap<String, List> otherDevices = new HashMap();
-    List<String> deviceList = new ArrayList<>();
-
     // Gets a unique hardware ID for a device
     @SuppressLint("HardwareIds")
     String getID() {
         return Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
     }
 
+    // This finishes the application when it is closed to prevent constant location updates
+    // Might not be working
     @Override
     protected void onPause(){
 
@@ -120,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Permission is not granted
             if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
+
                 // Async error
 
             } else {
@@ -134,7 +146,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         gpsStatus = findViewById(R.id.gps);
         mSpeed = findViewById(R.id.speed);
         mBearing = findViewById(R.id.bearing);
-        Button current = findViewById(R.id.current);
+        mCurrent = findViewById(R.id.current);
+        mZoom = findViewById(R.id.zoom);
 
         tracking = true;
 
@@ -149,18 +162,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         CurrentID.setCurrent(CURRENT_ID);
 
         // Gets a reference for THIS device
-        deviceSpecificDatabaseReference = FirebaseDatabase
+        thisDeviceDatabase = FirebaseDatabase
                 .getInstance()
                 .getReference()
                 .child(CurrentID.getCurrent());
 
         // Gets a reference for ALL devices (including this one)
-        allDevicesDatabaseReference = FirebaseDatabase
+        otherDeviceDatabase = FirebaseDatabase
                 .getInstance()
                 .getReference();
 
 
-        allDevicesDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        // On map startup this goes through and populated deviceList
+        otherDeviceDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -189,7 +203,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             List<List> currentLists = new ArrayList<>();
 
+            // This keeps track of all Marker objects
             List<Marker> markers = new ArrayList<>();
+
+            // Unsure what this will be used for
             List<LatLng> coords = new ArrayList<>();
 
             currentLists.add(markers);
@@ -211,7 +228,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationListener = new MyLocationListener();
 
         // This listens for any 'change' in the child that's been selected (this specific device)
-        ChildEventListener specificChildEventListener = new ChildEventListener() {
+        ChildEventListener thisDeviceListener = new ChildEventListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -231,6 +249,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 double speed = (double) data.get("speed");
                 double bearing = (double) data.get("bearing");
 
+                LatLng currentLocation = new LatLng(lat, lon);
+
                 mSpeed.setText(Double.toString(speed));
                 mBearing.setText(Double.toString(bearing));
 
@@ -241,8 +261,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
 
                 addMarker(lat, lon, previousLocation, Color.RED, CURRENT_ID);
-
-                LatLng currentLocation = new LatLng(lat, lon);
 
                 if(tracking){
                     float zoom = 16;
@@ -286,12 +304,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
-        ChildEventListener everyChildEventListener = new ChildEventListener() {
+        ChildEventListener otherDeviceListener = new ChildEventListener() {
 
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String justAddedID = dataSnapshot.getRef().getKey();
 
+                // Ensures that the current item is NOT the host device
                 if (!justAddedID.equals(CURRENT_ID)) {
 
                     Log.v(DATABASE, "THAT ADDED: " + justAddedID);
@@ -325,8 +344,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Testing again. If children are removed, take everything off of the map
                 googleMapGlobal.clear();
 
-                // Remove all myMarkers
-                theirMarkers = new ArrayList<>();
             }
 
             @Override
@@ -340,10 +357,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
-        // Attaches the above listener to the DB reference
-        deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
-
-        allDevicesDatabaseReference.addChildEventListener(everyChildEventListener);
+        // Attaches the above listeners to the DB references
+        thisDeviceDatabase.addChildEventListener(thisDeviceListener);
+        otherDeviceDatabase.addChildEventListener(otherDeviceListener);
 
         // TODO: Figure out best values for these
         // minTime is in milliseconds, distance in meters
@@ -352,22 +368,43 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .GPS_PROVIDER, 5000, 3, locationListener);
 
 
-        current.setOnClickListener(new View.OnClickListener() {
+        // Sets current location
+        mCurrent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 if(GPSconnected){
 
-                    Marker latest = myMarkers.get(myMarkers.size() - 1);
-
-                    googleMapGlobal.moveCamera(CameraUpdateFactory
-                            .newLatLngZoom(latest.getPosition(), 16));
-
-                    tracking = true;
+                    centerCamera(16);
 
                 }
             }
         });
+
+        mZoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(GPSconnected){
+
+                    centerCamera(1);
+
+                }
+            }
+        });
+    }
+
+    // Centers camera around current location with a specified zoom level.
+    // Begins 'tracking' i.e. negating map movement
+    public void centerCamera(float zoom){
+
+        Marker latest = myMarkers.get(myMarkers.size() - 1);
+
+        googleMapGlobal.moveCamera(CameraUpdateFactory
+                .newLatLngZoom(latest.getPosition(), zoom));
+
+        tracking = true;
+
     }
 
     // This whole function is some voodoo magic.
@@ -552,6 +589,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 tracking = false;
             }
         });
-
     }
 }
