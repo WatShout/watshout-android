@@ -71,9 +71,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     List<Marker> myMarkers = new ArrayList<>();
     List<Marker> theirMarkers = new ArrayList<>();
 
+    Boolean tracking;
+
     // Find a better solution for this
     static TextView gpsStatus;
-    static TextView speed;
+    static TextView mSpeed;
+    static TextView mBearing;
+
+    static boolean GPSconnected = false;
 
     // Log tags
     final String GPS = "GPSDATA";
@@ -90,6 +95,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @SuppressLint("HardwareIds")
     String getID() {
         return Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
+    }
+
+    @Override
+    protected void onPause(){
+
+        finish();
+        super.onPause();
+
     }
 
     @Override
@@ -119,7 +132,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         gpsStatus = findViewById(R.id.gps);
-        speed = findViewById(R.id.speed);
+        mSpeed = findViewById(R.id.speed);
+        mBearing = findViewById(R.id.bearing);
+        Button current = findViewById(R.id.current);
+
+        tracking = true;
 
         // Removes the top bar on top of the map
         getSupportActionBar().hide();
@@ -211,6 +228,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 assert data != null;
                 double lat = (double) data.get("lat");
                 double lon = (double) data.get("long");
+                double speed = (double) data.get("speed");
+                double bearing = (double) data.get("bearing");
+
+                mSpeed.setText(Double.toString(speed));
+                mBearing.setText(Double.toString(bearing));
 
                 if (myMarkers.size() > 0) {
                     previousLocation = myMarkers.get(myMarkers.size() - 1).getPosition();
@@ -222,9 +244,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 LatLng currentLocation = new LatLng(lat, lon);
 
-                float zoom = 1;
-                googleMapGlobal.moveCamera(CameraUpdateFactory
-                        .newLatLngZoom(currentLocation, zoom));
+                if(tracking){
+                    float zoom = 16;
+                    googleMapGlobal.moveCamera(CameraUpdateFactory
+                            .newLatLngZoom(currentLocation, zoom));
+                }
             }
 
             @Override
@@ -316,7 +340,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
-
         // Attaches the above listener to the DB reference
         deviceSpecificDatabaseReference.addChildEventListener(specificChildEventListener);
 
@@ -328,6 +351,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationManager.requestLocationUpdates(LocationManager
                 .GPS_PROVIDER, 5000, 3, locationListener);
 
+
+        current.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(GPSconnected){
+
+                    Marker latest = myMarkers.get(myMarkers.size() - 1);
+
+                    googleMapGlobal.moveCamera(CameraUpdateFactory
+                            .newLatLngZoom(latest.getPosition(), 16));
+
+                    tracking = true;
+
+                }
+            }
+        });
     }
 
     // This whole function is some voodoo magic.
@@ -424,12 +464,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public boolean onMarkerClick(Marker marker) {
 
-                Marker thisDeviceLatest = myMarkers.get(myMarkers.size() - 1);
-
                 googleMapGlobal.moveCamera(CameraUpdateFactory
                         .newLatLngZoom(marker.getPosition(), 16));
 
-                Log.e("GPS", marker.equals(thisDeviceLatest) + "");
                 return false;
             }
         });
@@ -503,11 +540,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMapGlobal = googleMap;
 
         // This sets the starting zoom level
-        float zoom = 1;
+        float zoom = 16;
 
         // This sets the initial view of the map
         // 'home' is declared earlier
         googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoom));
+
+        googleMapGlobal.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                tracking = false;
+            }
+        });
 
     }
 }

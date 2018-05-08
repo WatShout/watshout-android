@@ -6,12 +6,28 @@
     android:layout_height="match_parent"
     tools:context="com.watshout.face.MainActivity">
 
+    <TextView
+        android:id="@+id/bearing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/gps"
+        android:layout_alignParentEnd="true"
+        android:text="0.0" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/textView"
+        android:text="Current Bearing" />
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="350dp"/>
+        android:layout_height="384dp" />
 
     <TextView
         android:id="@+id/gps"
@@ -19,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="119dp"
+        android:layout_marginBottom="54dp"
         android:text="GPS DISCONNECTED"
         android:textColor="@color/colorAccent" />
 
@@ -27,19 +43,25 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="85dp"
+        android:layout_alignBaseline="@+id/current"
+        android:layout_alignParentStart="true"
         android:text="Current Speed:" />
 
     <TextView
         android:id="@+id/speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="-85dp"
+        android:layout_above="@+id/gps"
+        android:layout_alignParentStart="true"
         android:text="0.0" />
+
+    <Button
+        android:id="@+id/current"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/gps"
+        android:layout_centerHorizontal="true"
+        android:text="CURRENT" />
 
 
 </RelativeLayout>

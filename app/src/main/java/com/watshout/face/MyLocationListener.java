@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
+import static com.watshout.face.MainActivity.GPSconnected;
 import static com.watshout.face.MainActivity.gpsStatus;
 
 class MyLocationListener implements LocationListener {
@@ -97,6 +98,8 @@ class MyLocationListener implements LocationListener {
         post.execute(data, id);
 
         Log.v("GPSDATA", message);
+
+        GPSconnected = true;
 
         gpsStatus.setText("GPS CONNECTED");
         gpsStatus.setTextColor(Color.GREEN);
