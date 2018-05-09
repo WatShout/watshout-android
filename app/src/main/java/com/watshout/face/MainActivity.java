@@ -109,11 +109,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // This finishes the application when it is closed to prevent constant location updates
     // Might not be working
     @Override
-    protected void onPause(){
-
-        finish();
+    protected void onPause() {
         super.onPause();
 
+        locationManager.removeUpdates(locationListener);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager
+                .GPS_PROVIDER, 5000, 3, locationListener);
     }
 
     @Override
