@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -145,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // This helps the app not crash in certain contexts
+        MapsInitializer.initialize(getApplicationContext());
 
         // Honestly I copied this from StackOverflow. It gets the GPS permissions. Don't mess with
         // it! :D
