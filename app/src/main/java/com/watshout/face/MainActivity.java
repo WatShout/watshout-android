@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // This finishes the application when it is closed to prevent constant location updates
     // Might not be working
+    /*
     @Override
     protected void onPause() {
         super.onPause();
@@ -115,7 +116,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationManager.removeUpdates(locationListener);
 
     }
+    */
 
+    /*
     @Override
     protected void onResume() {
         super.onResume();
@@ -135,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationManager.requestLocationUpdates(LocationManager
                 .GPS_PROVIDER, 5000, 3, locationListener);
     }
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
