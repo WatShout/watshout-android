@@ -2,10 +2,14 @@ package com.watshout.face;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
@@ -18,6 +22,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -253,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .getSystemService(LOCATION_SERVICE);
 
         // See below LocationListener class
-        locationListener = new MyLocationListener();
+        locationListener = new MyLocationListener(getApplicationContext());
 
         // This listens for any 'change' in the child that's been selected (this specific device)
         ChildEventListener thisDeviceListener = new ChildEventListener() {

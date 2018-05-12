@@ -1,9 +1,13 @@
 package com.watshout.face;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationProvider;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -20,6 +24,12 @@ import static com.watshout.face.MainActivity.gpsStatus;
 
 class MyLocationListener implements LocationListener {
 
+    private Context context;
+
+    MyLocationListener(Context context){
+        this.context = context;
+    }
+
     // Takes location data and (eventually) gets it into JSON format
     private String parseGPSData(Location location) {
         double lat = location.getLatitude();
@@ -34,6 +44,7 @@ class MyLocationListener implements LocationListener {
         keys.add("time");
         keys.add("speed");
         keys.add("bearing");
+        keys.add("battery");
 
         ArrayList<Double> values = new ArrayList<>();
         values.add(lat);
@@ -41,9 +52,23 @@ class MyLocationListener implements LocationListener {
         values.add((double) time);
         values.add(speed);
         values.add(bearing);
+        values.add(getBatteryPercentage(context));
 
         return makeJSON(keys, values);
 
+    }
+
+    private static double getBatteryPercentage(Context context) {
+
+        IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, iFilter);
+
+        int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1;
+        int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
+
+        float batteryPct = level / (float) scale;
+
+        return (double) (batteryPct * 100);
     }
 
     // Creates beautiful JSON without having to rip your hair out
