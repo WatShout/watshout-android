@@ -205,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .getInstance()
                 .getReference();
 
-
         // On map startup this goes through and populated deviceList
         otherDeviceDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
