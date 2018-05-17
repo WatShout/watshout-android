@@ -198,12 +198,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         thisDeviceDatabase = FirebaseDatabase
                 .getInstance()
                 .getReference()
+                .child("devices")
                 .child(CurrentID.getCurrent());
 
         // Gets a reference for ALL devices (including this one)
         otherDeviceDatabase = FirebaseDatabase
                 .getInstance()
-                .getReference();
+                .getReference()
+                .child("devices");
 
         // On map startup this goes through and populated deviceList
         otherDeviceDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
