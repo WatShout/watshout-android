@@ -4,6 +4,11 @@
 /.gradle
 .gradle
 
+/app/app.iml 
+app/app.iml
+
+local.properties
+
 #built application files
 *.apk
 *.ap_
