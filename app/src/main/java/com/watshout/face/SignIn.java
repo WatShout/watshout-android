@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 public class SignIn extends AppCompatActivity {
 
-    Button mStart;
     String TAG = "LogIn";
 
     // Choose an arbitrary request code value
@@ -29,8 +28,6 @@ public class SignIn extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-
-        mStart = findViewById(R.id.signin);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
