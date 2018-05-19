@@ -18,9 +18,16 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +44,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -73,8 +82,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationListener locationListener;
     LocationManager locationManager;
 
+    DatabaseReference ref = FirebaseDatabase
+            .getInstance()
+            .getReference();
+
     DatabaseReference thisDeviceDatabase;
     DatabaseReference otherDeviceDatabase;
+
+    // Not sure which of these is better
+    FirebaseAuth auth = FirebaseAuth.getInstance();
+    FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+
+    String uid = thisUser.getUid();
+    String email = thisUser.getEmail();
+    String name = thisUser.getDisplayName();
 
     GoogleMap googleMapGlobal;
     LatLng home;
@@ -90,11 +111,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     List<Marker> myMarkers = new ArrayList<>();
     static boolean GPSconnected = false;
 
+    PopupWindow popupWindow;
+    LayoutInflater layoutInflater;
+
+    RelativeLayout mRelativeLayout;
 
     // Resource file declarations
     Button mCurrent;
     Button mZoom;
     Button mSignOut;
+    TextView mGreeting;
 
     @SuppressLint("StaticFieldLeak")  // Note: eventually fix this static leak
     static TextView gpsStatus;
@@ -115,40 +141,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     String getID() {
         return Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
     }
-
-    // This finishes the application when it is closed to prevent constant location updates
-    // Might not be working
-    /*
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        locationManager.removeUpdates(locationListener);
-
-    }
-    */
-
-    /*
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager
-                .GPS_PROVIDER, 5000, 3, locationListener);
-    }
-    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,12 +172,67 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
+        // This is the initial check to see if a user is 'new' or not
+        ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (!dataSnapshot.exists()) {
+
+                    Toast.makeText(getApplicationContext(), "This is a new account", Toast.LENGTH_SHORT).show();
+
+                    DisplayMetrics displayMetrics = new DisplayMetrics();
+                    getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                    int height = displayMetrics.heightPixels;
+                    int width = displayMetrics.widthPixels;
+
+
+                    layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                    ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup, null);
+
+                    popupWindow = new PopupWindow(container, width, height, true);
+                    popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+
+                    final EditText mAge = container.findViewById(R.id.age);
+
+                    Button mButton = container.findViewById(R.id.submitinfo);
+                    mButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            int age = Integer.parseInt(mAge.getText().toString());
+
+                            ref.child("users").child(uid).child("name").setValue(name);
+                            ref.child("users").child(uid).child("age").setValue(age);
+                            ref.child("users").child(uid).child("email").setValue(email);
+                            ref.child("users").child(uid).child("device").setValue(CURRENT_ID);
+
+                            popupWindow.dismiss();
+                        }
+                    });
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         gpsStatus = findViewById(R.id.gps);
         mSpeed = findViewById(R.id.speed);
         mBearing = findViewById(R.id.bearing);
         mCurrent = findViewById(R.id.current);
         mZoom = findViewById(R.id.zoom);
         mSignOut = findViewById(R.id.signout);
+        mGreeting = findViewById(R.id.greeting);
+
+        mGreeting.setText("Hello, " + name);
+
+        mRelativeLayout = findViewById(R.id.relative);
 
         tracking = true;
 
