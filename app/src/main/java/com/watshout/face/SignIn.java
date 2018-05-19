@@ -1,0 +1,97 @@
+package com.watshout.face;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Arrays;
+
+public class SignIn extends AppCompatActivity {
+
+    Button mStart;
+    String TAG = "LogIn";
+
+    // Choose an arbitrary request code value
+    private static final int RC_SIGN_IN = 123;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sign_in);
+
+        mStart = findViewById(R.id.signin);
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        if (auth.getCurrentUser() != null) {
+            Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
+            getApplicationContext().startActivity(openMain);
+            finish();
+        }
+
+        mStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivityForResult(
+                        // Get an instance of AuthUI based on the default app
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setIsSmartLockEnabled(false)
+                                .setAvailableProviders(Arrays.asList(
+                                        new AuthUI.IdpConfig.EmailBuilder().build(),
+                                        new AuthUI.IdpConfig.GoogleBuilder().build()))
+                                .build(),
+                        RC_SIGN_IN);
+            }
+        });
+
+
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // RC_SIGN_IN is the request code you passed into startActivityForResult(...) when starting the sign in flow.
+        if (requestCode == RC_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+
+            // Successfully signed in
+            if (resultCode == RESULT_OK) {
+
+                Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
+                getApplicationContext().startActivity(openMain);
+                finish();
+
+                Log.wtf(TAG, "It worked");
+            } else {
+                // Sign in failed
+                if (response == null) {
+                    Log.wtf(TAG, "User pressed back button");
+
+                    return;
+                }
+
+                if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+                    Log.wtf(TAG, "No network brahs");
+                    return;
+                }
+
+
+                Log.wtf(TAG, "idk what happened here");
+            }
+        }
+    }
+
+
+
+}

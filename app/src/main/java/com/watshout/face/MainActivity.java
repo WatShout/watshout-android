@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
@@ -34,6 +35,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -91,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Resource file declarations
     Button mCurrent;
     Button mZoom;
+    Button mSignOut;
 
     @SuppressLint("StaticFieldLeak")  // Note: eventually fix this static leak
     static TextView gpsStatus;
@@ -181,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mBearing = findViewById(R.id.bearing);
         mCurrent = findViewById(R.id.current);
         mZoom = findViewById(R.id.zoom);
+        mSignOut = findViewById(R.id.signout);
 
         tracking = true;
 
@@ -248,6 +253,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             otherDevices.put(deviceList.get(i), currentLists);
         }
+
+        mSignOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AuthUI.getInstance()
+                        .signOut(getApplicationContext())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+                                // user is now signed out
+
+                                Intent openSignIn = new Intent(getApplicationContext(), SignIn.class);
+                                getApplicationContext().startActivity(openSignIn);
+                                finish();
+                            }
+                        });
+            }
+        });
 
         // Defines a 'fragment' of the activity dedicated to the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -476,7 +498,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // Get the current device's list of Markers
-        List<Marker> currentTheirMarkers = (List) otherDevices.get(ID).get(0);
+        List<Marker> currentTheirMarkers;
+
+        try {
+            currentTheirMarkers = (List) otherDevices.get(ID).get(0);
+        } catch (NullPointerException e){
+            currentTheirMarkers = (List) new ArrayList<>();
+        }
+
+        // currentTheirMarkers = (List) otherDevices.get(ID).get(0);
+
 
         // On Child Changed
         if (!alreadyExists) {
@@ -553,7 +584,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             current = myMarkers;
 
         } else {
-            current = (List) otherDevices.get(ID).get(0);
+
+            try {
+                current = (List) otherDevices.get(ID).get(0);
+            } catch (NullPointerException e){
+                current = (List) new ArrayList<>();
+            }
         }
 
         current.add(newMarker);
