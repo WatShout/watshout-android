@@ -38,24 +38,18 @@ public class SignIn extends AppCompatActivity {
             Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
             getApplicationContext().startActivity(openMain);
             finish();
+        } else {
+            startActivityForResult(
+                    // Get an instance of AuthUI based on the default app
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .setIsSmartLockEnabled(false)
+                            .setAvailableProviders(Arrays.asList(
+                                    new AuthUI.IdpConfig.EmailBuilder().build(),
+                                    new AuthUI.IdpConfig.GoogleBuilder().build()))
+                            .build(),
+                    RC_SIGN_IN);
         }
-
-        mStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivityForResult(
-                        // Get an instance of AuthUI based on the default app
-                        AuthUI.getInstance()
-                                .createSignInIntentBuilder()
-                                .setIsSmartLockEnabled(false)
-                                .setAvailableProviders(Arrays.asList(
-                                        new AuthUI.IdpConfig.EmailBuilder().build(),
-                                        new AuthUI.IdpConfig.GoogleBuilder().build()))
-                                .build(),
-                        RC_SIGN_IN);
-            }
-        });
-
 
     }
 
