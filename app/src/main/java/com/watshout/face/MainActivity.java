@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button mCurrent;
     Button mZoom;
     Button mSignOut;
+    Button mAddFriend;
     TextView mGreeting;
 
     @SuppressLint("StaticFieldLeak")  // Note: eventually fix this static leak
@@ -151,6 +152,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        final int displayHeight = displayMetrics.heightPixels;
+        final int displayWidth = displayMetrics.widthPixels;
+
         // Honestly I copied this from StackOverflow. It gets the GPS permissions. Don't mess with
         // it! :D
         if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -180,18 +186,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if (!dataSnapshot.exists()) {
 
-                    Toast.makeText(getApplicationContext(), "This is a new account", Toast.LENGTH_SHORT).show();
-
-                    DisplayMetrics displayMetrics = new DisplayMetrics();
-                    getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-                    int height = displayMetrics.heightPixels;
-                    int width = displayMetrics.widthPixels;
-
-
                     layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
                     ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup, null);
 
-                    popupWindow = new PopupWindow(container, width, height, true);
+                    popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
                     popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
 
                     final EditText mAge = container.findViewById(R.id.age);
@@ -229,12 +227,119 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mZoom = findViewById(R.id.zoom);
         mSignOut = findViewById(R.id.signout);
         mGreeting = findViewById(R.id.greeting);
+        mAddFriend = findViewById(R.id.addfriend);
 
-        mGreeting.setText("Hello, " + name);
+        mGreeting.setText("Hello, " + email);
 
         mRelativeLayout = findViewById(R.id.relative);
 
         tracking = true;
+
+        mAddFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.add_friend, null);
+
+                double windowWidth = displayWidth / 1.25;
+                windowWidth = displayWidth;
+                int windowWidthInt = (int) windowWidth;
+
+                double windowHeight = displayHeight / 1.25;
+                windowHeight = displayHeight;
+                int windowHeightInt = (int) windowHeight;
+
+                double widthLocation = displayHeight / 1;
+                int widthLocationInt = (int) widthLocation;
+
+                double heightLocation = displayHeight / 1;
+                int heightLocationInt = (int) heightLocation;
+
+                popupWindow = new PopupWindow(container, windowWidthInt, windowHeightInt, true);
+                popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, widthLocationInt, heightLocationInt);
+
+                final EditText mEmail = container.findViewById(R.id.email);
+
+                Button mButton = container.findViewById(R.id.request_friend);
+                mButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        final String theirEmail = mEmail.getText().toString().toLowerCase().replaceAll("\\s+","");
+
+                        ref.child("users").orderByChild("email").equalTo(theirEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+                                    String theirID = childSnapshot.getKey();
+
+                                    ref.child("friend_requests").child(theirID).child(uid).child("request_type")
+                                            .setValue("sent");
+                                    ref.child("friend_requests").child(uid).child(theirID).child("request_type")
+                                            .setValue("received");
+
+                                    Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_SHORT).show();
+
+                                    popupWindow.dismiss();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                String theirID = dataSnapshot.getKey();
+                String requestType = "";
+
+                for (DataSnapshot child : dataSnapshot.getChildren()){
+                    requestType = (String) child.getValue();
+                }
+
+                assert requestType != null;
+                if (requestType.equals("sent")){
+
+                    Toast.makeText(getApplicationContext(), theirID + " wants to be your friend", Toast.LENGTH_SHORT).show();
+
+                } else if(requestType.equals("received")){
+
+                    Toast.makeText(getApplicationContext(), "You want to add " + theirID, Toast.LENGTH_SHORT).show();
+
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         // Removes the top bar on top of the map
         getSupportActionBar().hide();
@@ -245,6 +350,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // I know global variables are bad but I have no clue how else to do this
         CURRENT_ID = getID();
         CurrentID.setCurrent(CURRENT_ID);
+
+        // Add current device to user's database
+        ref.child("users").child(uid).child("devices").setValue(CURRENT_ID);
 
         // Gets a reference for THIS device
         thisDeviceDatabase = FirebaseDatabase
