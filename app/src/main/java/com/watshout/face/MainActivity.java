@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -32,6 +34,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
@@ -77,6 +85,10 @@ like the maps and Firebase things, etc.
  */
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    FusedLocationProviderClient fusedLocationProviderClient;
+    LocationRequest locationRequest;
+    LocationCallback locationCallback;
 
     // Globally-defined
     LocationListener locationListener;
@@ -436,7 +448,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .getSystemService(LOCATION_SERVICE);
 
         // See below LocationListener class
-        locationListener = new MyLocationListener(getApplicationContext());
+        //locationListener = new MyLocationListener(getApplicationContext());
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        FusedLocation fusedLocation = new FusedLocation(getApplicationContext());
+        locationRequest = fusedLocation.buildLocationRequest();
+        locationCallback = fusedLocation.buildLocationCallback();
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
 
         // This listens for any 'change' in the child that's been selected (this specific device)
         ChildEventListener thisDeviceListener = new ChildEventListener() {
@@ -574,9 +593,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // TODO: Figure out best values for these
         // minTime is in milliseconds, distance in meters
-        assert locationManager != null;
-        locationManager.requestLocationUpdates(LocationManager
-                .GPS_PROVIDER, 5000, 3, locationListener);
+        //assert locationManager != null;
+        //locationManager.requestLocationUpdates(LocationManager
+         //       .GPS_PROVIDER, 5000, 3, locationListener);
 
 
         // Sets current location
