@@ -86,6 +86,7 @@ like the maps and Firebase things, etc.
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    // Location objects
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
@@ -94,9 +95,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationListener locationListener;
     LocationManager locationManager;
 
-    DatabaseReference ref = FirebaseDatabase
-            .getInstance()
-            .getReference();
+    // General database reference
+    DatabaseReference ref;
 
     DatabaseReference thisDeviceDatabase;
     DatabaseReference otherDeviceDatabase;
@@ -190,6 +190,57 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
+        gpsStatus = findViewById(R.id.gps);
+        mSpeed = findViewById(R.id.speed);
+        mBearing = findViewById(R.id.bearing);
+        mCurrent = findViewById(R.id.current);
+        mZoom = findViewById(R.id.zoom);
+        mSignOut = findViewById(R.id.signout);
+        mGreeting = findViewById(R.id.greeting);
+        mAddFriend = findViewById(R.id.addfriend);
+
+        mGreeting.setText("Hello, " + email);
+
+        mRelativeLayout = findViewById(R.id.relative);
+
+        tracking = true;
+
+        // Defines a 'fragment' of the activity dedicated to the map
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+
+        // Removes the top bar on top of the map
+        getSupportActionBar().hide();
+
+        // Ideally we would want this to be the location one is at when they start the app
+        home = new LatLng(37.4419, -122.1430);
+
+        // I know global variables are bad but I have no clue how else to do this
+        CURRENT_ID = getID();
+        CurrentID.setCurrent(CURRENT_ID);
+
+        ref = FirebaseDatabase
+                .getInstance()
+                .getReference();
+
+        // Gets a reference for THIS device
+        thisDeviceDatabase = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("devices")
+                .child(CurrentID.getCurrent());
+
+        // Gets a reference for ALL devices (including this one)
+        otherDeviceDatabase = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("devices");
+
+        // Add current device to user's database
+        ref.child("users").child(uid).child("devices").setValue(CURRENT_ID);
+
         // This is the initial check to see if a user is 'new' or not
         ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
 
@@ -231,21 +282,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
-
-        gpsStatus = findViewById(R.id.gps);
-        mSpeed = findViewById(R.id.speed);
-        mBearing = findViewById(R.id.bearing);
-        mCurrent = findViewById(R.id.current);
-        mZoom = findViewById(R.id.zoom);
-        mSignOut = findViewById(R.id.signout);
-        mGreeting = findViewById(R.id.greeting);
-        mAddFriend = findViewById(R.id.addfriend);
-
-        mGreeting.setText("Hello, " + email);
-
-        mRelativeLayout = findViewById(R.id.relative);
-
-        tracking = true;
 
         mAddFriend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -353,32 +389,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        // Removes the top bar on top of the map
-        getSupportActionBar().hide();
-
-        // Ideally we would want this to be the location one is at when they start the app
-        home = new LatLng(37.4419, -122.1430);
-
-        // I know global variables are bad but I have no clue how else to do this
-        CURRENT_ID = getID();
-        CurrentID.setCurrent(CURRENT_ID);
-
-        // Add current device to user's database
-        ref.child("users").child(uid).child("devices").setValue(CURRENT_ID);
-
-        // Gets a reference for THIS device
-        thisDeviceDatabase = FirebaseDatabase
-                .getInstance()
-                .getReference()
-                .child("devices")
-                .child(CurrentID.getCurrent());
-
-        // Gets a reference for ALL devices (including this one)
-        otherDeviceDatabase = FirebaseDatabase
-                .getInstance()
-                .getReference()
-                .child("devices");
-
         // On map startup this goes through and populated deviceList
         otherDeviceDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -438,24 +448,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        // Defines a 'fragment' of the activity dedicated to the map
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        // Defines a location service
-        locationManager = (LocationManager) getApplicationContext()
-                .getSystemService(LOCATION_SERVICE);
-
-        // See below LocationListener class
-        //locationListener = new MyLocationListener(getApplicationContext());
-
+        // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         FusedLocation fusedLocation = new FusedLocation(getApplicationContext());
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-
 
         // This listens for any 'change' in the child that's been selected (this specific device)
         ChildEventListener thisDeviceListener = new ChildEventListener() {
@@ -590,13 +588,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Attaches the above listeners to the DB references
         thisDeviceDatabase.addChildEventListener(thisDeviceListener);
         otherDeviceDatabase.addChildEventListener(otherDeviceListener);
-
-        // TODO: Figure out best values for these
-        // minTime is in milliseconds, distance in meters
-        //assert locationManager != null;
-        //locationManager.requestLocationUpdates(LocationManager
-         //       .GPS_PROVIDER, 5000, 3, locationListener);
-
 
         // Sets current location
         mCurrent.setOnClickListener(new View.OnClickListener() {
