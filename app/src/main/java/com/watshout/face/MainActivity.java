@@ -105,10 +105,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @SuppressLint("StaticFieldLeak")
     static TextView mBearing;
 
-    // Log tags
-    final String GPS = "GPSDATA";
-    final String DATABASE = "DATABASE";
-
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
 
