@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Arrays;
 
-public class SignIn extends AppCompatActivity {
+public class SignInActivity extends AppCompatActivity {
 
     String TAG = "LogIn";
 
