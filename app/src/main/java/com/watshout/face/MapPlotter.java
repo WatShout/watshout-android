@@ -12,6 +12,18 @@ import java.util.ArrayList;
 
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
 
+/*
+
+
+=========================
+
+This is a class for dealing with the google map component.
+
+=========================
+
+
+ */
+
 public class MapPlotter {
 
     private BitmapDescriptor currentLocationIcon = fromResource(R.drawable.current);

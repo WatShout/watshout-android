@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,7 +44,12 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
 
 
 /*
@@ -67,8 +74,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationRequest locationRequest;
     LocationCallback locationCallback;
 
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReference();
+
+    ArrayList<Marker> markerList;
+    MapPlotter mapPlotter;
+
     // General database reference
-    DatabaseReference ref;
+    DatabaseReference ref = FirebaseDatabase
+            .getInstance()
+            .getReference();
 
     // Not sure which of these is better
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -114,6 +129,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
     }
 
+    // This runs as the map rendering is completed
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        // IMPORTANT
+        // This ensures that we can make changes to the map outside of this function
+        // which is why we defined it globally
+        googleMapGlobal = googleMap;
+
+        // This sets the starting zoom level
+        float zoom = 16;
+
+        // This sets the initial view of the map
+        // 'home' is declared earlier
+        googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoom));
+
+        googleMapGlobal.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                tracking = false;
+            }
+        });
+
+        // Marker list is a array of the current user's Markers
+        markerList = new ArrayList<>();
+
+
+        mapPlotter = new MapPlotter(markerList, googleMapGlobal);
+
+        // Starts location-getting process
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        FusedLocation fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter);
+        locationRequest = fusedLocation.buildLocationRequest();
+        locationCallback = fusedLocation.buildLocationCallback();
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -134,7 +187,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mGreeting = findViewById(R.id.greeting);
         mAddFriend = findViewById(R.id.addfriend);
 
-        mGreeting.setText("Hello, " + email);
+        String greetingText = "Hello, " + email;
+
+        mGreeting.setText(greetingText);
 
         mRelativeLayout = findViewById(R.id.relative);
 
@@ -174,6 +229,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (!dataSnapshot.exists()) {
 
                     layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+
+                    assert layoutInflater != null;
                     ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup, null);
 
                     popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
@@ -214,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if (GPSconnected) {
 
-                    //centerCamera(16);
+                    mapPlotter.moveCamera(16);
 
                 }
             }
@@ -226,9 +283,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if (GPSconnected) {
 
-                    //centerCamera(1);
+                    mapPlotter.moveCamera(1);
 
                 }
+
+                // Create a reference to "mountains.jpg"
+                StorageReference mountainsRef = storageRef.child("mountains.jpg");
+
+                // Create a reference to 'images/mountains.jpg'
+                StorageReference mountainImagesRef = storageRef.child("images/mountains.jpg");
+
+
+
             }
         });
 
@@ -254,6 +320,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
 
                 layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+
+                assert layoutInflater != null;
                 ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.add_friend, null);
 
 
@@ -363,38 +431,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         }
-    }
-
-    // This runs as the map rendering is completed
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        // IMPORTANT
-        // This ensures that we can make changes to the map outside of this function
-        // which is why we defined it globally
-        googleMapGlobal = googleMap;
-
-        // This sets the starting zoom level
-        float zoom = 16;
-
-        // This sets the initial view of the map
-        // 'home' is declared earlier
-        googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoom));
-
-        googleMapGlobal.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
-                tracking = false;
-            }
-        });
-
-        // Starts location-getting process
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        FusedLocation fusedLocation = new FusedLocation(getApplicationContext(), googleMapGlobal);
-        locationRequest = fusedLocation.buildLocationRequest();
-        locationCallback = fusedLocation.buildLocationCallback();
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
     }
 
     public void checkPermissions() {

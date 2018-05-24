@@ -28,12 +28,10 @@ public class FusedLocation {
             .child("devices")
             .child(CurrentID.getCurrent());
 
-    FusedLocation(Context context, GoogleMap googleMap){
-
-        ArrayList<Marker> markerList = new ArrayList<>();
+    FusedLocation(Context context, MapPlotter mapPlotter){
 
         this.context = context;
-        this.mapPlotter = new MapPlotter(markerList, googleMap);
+        this.mapPlotter = mapPlotter;
     }
 
     public LocationCallback buildLocationCallback() {
