@@ -287,14 +287,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 }
 
-                // Create a reference to "mountains.jpg"
-                StorageReference mountainsRef = storageRef.child("mountains.jpg");
-
-                // Create a reference to 'images/mountains.jpg'
-                StorageReference mountainImagesRef = storageRef.child("images/mountains.jpg");
-
-
-
             }
         });
 
