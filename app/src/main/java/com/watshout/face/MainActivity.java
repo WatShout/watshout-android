@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button mZoom;
     Button mSignOut;
     Button mAddFriend;
+    Button mViewFriends;
     TextView mGreeting;
 
     @SuppressLint("StaticFieldLeak")  // Note: eventually fix this static leak
@@ -178,14 +179,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
 
-        gpsStatus = findViewById(R.id.gps);
-        mSpeed = findViewById(R.id.speed);
-        mBearing = findViewById(R.id.bearing);
         mCurrent = findViewById(R.id.current);
-        mZoom = findViewById(R.id.zoom);
         mSignOut = findViewById(R.id.signout);
         mGreeting = findViewById(R.id.greeting);
         mAddFriend = findViewById(R.id.addfriend);
+        mViewFriends = findViewById(R.id.viewFriends);
 
         String greetingText = "Hello, " + email;
 
@@ -209,16 +207,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final int displayHeight = displayMetrics.heightPixels;
         final int displayWidth = displayMetrics.widthPixels;
 
-        // Ideally we would want this to be the location one is at when they start the app
-        home = new LatLng(37.4419, -122.1430);
 
         // I know global variables are bad but I have no clue how else to do this
         CURRENT_DEVICE_ID = getDeviceID();
         CurrentID.setCurrent(CURRENT_DEVICE_ID);
 
-
-        // Add current device to user's database
-        ref.child("users").child(uid).child("devices").setValue(CURRENT_DEVICE_ID);
 
         // This is the initial check to see if a user is 'new' or not
         ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -255,6 +248,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
 
 
+                } else {
+                    ref.child("users").child(uid).child("devices").setValue(CURRENT_DEVICE_ID);
                 }
             }
 
@@ -264,8 +259,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        // Ideally we would want this to be the location one is at when they start the app
+        home = new LatLng(37.4419, -122.1430);
+
         // Sets current location
         mCurrent.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("MissingPermission")
             @Override
             public void onClick(View view) {
 
@@ -273,20 +272,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     mapPlotter.moveCamera(16);
 
-                }
-            }
-        });
-
-        mZoom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (GPSconnected) {
-
-                    mapPlotter.moveCamera(1);
 
                 }
-
             }
         });
 

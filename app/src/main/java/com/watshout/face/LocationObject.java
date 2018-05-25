@@ -5,15 +5,23 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 class LocationObject {
 
-    public Context context;
     public double lat;
     public double lon;
     public double speed;
     public double bearing;
     public double battery;
     public long time;
+
+    private DatabaseReference ref = FirebaseDatabase
+            .getInstance()
+            .getReference()
+            .child("devices")
+            .child(CurrentID.getCurrent());
 
     LocationObject(Context context, double lat, double lon, double bearing, double speed, long time){
 
@@ -23,6 +31,12 @@ class LocationObject {
         this.bearing = bearing;
         this.battery = getBatteryPercentage(context);
         this.time = time;
+    }
+
+    public void uploadToFirebase(){
+
+        ref.push().setValue(this);
+
     }
 
     private static double getBatteryPercentage(Context context) {

@@ -22,11 +22,7 @@ public class FusedLocation {
 
     private Context context;
     private MapPlotter mapPlotter;
-    private DatabaseReference ref = FirebaseDatabase
-            .getInstance()
-            .getReference()
-            .child("devices")
-            .child(CurrentID.getCurrent());
+
 
     FusedLocation(Context context, MapPlotter mapPlotter){
 
@@ -40,11 +36,9 @@ public class FusedLocation {
             @Override
             public void onLocationResult(LocationResult locationResult) {
 
-                for (Location location : locationResult.getLocations()){
+                GPSconnected = true;
 
-                    GPSconnected = true;
-                    gpsStatus.setText("GPS CONNECTED");
-                    gpsStatus.setTextColor(Color.GREEN);
+                for (Location location : locationResult.getLocations()){
 
                     double lat = location.getLatitude();
                     double lon = location.getLongitude();
@@ -52,8 +46,11 @@ public class FusedLocation {
                     double bearing = location.getBearing();
                     long time = location.getTime();
 
+                    // Adds the point to the map
                     mapPlotter.addMarker(lat, lon);
-                    ref.push().setValue(new LocationObject(context, lat, lon, speed, bearing, time));
+
+                    // Uploads to Firebase (eventually should add a condition check here)
+                    new LocationObject(context, lat, lon, speed, bearing, time).uploadToFirebase();
 
                 }
             }
