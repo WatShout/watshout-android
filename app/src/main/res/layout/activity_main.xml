@@ -65,5 +65,14 @@
         android:layout_alignStart="@+id/viewFriends"
         android:text="Start" />
 
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/current"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/holo_red_dark"
+        android:text="Stop" />
+
 
 </RelativeLayout>

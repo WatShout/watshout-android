@@ -21,7 +21,8 @@ class LocationObject {
             .getInstance()
             .getReference()
             .child("devices")
-            .child(CurrentID.getCurrent());
+            .child(CurrentID.getCurrent())
+            .child("current");
 
     LocationObject(Context context, double lat, double lon, double bearing, double speed, long time){
 

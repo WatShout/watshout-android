@@ -51,6 +51,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Resource file declarations
     Button mStart;
+    Button mStop;
     Button mCurrent;
     Button mSignOut;
     Button mAddFriend;
@@ -198,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         mStart = findViewById(R.id.start);
+        mStop = findViewById(R.id.stop);
         mCurrent = findViewById(R.id.current);
         mSignOut = findViewById(R.id.signout);
         mGreeting = findViewById(R.id.greeting);
@@ -231,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Right now, the app will delete any old location data when it starts
         // Obviously this is not permanent.
-        ref.child("devices").child(CURRENT_DEVICE_ID).addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.child("devices").child(CURRENT_DEVICE_ID).child("current").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -324,6 +327,37 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 currentlyTrackingLocation = !currentlyTrackingLocation;
 
+
+            }
+        });
+
+        mStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ref.child("devices").child(CURRENT_DEVICE_ID).child("current").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        mStart.setBackgroundColor(0x00000000);
+
+                        currentlyTrackingLocation = false;
+
+                        String time = System.currentTimeMillis() + "";
+
+                        // Adds the 'current' activity to the list of old activities
+                        ref.child("devices").child(CURRENT_DEVICE_ID).child("past").child(time).setValue(dataSnapshot.getValue());
+
+                        // Removes the current activity
+                        ref.child("devices").child(CURRENT_DEVICE_ID).child("current").removeValue();
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
             }
         });
