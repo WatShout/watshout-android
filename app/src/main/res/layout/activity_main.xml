@@ -57,5 +57,13 @@
         android:layout_marginStart="33dp"
         android:text="Friends" />
 
+    <Button
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/current"
+        android:layout_alignStart="@+id/viewFriends"
+        android:text="Start" />
+
 
 </RelativeLayout>

@@ -14,6 +14,9 @@ import java.util.ArrayList;
 
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
 
+import static com.watshout.face.MainActivity.GPSconnected;
+import static com.watshout.face.MainActivity.currentlyTrackingLocation;
+
 /*
 
 
@@ -94,12 +97,17 @@ public class MapPlotter {
 
         markers.add(newMarker);
 
-        if (markers.size() > 0) {
+        if (currentlyTrackingLocation){
 
-            googleMap.addPolyline(new PolylineOptions()
-                    .add(previousLocation, currentLocation)
-                    .width(10));
+            if (markers.size() > 0) {
+
+                googleMap.addPolyline(new PolylineOptions()
+                        .add(previousLocation, currentLocation)
+                        .width(10));
+
+            }
 
         }
+
     }
 }

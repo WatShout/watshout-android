@@ -32,7 +32,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -105,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Boolean isMapMoving;
 
     static boolean GPSconnected = false;
+    static boolean currentlyTrackingLocation = false;
 
     PopupWindow popupWindow;
     LayoutInflater layoutInflater;
@@ -112,21 +112,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     RelativeLayout mRelativeLayout;
 
     // Resource file declarations
+    Button mStart;
     Button mCurrent;
-    Button mZoom;
     Button mSignOut;
     Button mAddFriend;
     Button mViewFriends;
     TextView mGreeting;
 
-    private Old_MyNotificationManager oldMyNotificationManager;
+    Old_MyNotificationManager oldMyNotificationManager;
 
-    @SuppressLint("StaticFieldLeak")  // Note: eventually fix this static leak
-    static TextView gpsStatus;
-    @SuppressLint("StaticFieldLeak")
-    static TextView mSpeed;
-    @SuppressLint("StaticFieldLeak")
-    static TextView mBearing;
 
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
@@ -150,17 +144,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // This sets the starting zoom level
         float zoom = 16;
 
-        // This sets the initial view of the map
-        // 'home' is declared earlier
-        googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoom));
-
-
-
         // Marker list is a array of the current user's Markers
         markerList = new ArrayList<>();
 
-
         mapPlotter = new MapPlotter(markerList, googleMapGlobal);
+        mapPlotter.moveCamera(zoom);
 
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -209,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
 
+        mStart = findViewById(R.id.start);
         mCurrent = findViewById(R.id.current);
         mSignOut = findViewById(R.id.signout);
         mGreeting = findViewById(R.id.greeting);
@@ -322,6 +311,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        mStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                if (!currentlyTrackingLocation){
+                    mStart.setBackgroundColor(Color.GREEN);
+                } else {
+                    mStart.setBackgroundColor(0x00000000);
+                }
+
+                currentlyTrackingLocation = !currentlyTrackingLocation;
+
+
+            }
+        });
+
         mSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -369,9 +375,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     String theirID = childSnapshot.getKey();
 
                                     ref.child("friend_requests").child(theirID).child(uid).child("request_type")
-                                            .setValue("sent");
-                                    ref.child("friend_requests").child(uid).child(theirID).child("request_type")
                                             .setValue("received");
+                                    ref.child("friend_requests").child(uid).child(theirID).child("request_type")
+                                            .setValue("sent");
 
                                     Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_SHORT).show();
 
@@ -388,7 +394,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
             }
         });
-
 
 
         // TODO: Turn this into push notification
