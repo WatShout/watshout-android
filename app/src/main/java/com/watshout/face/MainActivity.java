@@ -228,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
         // Removes the top bar on top of the map
         getSupportActionBar().hide();
 
@@ -236,10 +235,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         final int displayHeight = displayMetrics.heightPixels;
         final int displayWidth = displayMetrics.widthPixels;
-
-
-        notifyUser("test", "test");
-
 
         // I know global variables are bad but I have no clue how else to do this
         CURRENT_DEVICE_ID = getDeviceID();

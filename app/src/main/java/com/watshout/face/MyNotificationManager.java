@@ -28,10 +28,9 @@ public class MyNotificationManager {
     public void displayNotification(String title, String body) {
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, Constants.CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.current)
                 .setContentTitle(title)
                 .setContentText(body);
-
 
         Intent intent = new Intent(context, MainActivity.class);
 
