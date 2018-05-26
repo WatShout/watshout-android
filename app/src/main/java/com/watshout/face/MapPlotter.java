@@ -1,5 +1,7 @@
 package com.watshout.face;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -27,21 +29,32 @@ This is a class for dealing with the google map component.
 public class MapPlotter {
 
     private BitmapDescriptor currentLocationIcon = fromResource(R.drawable.current);
-    private ArrayList<Marker> thisDeviceMarkers;
+    private ArrayList<Marker> markers;
     private GoogleMap googleMap;
+    private Boolean isMapFollowing = true;
 
 
-    MapPlotter(ArrayList<Marker> thisDeviceMarkers, GoogleMap googleMap){
-        this.thisDeviceMarkers = thisDeviceMarkers;
+    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap){
+        this.markers = markers;
         this.googleMap = googleMap;
+
+        this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+
+                isMapFollowing = false;
+
+            }
+        });
+
     }
 
     public void moveCamera(float zoom) {
 
-        if (thisDeviceMarkers.size() > 0){
+        if (markers.size() > 0){
 
             googleMap.moveCamera(CameraUpdateFactory
-                    .newLatLngZoom(thisDeviceMarkers.get(thisDeviceMarkers.size() - 1).getPosition(), zoom));
+                    .newLatLngZoom(markers.get(markers.size() - 1).getPosition(), zoom));
 
         }
     }
@@ -61,24 +74,27 @@ public class MapPlotter {
             public boolean onMarkerClick(Marker marker) {
 
                 moveCamera(16);
+                isMapFollowing = true;
 
                 return false;
             }
         });
 
-        googleMap.moveCamera(CameraUpdateFactory
-               .newLatLngZoom(currentLocation, 16));
-
-        if (thisDeviceMarkers.size() == 0) {
-            previousLocation = currentLocation;
-        } else {
-            previousLocation = thisDeviceMarkers.get(thisDeviceMarkers.size() - 1).getPosition();
-            thisDeviceMarkers.get(thisDeviceMarkers.size() - 1).setVisible(false);
+        if (isMapFollowing){
+            googleMap.moveCamera(CameraUpdateFactory
+                    .newLatLngZoom(currentLocation, 16));
         }
 
-        thisDeviceMarkers.add(newMarker);
+        if (markers.size() == 0) {
+            previousLocation = currentLocation;
+        } else {
+            previousLocation = markers.get(markers.size() - 1).getPosition();
+            markers.get(markers.size() - 1).setVisible(false);
+        }
 
-        if (thisDeviceMarkers.size() > 0) {
+        markers.add(newMarker);
+
+        if (markers.size() > 0) {
 
             googleMap.addPolyline(new PolylineOptions()
                     .add(previousLocation, currentLocation)

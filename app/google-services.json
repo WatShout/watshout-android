@@ -15,6 +15,34 @@
       },
       "oauth_client": [
         {
+          "client_id": "675799163706-drsvnsq9hf4f2e8509blk9ndhurhimac.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.face",
+            "certificate_hash": "3bb062a03ef7356966d6521bf543d75c4ffad61f"
+          }
+        },
+        {
+          "client_id": "675799163706-niu63f1m855aaovfs8etmv36c1sd97l7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.face",
+            "certificate_hash": "4b2578093df81efdd0520d11c1c348fc34ff6cf0"
+          }
+        },
+        {
+          "client_id": "675799163706-2kq7b47l86hm422ehna6jvla237hblb3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.face",
+            "certificate_hash": "7ea9bc23adc53dac720775f0b400b15ff3f5ff05"
+          }
+        },
+        {
+          "client_id": "675799163706-1igu8j7blsv6qkovi4gahr6kbt9736un.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
           "client_id": "675799163706-1igu8j7blsv6qkovi4gahr6kbt9736un.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +57,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "675799163706-1igu8j7blsv6qkovi4gahr6kbt9736un.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

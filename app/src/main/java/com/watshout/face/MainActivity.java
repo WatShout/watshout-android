@@ -2,8 +2,11 @@ package com.watshout.face;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings.Secure;
@@ -77,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
 
+    ArrayList<String> requestIDs = new ArrayList<>();
+
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
 
@@ -97,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     String CURRENT_DEVICE_ID;
 
-    Boolean tracking;
+    Boolean isMapMoving;
 
     static boolean GPSconnected = false;
 
@@ -113,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button mAddFriend;
     Button mViewFriends;
     TextView mGreeting;
+
+    private Old_MyNotificationManager oldMyNotificationManager;
 
     @SuppressLint("StaticFieldLeak")  // Note: eventually fix this static leak
     static TextView gpsStatus;
@@ -147,12 +154,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 'home' is declared earlier
         googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoom));
 
-        googleMapGlobal.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
-                tracking = false;
-            }
-        });
+
 
         // Marker list is a array of the current user's Markers
         markerList = new ArrayList<>();
@@ -168,6 +170,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
     }
 
+    public void notifyUser(String from, String notification) {
+
+        oldMyNotificationManager = new Old_MyNotificationManager(getApplicationContext());
+
+        oldMyNotificationManager.showNotification(
+                from,
+                notification,
+                new Intent(getApplicationContext(), MainActivity.class)
+        );
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -178,6 +192,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            NotificationChannel mChannel =
+                    new NotificationChannel(Constants.CHANNEL_ID, Constants.CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+
+            mChannel.setDescription(Constants.CHANNEL_DESCRIPTION);
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.RED);
+            mChannel.enableVibration(true);
+            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+
+            mNotificationManager.createNotificationChannel(mChannel);
+
+        }
 
         mCurrent = findViewById(R.id.current);
         mSignOut = findViewById(R.id.signout);
@@ -191,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mRelativeLayout = findViewById(R.id.relative);
 
-        tracking = true;
+        isMapMoving = true;
 
         // Defines a 'fragment' of the activity dedicated to the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -208,9 +238,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final int displayWidth = displayMetrics.widthPixels;
 
 
+        notifyUser("test", "test");
+
+
         // I know global variables are bad but I have no clue how else to do this
         CURRENT_DEVICE_ID = getDeviceID();
         CurrentID.setCurrent(CURRENT_DEVICE_ID);
+
+        // Right now, the app will delete any old location data when it starts
+        // Obviously this is not permanent.
+        ref.child("devices").child(CURRENT_DEVICE_ID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                dataSnapshot.getRef().removeValue();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
 
         // This is the initial check to see if a user is 'new' or not
@@ -249,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
                 } else {
-                    ref.child("users").child(uid).child("devices").setValue(CURRENT_DEVICE_ID);
+                    ref.child("users").child(uid).child("device").setValue(CURRENT_DEVICE_ID);
                 }
             }
 
@@ -268,10 +317,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
 
+                Log.wtf("IDS", requestIDs.toString());
+
                 if (GPSconnected) {
 
                     mapPlotter.moveCamera(16);
-
 
                 }
             }
@@ -344,6 +394,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+
+
         // TODO: Turn this into push notification
         ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
@@ -352,18 +404,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String theirID = dataSnapshot.getKey();
                 String requestType = "";
 
+                requestIDs.add(theirID);
+
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     requestType = (String) child.getValue();
                 }
 
                 assert requestType != null;
-                if (requestType.equals("sent")) {
+                if (requestType.equals("received")) {
 
                     Toast.makeText(getApplicationContext(), theirID + " wants to be your friend", Toast.LENGTH_SHORT).show();
 
-                } else if (requestType.equals("received")) {
+                } else if (requestType.equals("sent")) {
 
-                    Toast.makeText(getApplicationContext(), "You want to add " + theirID, Toast.LENGTH_SHORT).show();
+                    // Do nothing
 
                 }
 

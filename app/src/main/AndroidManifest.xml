@@ -28,31 +28,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!--
-
-        <service
-            android:name=".MyFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".MyFirebaseInstanceIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-            </intent-filter>
-        </service>
-
-        -->
-
-
         <activity
             android:name=".MainActivity"
             android:noHistory="true">
-
-
-
         </activity>
 
         <activity android:name=".SignInActivity">
@@ -61,6 +39,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".MyFirebaseInstanceIdService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="com.google.android.gms.version"

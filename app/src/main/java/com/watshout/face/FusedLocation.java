@@ -3,6 +3,7 @@ package com.watshout.face;
 import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
+import android.util.Log;
 
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -38,6 +39,8 @@ public class FusedLocation {
 
                 GPSconnected = true;
 
+                Log.wtf("GPS", locationResult.getLocations().size() + "");
+
                 for (Location location : locationResult.getLocations()){
 
                     double lat = location.getLatitude();
@@ -46,8 +49,14 @@ public class FusedLocation {
                     double bearing = location.getBearing();
                     long time = location.getTime();
 
+                    float accuracy = location.getAccuracy();
+
+                    Log.wtf("GPSACCURACY", accuracy + "");
+
                     // Adds the point to the map
                     mapPlotter.addMarker(lat, lon);
+
+                    Log.wtf("GPS", "Lat: " + lat + "\nLong" + lon);
 
                     // Uploads to Firebase (eventually should add a condition check here)
                     new LocationObject(context, lat, lon, speed, bearing, time).uploadToFirebase();
@@ -69,9 +78,9 @@ public class FusedLocation {
 
         LocationRequest locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(4000)
-                .setFastestInterval(2000)
-                .setSmallestDisplacement(3);
+                .setInterval(5000)
+                .setFastestInterval(3000)
+                .setSmallestDisplacement(5);
 
         return locationRequest;
 
