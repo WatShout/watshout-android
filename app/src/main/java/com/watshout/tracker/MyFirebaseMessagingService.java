@@ -1,6 +1,4 @@
-package com.watshout.face;
-
-import android.util.Log;
+package com.watshout.tracker;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;

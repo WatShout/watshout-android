@@ -1,4 +1,4 @@
-package com.watshout.face;
+package com.watshout.tracker;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;

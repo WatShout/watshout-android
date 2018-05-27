@@ -1,6 +1,4 @@
-package com.watshout.face;
-
-import android.util.Log;
+package com.watshout.tracker;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -13,9 +11,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource;
-
-import static com.watshout.face.MainActivity.GPSconnected;
-import static com.watshout.face.MainActivity.currentlyTrackingLocation;
 
 /*
 
@@ -97,7 +92,7 @@ public class MapPlotter {
 
         markers.add(newMarker);
 
-        if (currentlyTrackingLocation){
+        if (MainActivity.currentlyTrackingLocation){
 
             if (markers.size() > 0) {
 

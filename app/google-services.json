@@ -1,55 +1,38 @@
 {
   "project_info": {
-    "project_number": "675799163706",
-    "firebase_url": "https://gps-app-c31df.firebaseio.com",
-    "project_id": "gps-app-c31df",
-    "storage_bucket": "gps-app-c31df.appspot.com"
+    "project_number": "572143736497",
+    "firebase_url": "https://watshout-app.firebaseio.com",
+    "project_id": "watshout-app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:675799163706:android:78a915f03a78de48",
+        "mobilesdk_app_id": "1:572143736497:android:0c840992285633d0",
         "android_client_info": {
-          "package_name": "com.watshout.face"
+          "package_name": "com.watshout.tracker"
         }
       },
       "oauth_client": [
         {
-          "client_id": "675799163706-drsvnsq9hf4f2e8509blk9ndhurhimac.apps.googleusercontent.com",
+          "client_id": "572143736497-dtajsoc1jipupnjf3ne7k7vrj1m3dr0k.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.watshout.face",
+            "package_name": "com.watshout.tracker",
             "certificate_hash": "3bb062a03ef7356966d6521bf543d75c4ffad61f"
           }
         },
         {
-          "client_id": "675799163706-niu63f1m855aaovfs8etmv36c1sd97l7.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.watshout.face",
-            "certificate_hash": "4b2578093df81efdd0520d11c1c348fc34ff6cf0"
-          }
-        },
-        {
-          "client_id": "675799163706-2kq7b47l86hm422ehna6jvla237hblb3.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.watshout.face",
-            "certificate_hash": "7ea9bc23adc53dac720775f0b400b15ff3f5ff05"
-          }
-        },
-        {
-          "client_id": "675799163706-1igu8j7blsv6qkovi4gahr6kbt9736un.apps.googleusercontent.com",
+          "client_id": "572143736497-a74mg24ltg2fteia1bgcikmt0mhmh5oj.apps.googleusercontent.com",
           "client_type": 3
         },
         {
-          "client_id": "675799163706-1igu8j7blsv6qkovi4gahr6kbt9736un.apps.googleusercontent.com",
+          "client_id": "572143736497-a74mg24ltg2fteia1bgcikmt0mhmh5oj.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBbNwvEiyQgrrjy1iGawLPezntdMMhXHGw"
+          "current_key": "AIzaSyAplpF3AbexIMGFywtfpBre7rVZxevqNhQ"
         }
       ],
       "services": {
@@ -60,7 +43,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "675799163706-1igu8j7blsv6qkovi4gahr6kbt9736un.apps.googleusercontent.com",
+              "client_id": "572143736497-a74mg24ltg2fteia1bgcikmt0mhmh5oj.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

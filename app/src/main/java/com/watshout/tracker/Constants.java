@@ -1,4 +1,4 @@
-package com.watshout.face;
+package com.watshout.tracker;
 
 public class Constants {
 

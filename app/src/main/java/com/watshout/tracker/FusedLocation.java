@@ -1,4 +1,4 @@
-package com.watshout.face;
+package com.watshout.tracker;
 
 import android.content.Context;
 import android.location.Location;
@@ -8,9 +8,6 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-
-import static com.watshout.face.MainActivity.GPSconnected;
-import static com.watshout.face.MainActivity.currentlyTrackingLocation;
 
 public class FusedLocation {
 
@@ -32,7 +29,7 @@ public class FusedLocation {
             @Override
             public void onLocationResult(LocationResult locationResult) {
 
-                GPSconnected = true;
+                MainActivity.GPSconnected = true;
 
                 Location location = locationResult.getLocations().get(0);
 
@@ -51,7 +48,7 @@ public class FusedLocation {
 
                 Log.wtf("GPS", "Lat: " + lat + "\nLong" + lon);
 
-                if (currentlyTrackingLocation){
+                if (MainActivity.currentlyTrackingLocation){
                     new LocationObject(context, uid, lat, lon, speed, bearing, time).uploadToFirebase();
                 }
 

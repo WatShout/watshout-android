@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.watshout.face">
+    package="com.watshout.tracker">
 
     <!--
     <uses-feature
@@ -29,11 +29,11 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.watshout.tracker.MainActivity"
             android:noHistory="true">
         </activity>
 
-        <activity android:name=".SignInActivity">
+        <activity android:name="com.watshout.tracker.SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -41,14 +41,14 @@
         </activity>
 
         <service
-            android:name=".MyFirebaseInstanceIdService">
+            android:name="com.watshout.tracker.MyFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
 
         <service
-            android:name=".MyFirebaseMessagingService">
+            android:name="com.watshout.tracker.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
