@@ -6,6 +6,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class MapPlotter {
     private ArrayList<Marker> markers;
     private GoogleMap googleMap;
     private Boolean isMapFollowing = true;
+    private ArrayList<Polyline> polylines = new ArrayList<>();
 
 
     MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap){
@@ -55,6 +57,16 @@ public class MapPlotter {
                     .newLatLngZoom(markers.get(markers.size() - 1).getPosition(), zoom));
 
         }
+    }
+
+    public void clearPolyLines() {
+
+        for (Polyline line : polylines){
+
+            line.remove();
+
+        }
+
     }
 
     public void addMarker(double lat, double lon){
@@ -96,9 +108,9 @@ public class MapPlotter {
 
             if (markers.size() > 0) {
 
-                googleMap.addPolyline(new PolylineOptions()
+                polylines.add(googleMap.addPolyline(new PolylineOptions()
                         .add(previousLocation, currentLocation)
-                        .width(10));
+                        .width(10)));
 
             }
 

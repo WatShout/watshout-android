@@ -358,6 +358,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         // Removes the current activity
                         ref.child("users").child(uid).child("device").child("current").removeValue();
 
+                        mapPlotter.clearPolyLines();
+
                     }
 
                     @Override
