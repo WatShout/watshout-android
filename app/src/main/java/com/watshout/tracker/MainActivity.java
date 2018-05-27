@@ -121,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Old_MyNotificationManager oldMyNotificationManager;
 
-
     // Identifies fine location permission
     private static final int ACCESS_FINE_LOCATION = 1;
 
@@ -176,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        checkPermissions();
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
@@ -196,6 +194,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mNotificationManager.createNotificationChannel(mChannel);
 
         }
+
+        // TODO: Why does this only work with two?
+        checkPermissions();
+        checkPermissions();
 
         mStart = findViewById(R.id.start);
         mStop = findViewById(R.id.stop);
@@ -233,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Right now, the app will delete any old location data when it starts
         // Obviously this is not permanent.
         ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -243,7 +246,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
+
             }
+
         });
 
 
@@ -278,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
 
                             popupWindow.dismiss();
+
                         }
                     });
 
