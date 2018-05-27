@@ -51,8 +51,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 
 /*
@@ -154,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        FusedLocation fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter);
+        FusedLocation fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter, uid);
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
@@ -234,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Right now, the app will delete any old location data when it starts
         // Obviously this is not permanent.
-        ref.child("devices").child(CURRENT_DEVICE_ID).child("current").addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -277,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             ref.child("users").child(uid).child("name").setValue(name);
                             ref.child("users").child(uid).child("age").setValue(age);
                             ref.child("users").child(uid).child("email").setValue(email);
-                            ref.child("users").child(uid).child("device").setValue(CURRENT_DEVICE_ID);
+                            ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
 
                             popupWindow.dismiss();
                         }
@@ -285,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
                 } else {
-                    ref.child("users").child(uid).child("device").setValue(CURRENT_DEVICE_ID);
+                    ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
                 }
             }
 
@@ -335,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
 
-                ref.child("devices").child(CURRENT_DEVICE_ID).child("current").addListenerForSingleValueEvent(new ValueEventListener() {
+                ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -343,13 +348,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         currentlyTrackingLocation = false;
 
+                        Calendar calendar = Calendar.getInstance();
+                        Date date = calendar.getTime();
+                        String day = new SimpleDateFormat("EEEE", Locale.ENGLISH).format(date.getTime());
+
+
+                        String fullDate = date.toString();
+
+                        fullDate = fullDate.replaceAll("[^A-Za-z0-9]+", "-").toLowerCase();
+
                         String time = System.currentTimeMillis() + "";
 
                         // Adds the 'current' activity to the list of old activities
-                        ref.child("devices").child(CURRENT_DEVICE_ID).child("past").child(time).setValue(dataSnapshot.getValue());
+                        ref.child("users").child(uid).child("device").child("past").child(fullDate).setValue(dataSnapshot.getValue());
 
                         // Removes the current activity
-                        ref.child("devices").child(CURRENT_DEVICE_ID).child("current").removeValue();
+                        ref.child("users").child(uid).child("device").child("current").removeValue();
 
                     }
 

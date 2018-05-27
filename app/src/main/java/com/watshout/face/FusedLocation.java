@@ -16,12 +16,14 @@ public class FusedLocation {
 
     private Context context;
     private MapPlotter mapPlotter;
+    private String uid;
 
 
-    FusedLocation(Context context, MapPlotter mapPlotter){
+    FusedLocation(Context context, MapPlotter mapPlotter, String uid){
 
         this.context = context;
         this.mapPlotter = mapPlotter;
+        this.uid = uid;
     }
 
     public LocationCallback buildLocationCallback() {
@@ -50,7 +52,7 @@ public class FusedLocation {
                 Log.wtf("GPS", "Lat: " + lat + "\nLong" + lon);
 
                 if (currentlyTrackingLocation){
-                    new LocationObject(context, lat, lon, speed, bearing, time).uploadToFirebase();
+                    new LocationObject(context, uid, lat, lon, speed, bearing, time).uploadToFirebase();
                 }
 
             }

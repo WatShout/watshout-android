@@ -10,6 +10,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 class LocationObject {
 
+    public String uid;
     public double lat;
     public double lon;
     public double speed;
@@ -17,14 +18,9 @@ class LocationObject {
     public double battery;
     public long time;
 
-    private DatabaseReference ref = FirebaseDatabase
-            .getInstance()
-            .getReference()
-            .child("devices")
-            .child(CurrentID.getCurrent())
-            .child("current");
+    private DatabaseReference ref;
 
-    LocationObject(Context context, double lat, double lon, double bearing, double speed, long time){
+    LocationObject(Context context, String uid, double lat, double lon, double bearing, double speed, long time){
 
         this.lat = lat;
         this.lon = lon;
@@ -32,6 +28,13 @@ class LocationObject {
         this.bearing = bearing;
         this.battery = getBatteryPercentage(context);
         this.time = time;
+        this.ref = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("users")
+                .child(uid)
+                .child("device")
+                .child("current");
     }
 
     public void uploadToFirebase(){
