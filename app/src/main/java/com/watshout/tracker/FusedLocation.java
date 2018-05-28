@@ -46,7 +46,7 @@ public class FusedLocation {
                 // Adds the point to the map
                 mapPlotter.addMarker(lat, lon);
 
-                Log.wtf("GPS", "Lat: " + lat + "\nLong" + lon);
+                Log.wtf("GPS", "Lat: " + lat + "\nLong" + lon + "\nTracking: " + MainActivity.currentlyTrackingLocation);
 
                 if (MainActivity.currentlyTrackingLocation){
                     new LocationObject(context, uid, lat, lon, speed, bearing, time).uploadToFirebase();
