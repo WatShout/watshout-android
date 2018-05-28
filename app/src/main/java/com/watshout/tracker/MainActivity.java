@@ -403,7 +403,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 assert layoutInflater != null;
                 ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.add_friend, null);
 
-
                 popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
                 popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
 
