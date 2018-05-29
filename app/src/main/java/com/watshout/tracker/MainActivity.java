@@ -181,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
 
+        // TODO: Clean up this mess
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 
             NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -212,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String greetingText = "Hello, " + email;
 
         mGreeting.setText(greetingText);
+        mStart.setBackgroundColor(0x00000000);
 
         mRelativeLayout = findViewById(R.id.relative);
 
@@ -350,29 +352,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         currentlyTrackingLocation = false;
 
+                        // Get date in format 'tue-may-29-04-58-14-gmt-00-00-2018'
                         Calendar calendar = Calendar.getInstance();
                         Date date = calendar.getTime();
-                        String day = new SimpleDateFormat("EEEE", Locale.ENGLISH).format(date.getTime());
-
-
                         String fullDate = date.toString();
-
                         fullDate = fullDate.replaceAll("[^A-Za-z0-9]+", "-").toLowerCase();
 
-                        long time = System.currentTimeMillis();
-                        String stringTime = time + "";
+                        // Reference is pointing to the entry for the 'finished activity
+                        DatabaseReference specificRef = ref
+                               .child("users")
+                               .child(uid)
+                               .child("device")
+                               .child("past")
+                               .child(fullDate);
 
+                        long time = System.currentTimeMillis();
+
+                        // Creates a new object with activity metadata
                         EventInfo thisEventInfo = new EventInfo("run", time);
 
-                        ref.child("users").child(uid).child("device").child("past").child(fullDate).setValue(thisEventInfo);
+                        // Adds the metadata/EventInfo to the new child of the database
+                        specificRef.setValue(thisEventInfo);
 
-
-                        // Adds the 'current' activity to the list of old activities
-                        ref.child("users").child(uid).child("device")
-                                .child("past")
-                                .child(fullDate)
-                                .child("path")
-                                .setValue(dataSnapshot.getValue());
+                        // Adds the 'current' activity to the path subfolder
+                        specificRef.child("path").setValue(dataSnapshot.getValue());
 
                         // Removes the current activity
                         ref.child("users").child(uid).child("device").child("current").removeValue();
