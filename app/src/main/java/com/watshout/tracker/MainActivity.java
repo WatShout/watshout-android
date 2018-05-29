@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     static boolean GPSconnected = false;
     static boolean currentlyTrackingLocation = false;
+    static boolean startedYet = false;
 
     PopupWindow popupWindow;
     LayoutInflater layoutInflater;
@@ -147,14 +148,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerList = new ArrayList<>();
 
         mapPlotter = new MapPlotter(markerList, googleMapGlobal);
-        mapPlotter.moveCamera(zoom);
 
         // Starts location-getting process
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
         FusedLocation fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter, uid);
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
+        mapPlotter.moveCamera(zoom);
     }
 
     public void notifyUser(String from, String notification) {
@@ -232,26 +234,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         CURRENT_DEVICE_ID = getDeviceID();
         CurrentID.setCurrent(CURRENT_DEVICE_ID);
 
-        // Right now, the app will delete any old location data when it starts
-        // Obviously this is not permanent.
-        ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                dataSnapshot.getRef().removeValue();
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-
-            }
-
-        });
-
-
         // This is the initial check to see if a user is 'new' or not
         ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
 
@@ -321,6 +303,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (!startedYet){
+                    ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
+
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            dataSnapshot.getRef().removeValue();
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+
+                        }
+
+                    });
+
+                    startedYet = true;
+                }
 
 
                 if (!currentlyTrackingLocation){

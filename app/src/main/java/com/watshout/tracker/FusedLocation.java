@@ -37,6 +37,7 @@ public class FusedLocation {
                 double lon = location.getLongitude();
                 double speed = location.getSpeed();
                 double bearing = location.getBearing();
+                double altitude = location.getAltitude();
                 long time = location.getTime();
 
                 float accuracy = location.getAccuracy();
@@ -49,7 +50,7 @@ public class FusedLocation {
                 Log.wtf("GPS", "Lat: " + lat + "\nLong" + lon + "\nTracking: " + MainActivity.currentlyTrackingLocation);
 
                 if (MainActivity.currentlyTrackingLocation){
-                    new LocationObject(context, uid, lat, lon, speed, bearing, time).uploadToFirebase();
+                    new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
                 }
 
             }

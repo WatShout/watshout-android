@@ -17,17 +17,19 @@ class LocationObject {
     public double speed;
     public double bearing;
     public double battery;
+    public double altitude;
     public long time;
 
     private DatabaseReference ref;
 
-    LocationObject(Context context, String uid, double lat, double lon, double bearing, double speed, long time){
+    LocationObject(Context context, String uid, double lat, double lon, double bearing, double speed, double altitude, long time){
 
         this.lat = lat;
         this.lon = lon;
         this.speed = speed;
         this.bearing = bearing;
         this.battery = getBatteryPercentage(context);
+        this.altitude = altitude;
         this.time = time;
         this.ref = FirebaseDatabase
                 .getInstance()
