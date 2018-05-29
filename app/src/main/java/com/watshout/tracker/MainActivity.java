@@ -359,10 +359,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         fullDate = fullDate.replaceAll("[^A-Za-z0-9]+", "-").toLowerCase();
 
-                        String time = System.currentTimeMillis() + "";
+                        long time = System.currentTimeMillis();
+                        String stringTime = time + "";
+
+                        EventInfo thisEventInfo = new EventInfo("run", time);
+
+                        ref.child("users").child(uid).child("device").child("past").child(fullDate).setValue(thisEventInfo);
+
 
                         // Adds the 'current' activity to the list of old activities
-                        ref.child("users").child(uid).child("device").child("past").child(fullDate).setValue(dataSnapshot.getValue());
+                        ref.child("users").child(uid).child("device")
+                                .child("past")
+                                .child(fullDate)
+                                .child("path")
+                                .setValue(dataSnapshot.getValue());
 
                         // Removes the current activity
                         ref.child("users").child(uid).child("device").child("current").removeValue();
