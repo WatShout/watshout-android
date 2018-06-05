@@ -122,8 +122,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Old_MyNotificationManager oldMyNotificationManager;
 
-    // Identifies fine location permission
-    private static final int ACCESS_FINE_LOCATION = 1;
+
+
+    // For permissions
+    int permCode = 200;
 
     // Gets a unique hardware ID for a device
     @SuppressLint("HardwareIds")
@@ -177,6 +179,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // TODO: Why does this only work with two?
+        checkPermissions();
+        checkPermissions();
+
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
@@ -197,10 +203,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mNotificationManager.createNotificationChannel(mChannel);
 
         }
-
-        // TODO: Why does this only work with two?
-        checkPermissions();
-        checkPermissions();
 
         mStart = findViewById(R.id.start);
         mStop = findViewById(R.id.stop);
@@ -288,9 +290,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Sets current location
         mCurrent.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("MissingPermission")
             @Override
             public void onClick(View view) {
+                checkPermissions();
+                checkPermissions();
 
                 Log.wtf("IDS", requestIDs.toString());
 
@@ -514,8 +517,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
-            case ACCESS_FINE_LOCATION: {
-
+            case 200: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -523,6 +525,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 } else {
 
+                    checkPermissions();
                     checkPermissions();
 
                 }
@@ -546,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // No explanation needed; request the permission
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        ACCESS_FINE_LOCATION);
+                        permCode);
             }
         }
     }
