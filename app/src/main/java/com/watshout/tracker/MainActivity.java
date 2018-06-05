@@ -546,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // No explanation needed; request the permission
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        ACCESS_FINE_LOCATION);
+                        0);
             }
         }
     }
