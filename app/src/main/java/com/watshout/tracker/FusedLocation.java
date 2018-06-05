@@ -9,11 +9,22 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 
+import org.alternativevision.gpx.beans.GPX;
+import org.alternativevision.gpx.beans.Track;
+import org.alternativevision.gpx.beans.TrackPoint;
+import org.alternativevision.gpx.beans.Waypoint;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+
 public class FusedLocation {
 
     private Context context;
     private MapPlotter mapPlotter;
     private String uid;
+    private ArrayList<Waypoint> trackPoints;
+    private static GPXCreator gpxCreator;
 
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid){
@@ -21,6 +32,8 @@ public class FusedLocation {
         this.context = context;
         this.mapPlotter = mapPlotter;
         this.uid = uid;
+        this.trackPoints = new ArrayList<>();
+        gpxCreator= new GPXCreator();
     }
 
     public LocationCallback buildLocationCallback() {
@@ -32,6 +45,7 @@ public class FusedLocation {
                 MainActivity.GPSconnected = true;
 
                 Location location = locationResult.getLocations().get(0);
+
 
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();
@@ -51,6 +65,21 @@ public class FusedLocation {
 
                 if (MainActivity.currentlyTrackingLocation){
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+                    TrackPoint temp = new TrackPoint();
+                    temp.setLatitude(lat);
+                    temp.setLongitude(lon);
+                    temp.setTime(new Date(time));
+                    trackPoints.add(temp);
+                }
+                else if (trackPoints.size() > 0) {
+                    Track tempTrack = new Track();
+                    tempTrack.setTrackPoints(trackPoints);
+                    gpxCreator.addTrack(tempTrack);
+                    trackPoints = new ArrayList<>();
+                    if (!MainActivity.activityRunning) {
+                        gpxCreator.writeGPXFile();
+                        gpxCreator.resetGPXObject();
+                    }
                 }
 
             }
@@ -75,5 +104,9 @@ public class FusedLocation {
 
         return locationRequest;
 
+    }
+
+    public ArrayList<Waypoint> getTrackPoints() {
+        return trackPoints;
     }
 }
