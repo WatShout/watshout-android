@@ -177,6 +177,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // TODO: Why does this only work with two?
+        checkPermissions();
+        checkPermissions();
+
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
@@ -197,10 +201,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mNotificationManager.createNotificationChannel(mChannel);
 
         }
-
-        // TODO: Why does this only work with two?
-        checkPermissions();
-        checkPermissions();
 
         mStart = findViewById(R.id.start);
         mStop = findViewById(R.id.stop);
@@ -523,6 +523,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 } else {
 
+                    checkPermissions();
                     checkPermissions();
 
                 }
