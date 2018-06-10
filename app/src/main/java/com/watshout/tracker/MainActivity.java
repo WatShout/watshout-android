@@ -285,6 +285,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
+
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
 
@@ -462,6 +464,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        mViewFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // TODO: Turn this into push notification
         ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
