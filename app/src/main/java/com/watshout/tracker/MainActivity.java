@@ -49,11 +49,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 
 /*
@@ -179,10 +177,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TODO: Why does this only work with two?
-        checkPermissions();
-        checkPermissions();
-
+        checkLocationPermissions();
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
@@ -294,8 +289,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mCurrent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkPermissions();
-                checkPermissions();
+                checkLocationPermissions();
+                checkLocationPermissions();
 
                 Log.wtf("IDS", requestIDs.toString());
 
@@ -534,15 +529,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 } else {
 
-                    checkPermissions();
-                    checkPermissions();
+                    checkLocationPermissions();
 
                 }
             }
         }
     }
 
-    public void checkPermissions() {
+    public void checkLocationPermissions() {
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
