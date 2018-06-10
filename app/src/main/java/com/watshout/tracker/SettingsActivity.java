@@ -107,13 +107,10 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
         mProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("PIC", "touched");
 
                 PickImageDialog.build(new PickSetup()).show(SettingsActivity.this);
 
-                //Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                //startActivityForResult(takePicture, 0);//zero can be replaced with any action code
-            }
+                }
         });
 
         ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
