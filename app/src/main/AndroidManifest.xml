@@ -22,32 +22,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
-            android:name="com.watshout.tracker.MainActivity"
-            android:noHistory="true">
-        </activity>
-
-        <activity android:name="com.watshout.tracker.SignInActivity">
+            android:name=".MainActivity"
+            android:noHistory="true"></activity>
+        <activity android:name=".SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <service
-            android:name="com.watshout.tracker.MyFirebaseInstanceIdService"
+            android:name=".MyFirebaseInstanceIdService"
             android:permission="">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
         <service
-            android:name="com.watshout.tracker.MyFirebaseMessagingService"
+            android:name=".MyFirebaseMessagingService"
             android:permission="">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
@@ -61,6 +58,7 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>
