@@ -33,7 +33,7 @@ public class FusedLocation {
         this.mapPlotter = mapPlotter;
         this.uid = uid;
         this.trackPoints = new ArrayList<>();
-        gpxCreator= new GPXCreator();
+        gpxCreator = new GPXCreator(context, uid);
     }
 
     public LocationCallback buildLocationCallback() {
@@ -77,7 +77,10 @@ public class FusedLocation {
                     gpxCreator.addTrack(tempTrack);
                     trackPoints = new ArrayList<>();
                     if (!MainActivity.activityRunning) {
+                        Log.d("GPS", "Writing file");
                         gpxCreator.writeGPXFile();
+
+
                         gpxCreator.resetGPXObject();
                     }
                 }

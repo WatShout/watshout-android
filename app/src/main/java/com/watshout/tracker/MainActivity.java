@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Old_MyNotificationManager oldMyNotificationManager;
 
-
+    String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION};
 
     // For permissions
     int permCode = 200;
@@ -544,23 +544,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void checkLocationPermissions() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
+        if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
 
-            // Permission is not granted
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // No explanation needed, we can request the permission.
 
-                // Async error
+            ActivityCompat.requestPermissions(this,
+                    permissions,
+                    permCode);
 
-            } else {
-
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        permCode);
-            }
         }
     }
+
 }
