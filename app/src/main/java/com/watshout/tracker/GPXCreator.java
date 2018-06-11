@@ -5,6 +5,12 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,7 +52,10 @@ public class GPXCreator {
     public void writeGPXFile() {
         GPXParser parser = new GPXParser();
         try {
-            String fileName = Long.toString(System.currentTimeMillis()) + ".gpx";
+
+            final String time = Long.toString(System.currentTimeMillis());
+
+            String fileName = time + ".gpx";
             File path = context.getExternalFilesDir(null);
             Log.wtf("GPS", path.toString());
             File file = new File(path, fileName);
@@ -66,6 +75,24 @@ public class GPXCreator {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     Log.d("GPS", "File uploaded!");
+
+                    RequestQueue queue = Volley.newRequestQueue(context);
+                    String url = "https://watshout.herokuapp.com/mobile/strava/" + uid + "/" + time + "/";
+
+                    // Request a string response from the provided URL.
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    Log.d("GPS", "Uploaded to Strava");
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                        }
+                    });
+                    queue.add(stringRequest);
                 }
             });
 
