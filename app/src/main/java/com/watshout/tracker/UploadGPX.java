@@ -3,6 +3,7 @@ package com.watshout.tracker;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -53,7 +54,6 @@ public class UploadGPX {
 
         String fileName = date + ".gpx";
 
-
         storageReference.child("users").child(uid).child("gpx").child(fileName)
                 .putBytes(bytes).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -68,12 +68,18 @@ public class UploadGPX {
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-                                Log.d("GPS", "Uploaded to Strava");
+
+                                Toast.makeText(context,
+                                        "Uploaded to Strava!",
+                                        Toast.LENGTH_SHORT).show();
+
                             }
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("GPS", "Strava upload failed");
+                        Toast.makeText(context,
+                                "Strava upload failed",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
                 queue.add(stringRequest);

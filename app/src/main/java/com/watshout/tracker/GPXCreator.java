@@ -39,17 +39,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 public class GPXCreator {
-    GPX gpxObject;
-    Context context;
-    String uid;
 
-    // General database reference
-    DatabaseReference ref = FirebaseDatabase
-            .getInstance()
-            .getReference();
-
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    StorageReference storageReference = storage.getReference();
+    private Context context;
+    private String uid;
+    private GPX gpxObject;
 
     GPXCreator(Context context, String uid) {
         gpxObject = new GPX();
@@ -64,6 +57,7 @@ public class GPXCreator {
     public void writeGPXFile(String date) throws IOException,
             TransformerException,
             ParserConfigurationException {
+
         GPXParser parser = new GPXParser();
 
         // These lines of code write the file locally
@@ -81,7 +75,6 @@ public class GPXCreator {
 
         // Note: This also makes the call to Strava
         uploadGPX.uploadToFirebaseStorage();
-
 
     }
 
