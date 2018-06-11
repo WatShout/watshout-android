@@ -42,6 +42,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
     implementation 'com.akhgupta:android-easylocation:1.0.1'
+
+    compile 'com.github.jrvansuita:PickImage:+'
     //
     implementation files('libs/gpxparser-20130603.jar')
     implementation files('C:/Users/Mulan Zhao/Documents/watshout-tracker/.idea/libraries/gpxparser-20130603.jar')

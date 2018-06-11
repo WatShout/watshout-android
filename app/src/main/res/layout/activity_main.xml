@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:text="Friends" />
+        android:text="Settings" />
 
     <Button
         android:id="@+id/start"

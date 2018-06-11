@@ -50,12 +50,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.alternativevision.gpx.beans.GPX;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 
 /*
@@ -182,10 +180,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TODO: Why does this only work with two?
-        checkPermissions();
-        checkPermissions();
-
+        checkLocationPermissions();
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
@@ -288,6 +283,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
+
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
 
@@ -295,8 +292,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mCurrent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkPermissions();
-                checkPermissions();
+                checkLocationPermissions();
+                checkLocationPermissions();
 
                 Log.wtf("IDS", requestIDs.toString());
 
@@ -469,6 +466,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        mViewFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // TODO: Turn this into push notification
         ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
@@ -532,15 +536,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 } else {
 
-                    checkPermissions();
-                    checkPermissions();
+                    checkLocationPermissions();
 
                 }
             }
         }
     }
 
-    public void checkPermissions() {
+    public void checkLocationPermissions() {
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
