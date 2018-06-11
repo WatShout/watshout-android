@@ -49,6 +49,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.alternativevision.gpx.beans.GPX;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
 
+
     // General database reference
     DatabaseReference ref = FirebaseDatabase
             .getInstance()
@@ -104,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     static boolean GPSconnected = false;
     static boolean currentlyTrackingLocation = false;
-    static boolean startedYet = false;
+    static boolean activityRunning = false;
 
     PopupWindow popupWindow;
     LayoutInflater layoutInflater;
@@ -309,7 +312,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
 
-                if (!startedYet){
+
+                if (!activityRunning){
                     ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
 
                         @Override
@@ -327,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     });
 
-                    startedYet = true;
+                    activityRunning = true;
                 }
 
 
@@ -393,7 +397,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
 
+                activityRunning  = false;
+
             }
+
         });
 
         mSignOut.setOnClickListener(new View.OnClickListener() {
