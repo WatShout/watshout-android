@@ -76,11 +76,10 @@ public class FusedLocation {
                     tempTrack.setTrackPoints(trackPoints);
                     gpxCreator.addTrack(tempTrack);
                     trackPoints = new ArrayList<>();
+
                     if (!MainActivity.activityRunning) {
                         Log.d("GPS", "Writing file");
                         gpxCreator.writeGPXFile();
-
-
                         gpxCreator.resetGPXObject();
                     }
                 }
