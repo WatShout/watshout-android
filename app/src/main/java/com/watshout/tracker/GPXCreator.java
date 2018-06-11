@@ -51,7 +51,7 @@ public class GPXCreator {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
 
-    public GPXCreator(Context context, String uid) {
+    GPXCreator(Context context, String uid) {
         gpxObject = new GPX();
         this.context = context;
         this.uid = uid;
@@ -61,117 +61,26 @@ public class GPXCreator {
         gpxObject.addTrack(t);
     }
 
-    public void writeGPXFile() {
-        final GPXParser parser = new GPXParser();
+    public void writeGPXFile(String date) throws IOException,
+            TransformerException,
+            ParserConfigurationException {
+        GPXParser parser = new GPXParser();
 
-        ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+        // These lines of code write the file locally
+        String fileName = date + ".gpx";
 
-                // Get date in format 'tue-may-29-04-58-14-gmt-00-00-2018'
-                Calendar calendar = Calendar.getInstance();
-                Date date = calendar.getTime();
-                String interDate = date.toString();
-                final String fullDate = interDate.replaceAll("[^A-Za-z0-9]+", "-").toLowerCase();
+        File path = context.getExternalFilesDir(null);
+        File file = new File(path, fileName);
+        path.mkdirs();
+        FileOutputStream outStream = new FileOutputStream(file);
+        parser.writeGPX(gpxObject, outStream);
+        outStream.close();
 
-                // Reference is pointing to the entry for the 'finished activity
-                DatabaseReference specificRef = ref
-                        .child("users")
-                        .child(uid)
-                        .child("device")
-                        .child("past")
-                        .child(fullDate);
+        UploadGPX uploadGPX = new UploadGPX(context,
+                uid, date, file);
 
-                long time = System.currentTimeMillis();
-
-                // Creates a new object with activity metadata
-                EventInfo thisEventInfo = new EventInfo("run", time);
-
-                // Adds the metadata/EventInfo to the new child of the database
-                specificRef.setValue(thisEventInfo);
-
-                // Adds the 'current' activity to the path subfolder
-                specificRef.child("path").setValue(dataSnapshot.getValue());
-
-                // Removes the current activity
-                ref.child("users").child(uid).child("device").child("current").removeValue();
-
-                String fileName = fullDate + ".gpx";
-
-                File path = context.getExternalFilesDir(null);
-                Log.wtf("GPS", path.toString());
-                File file = new File(path, fileName);
-                path.mkdirs();
-
-                FileOutputStream outStream = null;
-                try {
-                    outStream = new FileOutputStream(file);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                if (!file.exists()) {
-                    try {
-                        file.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                try {
-                    parser.writeGPX(gpxObject, outStream);
-                } catch (ParserConfigurationException e) {
-                    e.printStackTrace();
-                } catch (TransformerException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    outStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                byte bytes[] = new byte[0];
-                try {
-                    bytes = FileUtils.readFileToByteArray(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                storageReference.child("users").child(uid).child("gpx").child(fileName)
-                        .putBytes(bytes).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        Log.d("GPS", "File uploaded!");
-
-                        RequestQueue queue = Volley.newRequestQueue(context);
-                        String url = "https://watshout.herokuapp.com/mobile/strava/" + uid + "/" + fullDate + "/";
-
-                        // Request a string response from the provided URL.
-                        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                                new Response.Listener<String>() {
-                                    @Override
-                                    public void onResponse(String response) {
-                                        Log.d("GPS", "Uploaded to Strava");
-                                    }
-                                }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d("GPS", "Strava upload failed");
-                            }
-                        });
-                        queue.add(stringRequest);
-                    }
-                });
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        // Note: This also makes the call to Strava
+        uploadGPX.uploadToFirebaseStorage();
 
 
     }
