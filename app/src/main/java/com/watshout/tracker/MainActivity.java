@@ -242,6 +242,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
+                Log.d("USER", dataSnapshot.exists() + "");
+
                 if (!dataSnapshot.exists()) {
 
                     layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -268,12 +270,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                             popupWindow.dismiss();
 
+
+
                         }
                     });
+
+                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
 
 
                 } else {
                     ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
+                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
                 }
             }
 
@@ -282,8 +289,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
-
-        ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
