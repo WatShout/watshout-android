@@ -29,7 +29,8 @@
         android:required="false"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:screenOrientation="portrait">
 
 
         <provider
@@ -45,8 +46,12 @@
 
         <activity
             android:name=".MainActivity"
-            android:noHistory="true"></activity>
-        <activity android:name=".SignInActivity">
+            android:noHistory="true"
+            android:screenOrientation="portrait"></activity>
+
+        <activity
+            android:name=".SignInActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -61,6 +66,7 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
         <service
             android:name=".MyFirebaseMessagingService"
             android:permission="">

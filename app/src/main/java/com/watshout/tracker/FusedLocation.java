@@ -9,14 +9,16 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 
-import org.alternativevision.gpx.beans.GPX;
 import org.alternativevision.gpx.beans.Track;
 import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 public class FusedLocation {
 
@@ -25,6 +27,7 @@ public class FusedLocation {
     private String uid;
     private ArrayList<Waypoint> trackPoints;
     private static GPXCreator gpxCreator;
+    private UploadFinishedActivity uploadFinishedActivity;
 
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid){
@@ -34,6 +37,8 @@ public class FusedLocation {
         this.uid = uid;
         this.trackPoints = new ArrayList<>();
         gpxCreator = new GPXCreator(context, uid);
+        this.uploadFinishedActivity = new UploadFinishedActivity(uid);
+
     }
 
     public LocationCallback buildLocationCallback() {
@@ -76,12 +81,24 @@ public class FusedLocation {
                     tempTrack.setTrackPoints(trackPoints);
                     gpxCreator.addTrack(tempTrack);
                     trackPoints = new ArrayList<>();
+
                     if (!MainActivity.activityRunning) {
-                        Log.d("GPS", "Writing file");
-                        gpxCreator.writeGPXFile();
 
+                        uploadFinishedActivity.moveCurrentToPast();
 
-                        gpxCreator.resetGPXObject();
+                        String date = uploadFinishedActivity.getFormattedDate();
+
+                        try {
+                            gpxCreator.writeGPXFile(date);
+                            gpxCreator.resetGPXObject();
+                        } catch (IOException e) {
+                            Log.e("ERROR", e + "");
+                        } catch (TransformerException e) {
+                            Log.e("ERROR", e + "");
+                        } catch (ParserConfigurationException e) {
+                            Log.e("ERROR", e + "");
+                        }
+
                     }
                 }
 

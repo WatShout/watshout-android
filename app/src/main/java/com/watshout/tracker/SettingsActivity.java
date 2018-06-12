@@ -88,8 +88,6 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
         mEmailButton = findViewById(R.id.email_button);
         mAgeButton = findViewById(R.id.age_button);
 
-        mProfile.setImageBitmap(null);
-
         checkCameraPermissions();
 
         ref.child("users").child(uid).child("age").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -117,23 +115,25 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                fileFormat = dataSnapshot.getValue().toString();
-                fileName = "profile." + fileFormat;
+                if(dataSnapshot.getValue() != null){
+                    fileFormat = dataSnapshot.getValue().toString();
+                    fileName = "profile." + fileFormat;
 
-                storageReference.child("users").child(uid).child(fileName).getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                    @Override
-                    public void onSuccess(byte[] bytes) {
+                    storageReference.child("users").child(uid).child(fileName).getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                        @Override
+                        public void onSuccess(byte[] bytes) {
 
-                        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        mProfile.setImageBitmap(bmp);
+                            Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            mProfile.setImageBitmap(bmp);
 
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle any errors
-                    }
-                });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            // Handle any errors
+                        }
+                    });
+                }
             }
 
             @Override
@@ -183,30 +183,50 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
 
             final byte[] data = getImageData(bmp2);
 
-            storageReference.child("users").child(uid).child(fileName)
-                    .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
+            if (fileName != null){
+                storageReference.child("users").child(uid).child(fileName)
+                        .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
 
-                    storageReference.child("users").child(uid).child("profile.png")
-                            .putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        storageReference.child("users").child(uid).child("profile.png")
+                                .putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
-                            Log.d("IMG", "Done uploading!");
+                                Log.d("IMG", "Done uploading!");
 
-                        }
-                    }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
-                            ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+                                ref.child("users").child(uid).child("profile_pic_format").setValue("png");
 
-                        }
-                    });
+                            }
+                        });
 
-                }
-            });
+                    }
+                });
+            } else {
+                storageReference.child("users").child(uid).child("profile.png")
+                        .putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                        Log.d("IMG", "Done uploading!");
+
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                        ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+
+                    }
+                });
+            }
+
 
         } else {
             Log.d("IMG", "This didn't work: " + r.getError().toString());

@@ -13,6 +13,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -26,20 +31,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 public class GPXCreator {
-    GPX gpxObject;
-    Context context;
-    String uid;
 
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    StorageReference storageReference = storage.getReference();
+    private Context context;
+    private String uid;
+    private GPX gpxObject;
 
-    public GPXCreator(Context context, String uid) {
+    GPXCreator(Context context, String uid) {
         gpxObject = new GPX();
         this.context = context;
         this.uid = uid;
@@ -49,67 +54,28 @@ public class GPXCreator {
         gpxObject.addTrack(t);
     }
 
-    public void writeGPXFile() {
+    public void writeGPXFile(String date) throws IOException,
+            TransformerException,
+            ParserConfigurationException {
+
         GPXParser parser = new GPXParser();
-        try {
 
-            final String time = Long.toString(System.currentTimeMillis());
+        // These lines of code write the file locally
+        String fileName = date + ".gpx";
 
-            String fileName = time + ".gpx";
-            File path = context.getExternalFilesDir(null);
-            Log.wtf("GPS", path.toString());
-            File file = new File(path, fileName);
-            path.mkdirs();
+        File path = context.getExternalFilesDir(null);
+        File file = new File(path, fileName);
+        path.mkdirs();
+        FileOutputStream outStream = new FileOutputStream(file);
+        parser.writeGPX(gpxObject, outStream);
+        outStream.close();
 
-            FileOutputStream outStream = new FileOutputStream(file);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
+        UploadGPX uploadGPX = new UploadGPX(context,
+                uid, date, file);
 
-            parser.writeGPX(gpxObject, outStream);
+        // Note: This also makes the call to Strava
+        uploadGPX.uploadToFirebaseStorage();
 
-            byte bytes[] = FileUtils.readFileToByteArray(file);
-
-            storageReference.child("users").child(uid).child("gpx").child(fileName)
-                    .putBytes(bytes).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                    Log.d("GPS", "File uploaded!");
-
-                    RequestQueue queue = Volley.newRequestQueue(context);
-                    String url = "https://watshout.herokuapp.com/mobile/strava/" + uid + "/" + time + "/";
-
-                    // Request a string response from the provided URL.
-                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                            new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    Log.d("GPS", "Uploaded to Strava");
-                                }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                        }
-                    });
-                    queue.add(stringRequest);
-                }
-            });
-
-            outStream.close();
-        } catch (FileNotFoundException e) {
-            Log.e("GPS", e.toString());
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e("GPS", e.toString());
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            Log.e("GPS", e.toString());
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            Log.e("GPS", e.toString());
-            e.printStackTrace();
-        }
     }
 
     public void resetGPXObject() {

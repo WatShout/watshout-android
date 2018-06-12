@@ -242,6 +242,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
+                Log.d("USER", dataSnapshot.exists() + "");
+
                 if (!dataSnapshot.exists()) {
 
                     layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -268,12 +270,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                             popupWindow.dismiss();
 
+
+
                         }
                     });
+
+                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
 
 
                 } else {
                     ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
+                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
                 }
             }
 
@@ -282,8 +289,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
-
-        ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
@@ -348,52 +353,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
 
-                ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        mStart.setBackgroundColor(0x00000000);
-
-                        currentlyTrackingLocation = false;
-
-                        // Get date in format 'tue-may-29-04-58-14-gmt-00-00-2018'
-                        Calendar calendar = Calendar.getInstance();
-                        Date date = calendar.getTime();
-                        String fullDate = date.toString();
-                        fullDate = fullDate.replaceAll("[^A-Za-z0-9]+", "-").toLowerCase();
-
-                        // Reference is pointing to the entry for the 'finished activity
-                        DatabaseReference specificRef = ref
-                               .child("users")
-                               .child(uid)
-                               .child("device")
-                               .child("past")
-                               .child(fullDate);
-
-                        long time = System.currentTimeMillis();
-
-                        // Creates a new object with activity metadata
-                        EventInfo thisEventInfo = new EventInfo("run", time);
-
-                        // Adds the metadata/EventInfo to the new child of the database
-                        specificRef.setValue(thisEventInfo);
-
-                        // Adds the 'current' activity to the path subfolder
-                        specificRef.child("path").setValue(dataSnapshot.getValue());
-
-                        // Removes the current activity
-                        ref.child("users").child(uid).child("device").child("current").removeValue();
-
-                        mapPlotter.clearPolyLines();
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
+                mStart.setBackgroundColor(0x00000000);
+                currentlyTrackingLocation = false;
+                mapPlotter.clearPolyLines();
                 activityRunning  = false;
 
             }
