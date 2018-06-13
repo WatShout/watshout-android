@@ -29,6 +29,8 @@ public class FusedLocation {
     private static GPXCreator gpxCreator;
     private UploadFinishedActivity uploadFinishedActivity;
 
+    private CustomGPXCreator customGPXCreator;
+
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid){
 
@@ -38,6 +40,7 @@ public class FusedLocation {
         this.trackPoints = new ArrayList<>();
         gpxCreator = new GPXCreator(context, uid);
         this.uploadFinishedActivity = new UploadFinishedActivity(uid);
+        customGPXCreator = new CustomGPXCreator();
 
     }
 
@@ -75,6 +78,9 @@ public class FusedLocation {
                     temp.setLongitude(lon);
                     temp.setTime(new Date(time));
                     trackPoints.add(temp);
+
+                    customGPXCreator.addTrackPoint(lat, lon, altitude, 69);
+
                 }
                 else if (trackPoints.size() > 0) {
                     Track tempTrack = new Track();
@@ -87,6 +93,9 @@ public class FusedLocation {
                         uploadFinishedActivity.moveCurrentToPast();
 
                         String date = uploadFinishedActivity.getFormattedDate();
+
+                        customGPXCreator.addFinish();
+                        String done = customGPXCreator.returnFinished();
 
                         try {
                             gpxCreator.writeGPXFile(date);
