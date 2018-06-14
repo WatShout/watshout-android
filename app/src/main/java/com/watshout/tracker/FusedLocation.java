@@ -16,6 +16,7 @@ import org.alternativevision.gpx.beans.Waypoint;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -40,7 +41,7 @@ public class FusedLocation {
         this.trackPoints = new ArrayList<>();
         gpxCreator = new GPXCreator(context, uid);
         this.uploadFinishedActivity = new UploadFinishedActivity(uid);
-        customGPXCreator = new CustomGPXCreator();
+        customGPXCreator = new CustomGPXCreator(context, uid);
 
     }
 
@@ -53,7 +54,6 @@ public class FusedLocation {
                 MainActivity.GPSconnected = true;
 
                 Location location = locationResult.getLocations().get(0);
-
 
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();
@@ -91,11 +91,17 @@ public class FusedLocation {
                     if (!MainActivity.activityRunning) {
 
                         uploadFinishedActivity.moveCurrentToPast();
-
                         String date = uploadFinishedActivity.getFormattedDate();
 
-                        customGPXCreator.addFinish();
-                        String done = customGPXCreator.returnFinished();
+                        /*
+                        try {
+                            customGPXCreator.addFinish();
+                            customGPXCreator.writeFile(date);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        */
+
 
                         try {
                             gpxCreator.writeGPXFile(date);
@@ -107,6 +113,7 @@ public class FusedLocation {
                         } catch (ParserConfigurationException e) {
                             Log.e("ERROR", e + "");
                         }
+
 
                     }
                 }

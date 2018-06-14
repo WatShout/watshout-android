@@ -1,7 +1,14 @@
 package com.watshout.tracker;
 
+import android.content.Context;
 import android.util.Log;
 
+import org.alternativevision.gpx.GPXParser;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -11,13 +18,16 @@ import java.util.TimeZone;
 
 public class CustomGPXCreator {
 
+    private Context context;
     private String currentText;
+    private String uid;
 
 
-    CustomGPXCreator() {
+    CustomGPXCreator(Context context, String uid) {
 
+        this.context = context;
         this.currentText = addStart();
-
+        this.uid = uid;
 
     }
 
@@ -40,6 +50,30 @@ public class CustomGPXCreator {
                 "   </trkpt>";
 
 
+    }
+
+    public void writeFile(String date) throws IOException {
+
+        // These lines of code write the file locally
+        String fileName = date + ".gpx";
+
+        Log.d("GPXTEST", this.currentText);
+
+        File path = context.getExternalFilesDir(null);
+        File file = new File(path, fileName);
+        path.mkdirs();
+        FileOutputStream outStream = new FileOutputStream(file);
+
+        byte[] bytes = this.currentText.getBytes();
+
+        outStream.write(bytes);
+        outStream.close();
+
+        UploadGPX uploadGPX = new UploadGPX(context,
+                uid, date, file);
+
+        // Note: This also makes the call to Strava
+        uploadGPX.uploadToFirebaseStorage();
     }
 
 
@@ -90,5 +124,8 @@ public class CustomGPXCreator {
         return this.currentText;
     }
 
+    public void resetFile() {
+        this.currentText = "";
+    }
 
 }
