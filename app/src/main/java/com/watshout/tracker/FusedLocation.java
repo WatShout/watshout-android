@@ -29,11 +29,10 @@ public class FusedLocation {
     private ArrayList<Waypoint> trackPoints;
     private static GPXCreator gpxCreator;
     private UploadFinishedActivity uploadFinishedActivity;
+    private WriteXML writeXML;
 
-    private CustomGPXCreator customGPXCreator;
 
-
-    FusedLocation(Context context, MapPlotter mapPlotter, String uid){
+    FusedLocation(Context context, MapPlotter mapPlotter, String uid) throws TransformerException, ParserConfigurationException {
 
         this.context = context;
         this.mapPlotter = mapPlotter;
@@ -41,7 +40,8 @@ public class FusedLocation {
         this.trackPoints = new ArrayList<>();
         gpxCreator = new GPXCreator(context, uid);
         this.uploadFinishedActivity = new UploadFinishedActivity(uid);
-        customGPXCreator = new CustomGPXCreator(context, uid);
+
+        writeXML = new WriteXML(context, uid);
 
     }
 
@@ -73,13 +73,14 @@ public class FusedLocation {
 
                 if (MainActivity.currentlyTrackingLocation){
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+
                     TrackPoint temp = new TrackPoint();
                     temp.setLatitude(lat);
                     temp.setLongitude(lon);
                     temp.setTime(new Date(time));
                     trackPoints.add(temp);
 
-                    customGPXCreator.addTrackPoint(lat, lon, altitude, 69);
+                    writeXML.addPoint(lat, lon, altitude, 69);
 
                 }
                 else if (trackPoints.size() > 0) {
@@ -94,14 +95,13 @@ public class FusedLocation {
                         String date = uploadFinishedActivity.getFormattedDate();
 
                         try {
-                            customGPXCreator.addFinish();
-                            customGPXCreator.writeFile(date);
+                            writeXML.saveFile(date);
+                        } catch (TransformerException e) {
+                            e.printStackTrace();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
-
-                        /*
                         try {
                             gpxCreator.writeGPXFile(date);
                             gpxCreator.resetGPXObject();
@@ -112,7 +112,7 @@ public class FusedLocation {
                         } catch (ParserConfigurationException e) {
                             Log.e("ERROR", e + "");
                         }
-                        */
+
 
                     }
                 }

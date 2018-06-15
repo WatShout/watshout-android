@@ -158,7 +158,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        FusedLocation fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter, uid);
+        FusedLocation fusedLocation = null;
+        try {
+            fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter, uid);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
@@ -185,16 +192,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         checkLocationPermissions();
-
-        try {
-            WriteXML test = new WriteXML();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());

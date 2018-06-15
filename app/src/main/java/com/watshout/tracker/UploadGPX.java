@@ -81,7 +81,7 @@ public class UploadGPX {
                         Toast.makeText(context,
                                 "Strava upload failed",
                                 Toast.LENGTH_SHORT).show();
-                                Log.d("STRAVA", "Upload failed");
+                                Log.d("STRAVA", error.toString());
                     }
                 });
                 queue.add(stringRequest);
