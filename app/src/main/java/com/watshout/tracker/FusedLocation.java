@@ -93,16 +93,15 @@ public class FusedLocation {
                         uploadFinishedActivity.moveCurrentToPast();
                         String date = uploadFinishedActivity.getFormattedDate();
 
-                        /*
                         try {
                             customGPXCreator.addFinish();
                             customGPXCreator.writeFile(date);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        */
 
 
+                        /*
                         try {
                             gpxCreator.writeGPXFile(date);
                             gpxCreator.resetGPXObject();
@@ -113,7 +112,7 @@ public class FusedLocation {
                         } catch (ParserConfigurationException e) {
                             Log.e("ERROR", e + "");
                         }
-
+                        */
 
                     }
                 }

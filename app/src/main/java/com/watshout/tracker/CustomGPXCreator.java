@@ -57,7 +57,7 @@ public class CustomGPXCreator {
         // These lines of code write the file locally
         String fileName = date + ".gpx";
 
-        Log.d("GPXTEST", this.currentText);
+        //Log.d("GPXTEST", this.currentText);
 
         File path = context.getExternalFilesDir(null);
         File file = new File(path, fileName);
@@ -65,6 +65,8 @@ public class CustomGPXCreator {
         FileOutputStream outStream = new FileOutputStream(file);
 
         byte[] bytes = this.currentText.getBytes();
+
+        Log.d("GPXTEST", new String(bytes));
 
         outStream.write(bytes);
         outStream.close();
@@ -102,7 +104,7 @@ public class CustomGPXCreator {
                 " http://www.garmin.com/xmlschemas/TrackPointExtension/v1" +
                 " http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd\"" +
                 " xmlns:gpxtpx=\"http://www.garmin.com/xmlschemas/TrackPointExtension/v1\"" +
-                " xmlns:gpxx=\"http://www.garmin.com/xmlschemas/GpxExtensions/v3\">" +
+                " xmlns:gpxx=\"http://www.garmin.com/xmlschemas/GpxExtensions/v3\" >" +
                 " \n<metadata>\n" +
                 "  <time>2018-05-31T15:06:27Z</time>\n" +
                 " </metadata>" +
