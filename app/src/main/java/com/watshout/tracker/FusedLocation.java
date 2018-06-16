@@ -14,9 +14,12 @@ import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -75,19 +78,17 @@ public class FusedLocation {
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
 
                     TrackPoint temp = new TrackPoint();
-                    temp.setLatitude(lat);
-                    temp.setLongitude(lon);
-                    temp.setTime(new Date(time));
                     trackPoints.add(temp);
 
-                    writeXML.addPoint(lat, lon, altitude, 69);
+                    TimeZone tz = TimeZone.getTimeZone("UTC");
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+                    df.setTimeZone(tz);
+                    String nowAsISO = df.format(new Date());
+
+                    writeXML.addPoint(lat, lon, altitude, 69, nowAsISO);
 
                 }
                 else if (trackPoints.size() > 0) {
-                    Track tempTrack = new Track();
-                    tempTrack.setTrackPoints(trackPoints);
-                    gpxCreator.addTrack(tempTrack);
-                    trackPoints = new ArrayList<>();
 
                     if (!MainActivity.activityRunning) {
 
@@ -101,19 +102,6 @@ public class FusedLocation {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
-                        try {
-                            gpxCreator.writeGPXFile(date);
-                            gpxCreator.resetGPXObject();
-                        } catch (IOException e) {
-                            Log.e("ERROR", e + "");
-                        } catch (TransformerException e) {
-                            Log.e("ERROR", e + "");
-                        } catch (ParserConfigurationException e) {
-                            Log.e("ERROR", e + "");
-                        }
-
-
                     }
                 }
 

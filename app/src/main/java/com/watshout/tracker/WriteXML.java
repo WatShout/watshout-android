@@ -68,7 +68,7 @@ class WriteXML {
         this.doc.appendChild(rootElement);
 
         TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
         df.setTimeZone(tz);
         String timeString = df.format(new Date());
 
@@ -97,7 +97,7 @@ class WriteXML {
 
     }
 
-    public void addPoint(double latDouble, double lonDouble, double elevationDouble, int hrInt) {
+    public void addPoint(double latDouble, double lonDouble, double elevationDouble, int hrInt, String timeString) {
 
         String latString = Double.toString(latDouble);
         String lonString = Double.toString(lonDouble);
@@ -117,11 +117,6 @@ class WriteXML {
         Element ele = doc.createElement("ele");
         ele.appendChild(doc.createTextNode(Double.toString(elevationDouble)));
         trkpt.appendChild(ele);
-
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-        df.setTimeZone(tz);
-        String timeString = df.format(new Date());
 
         Element time = doc.createElement("time");
         time.appendChild(doc.createTextNode(timeString));
