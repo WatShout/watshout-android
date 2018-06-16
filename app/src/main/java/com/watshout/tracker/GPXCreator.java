@@ -63,6 +63,8 @@ public class GPXCreator {
         // These lines of code write the file locally
         String fileName = date + ".gpx";
 
+        Log.d("GPXTEST", gpxObject.toString());
+
         File path = context.getExternalFilesDir(null);
         File file = new File(path, fileName);
         path.mkdirs();

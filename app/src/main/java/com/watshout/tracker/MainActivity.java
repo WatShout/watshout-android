@@ -55,6 +55,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+
 
 /*
 ===================================
@@ -154,7 +158,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        FusedLocation fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter, uid);
+        FusedLocation fusedLocation = null;
+        try {
+            fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter, uid);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());

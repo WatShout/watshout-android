@@ -14,8 +14,12 @@ import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -28,9 +32,10 @@ public class FusedLocation {
     private ArrayList<Waypoint> trackPoints;
     private static GPXCreator gpxCreator;
     private UploadFinishedActivity uploadFinishedActivity;
+    private WriteXML writeXML;
 
 
-    FusedLocation(Context context, MapPlotter mapPlotter, String uid){
+    FusedLocation(Context context, MapPlotter mapPlotter, String uid) throws TransformerException, ParserConfigurationException {
 
         this.context = context;
         this.mapPlotter = mapPlotter;
@@ -38,6 +43,8 @@ public class FusedLocation {
         this.trackPoints = new ArrayList<>();
         gpxCreator = new GPXCreator(context, uid);
         this.uploadFinishedActivity = new UploadFinishedActivity(uid);
+
+        writeXML = new WriteXML(context, uid);
 
     }
 
@@ -50,7 +57,6 @@ public class FusedLocation {
                 MainActivity.GPSconnected = true;
 
                 Location location = locationResult.getLocations().get(0);
-
 
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();
@@ -70,35 +76,32 @@ public class FusedLocation {
 
                 if (MainActivity.currentlyTrackingLocation){
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+
                     TrackPoint temp = new TrackPoint();
-                    temp.setLatitude(lat);
-                    temp.setLongitude(lon);
-                    temp.setTime(new Date(time));
                     trackPoints.add(temp);
+
+                    TimeZone tz = TimeZone.getTimeZone("UTC");
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+                    df.setTimeZone(tz);
+                    String nowAsISO = df.format(new Date());
+
+                    writeXML.addPoint(lat, lon, altitude, 69, nowAsISO);
+
                 }
                 else if (trackPoints.size() > 0) {
-                    Track tempTrack = new Track();
-                    tempTrack.setTrackPoints(trackPoints);
-                    gpxCreator.addTrack(tempTrack);
-                    trackPoints = new ArrayList<>();
 
                     if (!MainActivity.activityRunning) {
 
                         uploadFinishedActivity.moveCurrentToPast();
-
                         String date = uploadFinishedActivity.getFormattedDate();
 
                         try {
-                            gpxCreator.writeGPXFile(date);
-                            gpxCreator.resetGPXObject();
-                        } catch (IOException e) {
-                            Log.e("ERROR", e + "");
+                            writeXML.saveFile(date);
                         } catch (TransformerException e) {
-                            Log.e("ERROR", e + "");
-                        } catch (ParserConfigurationException e) {
-                            Log.e("ERROR", e + "");
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-
                     }
                 }
 
