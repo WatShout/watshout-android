@@ -121,9 +121,9 @@ public class FusedLocation {
 
         LocationRequest locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(5000)
-                .setFastestInterval(3000)
-                .setSmallestDisplacement(5);
+                .setInterval(1000)
+                .setFastestInterval(1000)
+                .setSmallestDisplacement(1);
 
         return locationRequest;
 
