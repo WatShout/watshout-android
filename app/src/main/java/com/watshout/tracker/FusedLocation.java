@@ -9,16 +9,13 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 
-import org.alternativevision.gpx.beans.Track;
 import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,21 +27,16 @@ public class FusedLocation {
     private MapPlotter mapPlotter;
     private String uid;
     private ArrayList<Waypoint> trackPoints;
-    private static GPXCreator gpxCreator;
-    private UploadFinishedActivity uploadFinishedActivity;
-    private WriteXML writeXML;
+    private XMLCreator XMLCreator;
 
 
-    FusedLocation(Context context, MapPlotter mapPlotter, String uid) throws TransformerException, ParserConfigurationException {
+    FusedLocation(Context context, MapPlotter mapPlotter, String uid, XMLCreator XMLCreator) throws TransformerException, ParserConfigurationException {
 
         this.context = context;
         this.mapPlotter = mapPlotter;
         this.uid = uid;
         this.trackPoints = new ArrayList<>();
-        gpxCreator = new GPXCreator(context, uid);
-        this.uploadFinishedActivity = new UploadFinishedActivity(uid);
-
-        writeXML = new WriteXML(context, uid);
+        this.XMLCreator = XMLCreator;
 
     }
 
@@ -85,26 +77,9 @@ public class FusedLocation {
                     df.setTimeZone(tz);
                     String nowAsISO = df.format(new Date());
 
-                    writeXML.addPoint(lat, lon, altitude, 69, nowAsISO);
+                    XMLCreator.addPoint(lat, lon, altitude, 69, nowAsISO);
 
                 }
-                else if (trackPoints.size() > 0) {
-
-                    if (!MainActivity.activityRunning) {
-
-                        uploadFinishedActivity.moveCurrentToPast();
-                        String date = uploadFinishedActivity.getFormattedDate();
-
-                        try {
-                            writeXML.saveFile(date);
-                        } catch (TransformerException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
             }
 
             @Override

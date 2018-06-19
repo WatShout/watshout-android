@@ -9,7 +9,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Calendar;
 import java.util.Date;
 
-public class UploadFinishedActivity {
+public class UploadToDatabase {
 
     private String uid;
     private String currentDate;
@@ -18,7 +18,7 @@ public class UploadFinishedActivity {
             .getInstance()
             .getReference();
 
-    UploadFinishedActivity(String uid){
+    UploadToDatabase(String uid){
         this.uid = uid;
         this.currentDate = createFormattedDate();
     }

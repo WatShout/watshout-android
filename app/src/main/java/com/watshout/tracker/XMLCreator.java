@@ -1,7 +1,21 @@
 package com.watshout.tracker;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,26 +37,35 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.alternativevision.gpx.beans.GPX;
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-class WriteXML {
+class XMLCreator {
 
     private Document doc;
     private Context context;
     private String uid;
     private DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
     private DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+    private File gpxFile;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storageReference = storage.getReference();
+    private String date;
 
 
-    WriteXML(Context context, String uid) throws ParserConfigurationException, TransformerException {
+    XMLCreator(Context context, String uid) throws ParserConfigurationException, TransformerException {
 
         this.context = context;
         this.uid = uid;
 
         this.doc = docBuilder.newDocument();
+        initializeNewFile();
+    }
 
+    private void initializeNewFile() {
         Element rootElement = this.doc.createElement("gpx");
 
         Attr xmlns = doc.createAttribute("xmlns");
@@ -131,13 +154,18 @@ class WriteXML {
         trkpt.appendChild(extensions);
 
         trkseg.appendChild(trkpt);
+
+        Log.d("GPX", "Added point to GPX file");
     }
 
     public void saveFile(String date) throws TransformerException, IOException {
         String fileName = date + ".gpx";
 
+        this.date = date;
+
         File path = context.getExternalFilesDir(null);
         File file = new File(path, fileName);
+        this.gpxFile = file;
         assert path != null;
         path.mkdirs();
 
@@ -151,12 +179,63 @@ class WriteXML {
 
         transformer.transform(source, result);
 
-        UploadGPX uploadGPX = new UploadGPX(context,
-                uid, date, file);
+        Log.d("GPX", "Saved GPX locally");
 
-        // Note: This also makes the call to Strava
-        uploadGPX.uploadToFirebaseStorage();
+    }
 
+    private byte[] fileToBytes(File gpx) throws IOException {
+
+        return FileUtils.readFileToByteArray(gpx);
+
+    }
+
+    public void uploadToFirebaseStorage() throws IOException {
+
+        byte[] bytes = fileToBytes(gpxFile);
+
+        final String date = this.date;
+
+        String fileName = date + ".gpx";
+
+        storageReference.child("users").child(uid).child("gpx").child(fileName)
+                .putBytes(bytes).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                Log.d("GPX", "Uploaded GPX to Firebase Storage correctly");
+
+                RequestQueue queue = Volley.newRequestQueue(context);
+                String url = "https://watshout.herokuapp.com/mobile/strava/" + uid + "/" + date + "/";
+
+                // Request a string response from the provided URL.
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+
+                                Toast.makeText(context,
+                                        "Uploaded to Strava!",
+                                        Toast.LENGTH_SHORT).show();
+                                Log.d("GPX", "Uploaded GPX to Strava correctly");
+
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context,
+                                "Strava upload failed",
+                                Toast.LENGTH_SHORT).show();
+                        Log.d("GPX", "Uploading GPX to Strava failed: " + error);
+                    }
+                });
+                queue.add(stringRequest);
+            }
+        });
+    }
+
+    public void resetXML() {
+        this.doc = docBuilder.newDocument();
+        initializeNewFile();
+        Log.d("GPX", "Reset GPX file locally");
     }
 
 

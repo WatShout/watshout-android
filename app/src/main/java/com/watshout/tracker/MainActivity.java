@@ -49,14 +49,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.alternativevision.gpx.beans.GPX;
-import java.text.SimpleDateFormat;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 
@@ -111,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     static boolean currentlyTrackingLocation = false;
     static boolean activityRunning = false;
 
+    XMLCreator XMLCreator;
+
     PopupWindow popupWindow;
     LayoutInflater layoutInflater;
 
@@ -156,11 +154,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mapPlotter = new MapPlotter(markerList, googleMapGlobal);
 
+        try {
+            XMLCreator = new XMLCreator(getApplicationContext(), uid);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
         FusedLocation fusedLocation = null;
         try {
-            fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter, uid);
+            fusedLocation = new FusedLocation(getApplicationContext(), mapPlotter, uid, XMLCreator);
         } catch (TransformerException e) {
             e.printStackTrace();
         } catch (ParserConfigurationException e) {
@@ -368,6 +374,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 currentlyTrackingLocation = false;
                 mapPlotter.clearPolyLines();
                 activityRunning  = false;
+
+                // Performs Firebase realtime database operations
+                UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
+                uploadToDatabase.moveCurrentToPast();
+
+                String date = uploadToDatabase.getFormattedDate();
+
+                try {
+                    XMLCreator.saveFile(date);
+                } catch (TransformerException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    XMLCreator.uploadToFirebaseStorage();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                XMLCreator.resetXML();
+
 
             }
 
