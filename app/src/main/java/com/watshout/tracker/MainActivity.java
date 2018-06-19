@@ -123,8 +123,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button mViewFriends;
     TextView mGreeting;
 
-    Old_MyNotificationManager oldMyNotificationManager;
-
     String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION};
 
     // For permissions
@@ -179,18 +177,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapPlotter.moveCamera(zoom);
     }
 
-    public void notifyUser(String from, String notification) {
-
-        oldMyNotificationManager = new Old_MyNotificationManager(getApplicationContext());
-
-        oldMyNotificationManager.showNotification(
-                from,
-                notification,
-                new Intent(getApplicationContext(), MainActivity.class)
-        );
-
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -201,23 +187,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
-
-        // TODO: Clean up this mess
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            NotificationChannel mChannel =
-                    new NotificationChannel(Constants.CHANNEL_ID, Constants.CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
-
-            mChannel.setDescription(Constants.CHANNEL_DESCRIPTION);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.RED);
-            mChannel.enableVibration(true);
-            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-
-            mNotificationManager.createNotificationChannel(mChannel);
-
-        }
 
         mStart = findViewById(R.id.start);
         mStop = findViewById(R.id.stop);
