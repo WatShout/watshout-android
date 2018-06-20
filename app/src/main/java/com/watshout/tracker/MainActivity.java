@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
@@ -50,7 +51,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -123,6 +126,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button mViewFriends;
     TextView mGreeting;
 
+    private int seconds = 0;
+    private boolean startRun;
+
     String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION};
 
     // For permissions
@@ -185,6 +191,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         checkLocationPermissions();
 
+        Timer();
+
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
 
@@ -193,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mCurrent = findViewById(R.id.current);
         mSignOut = findViewById(R.id.signout);
         mGreeting = findViewById(R.id.greeting);
-        mAddFriend = findViewById(R.id.addfriend);
+        //mAddFriend = findViewById(R.id.addfriend);
         mViewFriends = findViewById(R.id.viewFriends);
 
         String greetingText = "Hello, " + email;
@@ -300,6 +308,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
 
+                startRun = !startRun;
 
                 if (!activityRunning){
                     ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -338,6 +347,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                startRun = false;
+                seconds = 0;
 
                 mStart.setBackgroundColor(0x00000000);
                 currentlyTrackingLocation = false;
@@ -388,6 +400,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        /*
         mAddFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -436,6 +449,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
             }
         });
+        */
 
         mViewFriends.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -492,6 +506,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
+    }
+
+    private void Timer(){
+        final TextView timeView = (TextView)findViewById(R.id.time_view);
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                int hours = seconds/3600;
+                int minutes = (seconds%3600)/60/10;
+                int secs = seconds / 10;
+                int millis = seconds;
+
+                // with java.util.Date/Calendar api
+                final Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(seconds);
+                // and here's how to get the String representation
+                @SuppressLint("SimpleDateFormat") final String timeString =
+                        new SimpleDateFormat("H:mm:ss.SSS").format(cal.getTime());
+
+                //String time = String.format("%d:%02d:%02d.%02d", hours, minutes, secs, millis);
+
+                timeView.setText(timeString);
+
+                if(startRun){
+                    seconds += 25;
+                }
+
+                handler.postDelayed(this, 10);
+            }
+        });
+
     }
 
     @Override

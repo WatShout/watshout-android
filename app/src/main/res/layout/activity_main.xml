@@ -41,14 +41,6 @@
         android:text="Hello Test User" />
 
     <Button
-        android:id="@+id/addfriend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="Add Friend" />
-
-    <Button
         android:id="@+id/viewFriends"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,6 +64,14 @@
         android:layout_below="@+id/map"
         android:background="@android:color/holo_red_dark"
         android:text="Stop" />
+
+    <TextView
+        android:id="@+id/time_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/signout"
+        android:layout_centerHorizontal="true"
+        android:text="000" />
 
 
 </RelativeLayout>
