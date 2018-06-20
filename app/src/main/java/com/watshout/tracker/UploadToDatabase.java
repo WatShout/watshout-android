@@ -23,7 +23,6 @@ public class UploadToDatabase {
         this.currentDate = createFormattedDate();
     }
 
-
     // Get date in format 'tue-may-29-04-58-14-gmt-00-00-2018'
     private String createFormattedDate() {
 
@@ -63,9 +62,13 @@ public class UploadToDatabase {
                         ref.child("users").child(uid).child("device").child("past")
                                 .child(date).setValue(metadata);
 
+                        // Removed this part -- We are building a GPX file so there's no need to
+                        // leave a bulky Firebase entry of a run
+                        /*
                         ref.child("users").child(uid).child("device").child("past")
                                 .child(date).child("path")
                                 .setValue(dataSnapshot.getValue());
+                         */
 
                         removeCurrentEntry();
                     }
@@ -80,6 +83,4 @@ public class UploadToDatabase {
     private void removeCurrentEntry() {
         ref.child("users").child(uid).child("device").child("current").removeValue();
     }
-
-
 }
