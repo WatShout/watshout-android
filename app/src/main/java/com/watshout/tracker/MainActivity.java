@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -50,7 +53,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -122,6 +127,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button mAddFriend;
     Button mViewFriends;
     TextView mGreeting;
+    TextView mTimerText;
+
+    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
+    Handler handler;
+    int Seconds, Minutes, MilliSeconds ;
+
+    private boolean timeRunning = false;
 
     String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION};
 
@@ -193,8 +205,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mCurrent = findViewById(R.id.current);
         mSignOut = findViewById(R.id.signout);
         mGreeting = findViewById(R.id.greeting);
-        mAddFriend = findViewById(R.id.addfriend);
+        //mAddFriend = findViewById(R.id.addfriend);
         mViewFriends = findViewById(R.id.viewFriends);
+        mTimerText = findViewById(R.id.timerText);
+        handler = new Handler() ;
 
         String greetingText = "Hello, " + email;
 
@@ -300,6 +314,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
 
+                if (timeRunning){
+                    TimeBuff += MillisecondTime;
+                    handler.removeCallbacks(runnable);
+                    timeRunning = false;
+                } else {
+                    StartTime = SystemClock.uptimeMillis();
+                    handler.postDelayed(runnable, 0);
+                    timeRunning = true;
+                }
 
                 if (!activityRunning){
                     ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -322,7 +345,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     activityRunning = true;
                 }
 
-
                 if (!currentlyTrackingLocation){
                     mStart.setBackgroundColor(Color.GREEN);
                 } else {
@@ -338,6 +360,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                MillisecondTime = 0L ;
+                StartTime = 0L ;
+                TimeBuff = 0L ;
+                UpdateTime = 0L ;
+                Seconds = 0 ;
+                Minutes = 0 ;
+                MilliSeconds = 0 ;
+
+                mTimerText.setText("00:00:00");
 
                 mStart.setBackgroundColor(0x00000000);
                 currentlyTrackingLocation = false;
@@ -385,55 +417,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 finish();
                             }
                         });
-            }
-        });
-
-        mAddFriend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-
-                assert layoutInflater != null;
-                ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.add_friend, null);
-
-                popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
-                popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
-
-                final EditText mEmail = container.findViewById(R.id.email);
-
-                Button mButton = container.findViewById(R.id.request_friend);
-                mButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        final String theirEmail = mEmail.getText().toString().toLowerCase().replaceAll("\\s+", "");
-
-                        ref.child("users").orderByChild("email").equalTo(theirEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                    String theirID = childSnapshot.getKey();
-
-                                    ref.child("friend_requests").child(theirID).child(uid).child("request_type")
-                                            .setValue("received");
-                                    ref.child("friend_requests").child(uid).child(theirID).child("request_type")
-                                            .setValue("sent");
-
-                                    Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_SHORT).show();
-
-                                    popupWindow.dismiss();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-                });
             }
         });
 
@@ -493,6 +476,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+
+    public Runnable runnable = new Runnable() {
+
+        public void run() {
+
+            MillisecondTime = SystemClock.uptimeMillis() - StartTime;
+
+            UpdateTime = TimeBuff + MillisecondTime;
+
+            Seconds = (int) (UpdateTime / 1000);
+
+            Minutes = Seconds / 60;
+
+            Seconds = Seconds % 60;
+
+            MilliSeconds = (int) (UpdateTime % 1000);
+
+            mTimerText.setText("" + Minutes + ":"
+                    + String.format("%02d", Seconds) + ":"
+                    + String.format("%03d", MilliSeconds));
+
+            handler.postDelayed(this, 0);
+        }
+
+    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
