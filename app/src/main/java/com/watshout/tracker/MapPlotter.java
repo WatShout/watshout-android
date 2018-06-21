@@ -69,6 +69,10 @@ public class MapPlotter {
 
     }
 
+    public void addFriendMarker(double lat, double lon){
+
+    }
+
     public void addMarker(double lat, double lon){
 
         LatLng currentLocation = new LatLng(lat, lon);

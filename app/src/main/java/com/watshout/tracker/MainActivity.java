@@ -199,6 +199,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         checkLocationPermissions();
 
+        final FriendData friendData = new FriendData(uid);
+
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getApplicationContext());
 
