@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Resource file declarations
     Button mStart;
+    Button mLap;
     Button mStop;
     Button mCurrent;
     Button mSignOut;
@@ -128,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button mViewFriends;
     TextView mGreeting;
     TextView mTimerText;
+    long originalStartTime;
 
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
@@ -208,12 +210,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //mAddFriend = findViewById(R.id.addfriend);
         mViewFriends = findViewById(R.id.viewFriends);
         mTimerText = findViewById(R.id.timerText);
+        mLap = findViewById(R.id.lap);
         handler = new Handler() ;
 
         String greetingText = "Hello, " + email;
 
         mGreeting.setText(greetingText);
-        mStart.setBackgroundColor(0x00000000);
+        mStart.setBackgroundResource(android.R.drawable.btn_default);
 
         mRelativeLayout = findViewById(R.id.relative);
 
@@ -308,6 +311,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        mLap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (timeRunning){
+                    Log.d("TIME", mTimerText.getText().toString());
+                    StartTime = SystemClock.uptimeMillis();
+                    TimeBuff = 0;
+                    handler.postDelayed(runnable, 0);
+                } else {
+
+                }
+            }
+        });
+
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -318,6 +336,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     timeRunning = false;
                 } else {
                     StartTime = SystemClock.uptimeMillis();
+                    originalStartTime = StartTime;
                     handler.postDelayed(runnable, 0);
                     timeRunning = true;
                 }
@@ -346,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (!currentlyTrackingLocation){
                     mStart.setBackgroundColor(Color.GREEN);
                 } else {
-                    mStart.setBackgroundColor(0x00000000);
+                    mStart.setBackgroundResource(android.R.drawable.btn_default);;
                 }
 
                 currentlyTrackingLocation = !currentlyTrackingLocation;
@@ -366,10 +385,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Seconds = 0 ;
                 Minutes = 0 ;
                 MilliSeconds = 0 ;
+                handler.removeCallbacks(runnable);
+                timeRunning = false;
 
-                mTimerText.setText("00:00:00");
+                mTimerText.setText("0:00");
 
-                mStart.setBackgroundColor(0x00000000);
+                mStart.setBackgroundResource(android.R.drawable.btn_default);
                 currentlyTrackingLocation = false;
                 mapPlotter.clearPolyLines();
                 activityRunning  = false;
@@ -491,9 +512,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             MilliSeconds = (int) (UpdateTime % 1000);
 
+            int milliFirstDigit = Integer.parseInt(Integer.toString(MilliSeconds).substring(0, 1));
+
             mTimerText.setText("" + Minutes + ":"
-                    + String.format("%02d", Seconds) + ":"
-                    + String.format("%03d", MilliSeconds));
+                    + String.format("%02d", Seconds));
 
             handler.postDelayed(this, 0);
         }
