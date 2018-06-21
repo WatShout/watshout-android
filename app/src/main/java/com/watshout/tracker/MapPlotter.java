@@ -1,6 +1,7 @@
 package com.watshout.tracker;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -38,10 +39,10 @@ public class MapPlotter {
     private Bitmap profilePic;
 
 
-    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf, Bitmap profilePic){
+    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf){
         this.markers = markers;
         this.googleMap = googleMap;
-        this.profilePic = profilePic;
+        this.profilePic = null;
 
         if (isSelf){
             this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
@@ -53,6 +54,10 @@ public class MapPlotter {
                 }
             });
         }
+    }
+
+    public void setProfilePic(Bitmap profilePic){
+        this.profilePic = profilePic;
     }
 
     public void moveCamera(float zoom) {
@@ -79,10 +84,20 @@ public class MapPlotter {
         LatLng currentLocation = new LatLng(lat, lon);
         LatLng previousLocation;
 
+        BitmapDescriptor icon;
+
+        if (profilePic == null){
+            icon = currentLocationIcon;
+        } else {
+            icon = BitmapDescriptorFactory.fromBitmap(profilePic);
+        }
+
         // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
-        final Marker newMarker = googleMap.addMarker(new MarkerOptions()
+        Marker newMarker = googleMap.addMarker(new MarkerOptions()
                 .position(currentLocation)
-                .icon(BitmapDescriptorFactory.fromBitmap(profilePic)));
+                .icon(icon));
+
+        Log.d("FRIEND", markers.toString());
 
         if (markers.size() == 0) {
             previousLocation = currentLocation;
@@ -110,7 +125,7 @@ public class MapPlotter {
         LatLng previousLocation;
 
         // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
-        final Marker newMarker = googleMap.addMarker(new MarkerOptions()
+        Marker newMarker = googleMap.addMarker(new MarkerOptions()
                 .position(currentLocation)
                 .icon(currentLocationIcon));
 

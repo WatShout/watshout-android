@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Marker list is a array of the current user's Markers
         markerList = new ArrayList<>();
 
-        mapPlotter = new MapPlotter(markerList, googleMapGlobal, true, null);
+        mapPlotter = new MapPlotter(markerList, googleMapGlobal, true);
 
         try {
             XMLCreator = new XMLCreator(getApplicationContext(), uid);
