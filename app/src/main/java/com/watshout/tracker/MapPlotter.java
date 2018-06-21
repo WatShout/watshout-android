@@ -1,8 +1,11 @@
 package com.watshout.tracker;
 
+import android.graphics.Bitmap;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -32,21 +35,24 @@ public class MapPlotter {
     private GoogleMap googleMap;
     private Boolean isMapFollowing = true;
     private ArrayList<Polyline> polylines = new ArrayList<>();
+    private Bitmap profilePic;
 
 
-    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap){
+    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf, Bitmap profilePic){
         this.markers = markers;
         this.googleMap = googleMap;
+        this.profilePic = profilePic;
 
-        this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
+        if (isSelf){
+            this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+                @Override
+                public void onCameraMove() {
 
-                isMapFollowing = false;
+                    isMapFollowing = false;
 
-            }
-        });
-
+                }
+            });
+        }
     }
 
     public void moveCamera(float zoom) {
@@ -70,6 +76,31 @@ public class MapPlotter {
     }
 
     public void addFriendMarker(double lat, double lon){
+        LatLng currentLocation = new LatLng(lat, lon);
+        LatLng previousLocation;
+
+        // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
+        final Marker newMarker = googleMap.addMarker(new MarkerOptions()
+                .position(currentLocation)
+                .icon(BitmapDescriptorFactory.fromBitmap(profilePic)));
+
+        if (markers.size() == 0) {
+            previousLocation = currentLocation;
+        } else {
+            previousLocation = markers.get(markers.size() - 1).getPosition();
+            markers.get(markers.size() - 1).setIcon(null);
+            markers.get(markers.size() - 1).setVisible(false);
+        }
+
+        markers.add(newMarker);
+
+        if (markers.size() > 0) {
+
+            polylines.add(googleMap.addPolyline(new PolylineOptions()
+                    .add(previousLocation, currentLocation)
+                    .width(10)));
+
+        }
 
     }
 
