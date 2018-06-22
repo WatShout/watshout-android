@@ -79,12 +79,14 @@ class FriendData {
 
                                             profilePic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-                                            int height = 80;
-                                            int width = 60;
+                                            Bitmap squareProfilePic = getSquareBitmap(profilePic);
 
-                                            profilePic = Bitmap.createScaledBitmap(profilePic, width, height, false);
+                                            int height = 50;
+                                            int width = 50;
 
-                                            mapPlotterList.get(theirUID).setProfilePic(profilePic);
+                                            Bitmap finalProfilePic = Bitmap.createScaledBitmap(squareProfilePic, width, height, false);
+
+                                            mapPlotterList.get(theirUID).setProfilePic(finalProfilePic);
 
 
                                         }
@@ -116,6 +118,8 @@ class FriendData {
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                        mapPlotterList.get(theirUID).removeFromMap();
 
                     }
 
@@ -153,6 +157,20 @@ class FriendData {
             }
         });
 
+    }
+
+    private Bitmap getSquareBitmap(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+
+        int narrowSize = Math.min(width, height);
+        int differ = (int)Math.abs((bm.getHeight() - bm.getWidth())/2.0f);
+        width  = (width  == narrowSize) ? 0 : differ;
+        height = (width == 0) ? differ : 0;
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, width, height, narrowSize, narrowSize);
+        bm.recycle();
+        return resizedBitmap;
     }
 
 }
