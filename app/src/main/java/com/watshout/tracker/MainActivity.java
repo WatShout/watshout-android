@@ -249,21 +249,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mStart = findViewById(R.id.start);
         mStop = findViewById(R.id.stop);
-        mCurrent = findViewById(R.id.current);
-        mSignOut = findViewById(R.id.signout);
-        mGreeting = findViewById(R.id.greeting);
+        //mCurrent = findViewById(R.id.current);
+        //mSignOut = findViewById(R.id.signout);
+        //mGreeting = findViewById(R.id.greeting);
         //mAddFriend = findViewById(R.id.addfriend);
-        mViewFriends = findViewById(R.id.viewFriends);
+        //mViewFriends = findViewById(R.id.viewFriends);
         mTimerText = findViewById(R.id.timerText);
-        mLap = findViewById(R.id.lap);
+        //mLap = findViewById(R.id.lap);
         handler = new Handler() ;
 
         String greetingText = "Hello, " + email;
 
-        mGreeting.setText(greetingText);
+        //mGreeting.setText(greetingText);
         mStart.setBackgroundResource(android.R.drawable.btn_default);
 
-        mRelativeLayout = findViewById(R.id.relative);
+        //mRelativeLayout = findViewById(R.id.relative);
 
         isMapMoving = true;
 
@@ -339,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
 
+        /*
         // Sets current location
         mCurrent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -355,7 +356,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+        */
 
+        /*
         mLap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -370,6 +373,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+        */
 
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -469,6 +473,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         });
 
+        /*
         mSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -493,6 +498,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(intent);
             }
         });
+        */
 
         // TODO: Turn this into push notification
         ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {

@@ -119,7 +119,7 @@ class FriendData {
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-                        mapPlotterList.get(theirUID).removeFromMap();
+
 
                     }
 
