@@ -38,7 +38,7 @@
         android:id="@+id/current"
         android:layout_width="wrap_content"
         android:layout_height="37dp"
-        android:layout_above="@+id/signout"
+        android:layout_above="@+id/timerText"
         android:layout_centerHorizontal="true"
         android:text="Current Location" />
 
@@ -59,14 +59,6 @@
         android:text="Hello Test User" />
 
     <Button
-        android:id="@+id/addfriend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="Add Friend" />
-
-    <Button
         android:id="@+id/viewFriends"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -79,15 +71,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/map"
+        android:layout_alignTop="@+id/current"
         android:text="Start" />
 
     <Button
         android:id="@+id/stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/signout"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/map"
         android:background="@android:color/holo_red_dark"
         android:text="Stop" />
 
@@ -110,5 +102,26 @@
         android:fitsSystemWindows="true"
         app:menu="@menu/drawer_view"
         app:headerLayout="@layout/nav_header"/>
+
+    <TextView
+        android:id="@+id/timerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="13dp"
+        android:text="0:00"
+        android:textColor="#009688"
+        android:textSize="42dp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/lap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/current"
+        android:layout_alignParentStart="true"
+        android:text="LAP" />
+
 
 </android.support.v4.widget.DrawerLayout>

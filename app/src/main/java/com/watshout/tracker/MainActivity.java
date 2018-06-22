@@ -6,9 +6,18 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -27,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -58,7 +68,9 @@ import com.google.firebase.database.ValueEventListener;
 import org.apache.log4j.chainsaw.Main;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -127,12 +139,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Resource file declarations
     Button mStart;
+    Button mLap;
     Button mStop;
     Button mCurrent;
     Button mSignOut;
     Button mAddFriend;
     Button mViewFriends;
     TextView mGreeting;
+    TextView mTimerText;
+    long originalStartTime;
+
+    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
+    Handler handler;
+    int Seconds, Minutes, MilliSeconds ;
+
+    private boolean timeRunning = false;
 
     String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION};
 
@@ -161,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Marker list is a array of the current user's Markers
         markerList = new ArrayList<>();
 
-        mapPlotter = new MapPlotter(markerList, googleMapGlobal);
+        mapPlotter = new MapPlotter(markerList, googleMapGlobal, true);
 
         try {
             XMLCreator = new XMLCreator(getApplicationContext(), uid);
@@ -170,6 +191,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (TransformerException e) {
             e.printStackTrace();
         }
+
+        FriendData friendData = new FriendData(uid, googleMapGlobal);
 
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
@@ -229,13 +252,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mCurrent = findViewById(R.id.current);
         mSignOut = findViewById(R.id.signout);
         mGreeting = findViewById(R.id.greeting);
-        mAddFriend = findViewById(R.id.addfriend);
+        //mAddFriend = findViewById(R.id.addfriend);
         mViewFriends = findViewById(R.id.viewFriends);
+        mTimerText = findViewById(R.id.timerText);
+        mLap = findViewById(R.id.lap);
+        handler = new Handler() ;
 
         String greetingText = "Hello, " + email;
 
         mGreeting.setText(greetingText);
-        mStart.setBackgroundColor(0x00000000);
+        mStart.setBackgroundResource(android.R.drawable.btn_default);
 
         mRelativeLayout = findViewById(R.id.relative);
 
@@ -292,8 +318,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                             popupWindow.dismiss();
 
-
-
                         }
                     });
 
@@ -332,10 +356,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        mLap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (timeRunning){
+                    Log.d("TIME", mTimerText.getText().toString());
+                    StartTime = SystemClock.uptimeMillis();
+                    TimeBuff = 0;
+                    handler.postDelayed(runnable, 0);
+                } else {
+
+                }
+            }
+        });
+
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                if (timeRunning){
+                    TimeBuff += MillisecondTime;
+                    handler.removeCallbacks(runnable);
+                    timeRunning = false;
+                } else {
+                    StartTime = SystemClock.uptimeMillis();
+                    originalStartTime = StartTime;
+                    handler.postDelayed(runnable, 0);
+                    timeRunning = true;
+                }
 
                 if (!activityRunning){
                     ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -358,11 +407,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     activityRunning = true;
                 }
 
-
                 if (!currentlyTrackingLocation){
                     mStart.setBackgroundColor(Color.GREEN);
+                    mStart.setText("PAUSE");
                 } else {
-                    mStart.setBackgroundColor(0x00000000);
+                    mStart.setBackgroundResource(android.R.drawable.btn_default);
+                    mStart.setText("PLAY");
                 }
 
                 currentlyTrackingLocation = !currentlyTrackingLocation;
@@ -375,7 +425,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
 
-                mStart.setBackgroundColor(0x00000000);
+                MillisecondTime = 0L ;
+                StartTime = 0L ;
+                TimeBuff = 0L ;
+                UpdateTime = 0L ;
+                Seconds = 0 ;
+                Minutes = 0 ;
+                MilliSeconds = 0 ;
+                handler.removeCallbacks(runnable);
+                timeRunning = false;
+
+                mTimerText.setText("0:00");
+
+                mStart.setBackgroundResource(android.R.drawable.btn_default);
                 currentlyTrackingLocation = false;
                 mapPlotter.clearPolyLines();
                 activityRunning  = false;
@@ -421,55 +483,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 finish();
                             }
                         });
-            }
-        });
-
-        mAddFriend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-
-                assert layoutInflater != null;
-                ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.add_friend, null);
-
-                popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
-                popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
-
-                final EditText mEmail = container.findViewById(R.id.email);
-
-                Button mButton = container.findViewById(R.id.request_friend);
-                mButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        final String theirEmail = mEmail.getText().toString().toLowerCase().replaceAll("\\s+", "");
-
-                        ref.child("users").orderByChild("email").equalTo(theirEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                    String theirID = childSnapshot.getKey();
-
-                                    ref.child("friend_requests").child(theirID).child(uid).child("request_type")
-                                            .setValue("received");
-                                    ref.child("friend_requests").child(uid).child(theirID).child("request_type")
-                                            .setValue("sent");
-
-                                    Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_SHORT).show();
-
-                                    popupWindow.dismiss();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-                });
             }
         });
 
@@ -529,6 +542,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+
+    public Runnable runnable = new Runnable() {
+
+        public void run() {
+
+            MillisecondTime = SystemClock.uptimeMillis() - StartTime;
+
+            UpdateTime = TimeBuff + MillisecondTime;
+
+            Seconds = (int) (UpdateTime / 1000);
+
+            Minutes = Seconds / 60;
+
+            Seconds = Seconds % 60;
+
+            MilliSeconds = (int) (UpdateTime % 1000);
+
+            int milliFirstDigit = Integer.parseInt(Integer.toString(MilliSeconds).substring(0, 1));
+
+            mTimerText.setText("" + Minutes + ":"
+                    + String.format("%02d", Seconds));
+
+            handler.postDelayed(this, 0);
+        }
+
+    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
