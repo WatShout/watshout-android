@@ -11,13 +11,19 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -49,6 +55,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.log4j.chainsaw.Main;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -71,7 +79,10 @@ like the maps and Firebase things, etc.
 ====================================
  */
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
+        NavigationView.OnNavigationItemSelectedListener {
+
+    DrawerLayout mDrawerLayout;
 
     // Location objects
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -183,6 +194,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_hamburger);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // set item as selected to persist highlight
+                        menuItem.setChecked(true);
+                        // close drawer when item is tapped
+                        mDrawerLayout.closeDrawers();
+
+                        // Add code here to update the UI based on the item selected
+                        // For example, swap UI fragments here
+
+                        return true;
+                    }
+                });
+
         checkLocationPermissions();
 
         // This helps the app not crash in certain contexts
@@ -211,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         // Removes the top bar on top of the map
-        getSupportActionBar().hide();
+        //getSupportActionBar().hide();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -529,6 +565,54 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     permCode);
 
         }
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        System.out.println("in here");
+        if (id == R.id.nav_home) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else if (id == R.id.nav_music) {
+
+        } else if (id == R.id.nav_friends) {
+
+
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            MainActivity.this.startActivity(intent);
+            System.out.println("!!!!!!!!!!!!!");
+
+        }
+
+
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        menuItem.setChecked(true);
+                        mDrawerLayout.closeDrawers();
+                        return true;
+                    }
+                });
     }
 
 }

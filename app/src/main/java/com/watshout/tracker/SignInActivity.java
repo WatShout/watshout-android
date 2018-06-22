@@ -34,7 +34,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
         // Removes the top bar on top of the map
-        getSupportActionBar().hide();
+        //getSupportActionBar().hide();
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
