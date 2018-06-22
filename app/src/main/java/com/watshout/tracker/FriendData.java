@@ -21,33 +21,26 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class FriendData {
+class FriendData {
 
-    final long TEN_MEGABYTE = 10 * 1024 * 1024;
+    private final long TEN_MEGABYTE = 10 * 1024 * 1024;
 
     private DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
 
     // [theirUID, isUserTracking]
-    private HashMap<String, Boolean> friendsList;
     private HashMap<String, MapPlotter> mapPlotterList;
-    private String uid;
-    private GoogleMap googleMap;
     private boolean firstTime;
     private Bitmap profilePic;
 
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    StorageReference storageReference = storage.getReference();
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storageReference = storage.getReference();
 
     FriendData (String uid, final GoogleMap googleMap) {
 
-        this.uid = uid;
-        this.googleMap = googleMap;
-        friendsList = new HashMap<>();
         mapPlotterList = new HashMap<>();
         this.firstTime = true;
-
 
         ref.child("friend_data").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
@@ -62,14 +55,12 @@ public class FriendData {
                         final double lat = dataSnapshot.child("lat").getValue(Double.class);
                         final double lon = dataSnapshot.child("lon").getValue(Double.class);
 
-                        Log.d("FRIEND", lat + ", " + lon);
-
                         // User just started tracking location
                         if (firstTime){
 
                             firstTime = false;
 
-                            Log.d("FRIEND", "Null thing is running");
+                            Log.d("FRIEND", "First time run");
 
                             mapPlotterList.put(theirUID, new MapPlotter(new ArrayList<Marker>(), googleMap, false));
                             mapPlotterList.get(theirUID).addFriendMarker(lat, lon);
@@ -88,12 +79,14 @@ public class FriendData {
 
                                             profilePic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-                                            int height = 80;
-                                            int width = 60;
+                                            Bitmap squareProfilePic = getSquareBitmap(profilePic);
 
-                                            profilePic = Bitmap.createScaledBitmap(profilePic, width, height, false);
+                                            int height = 50;
+                                            int width = 50;
 
-                                            mapPlotterList.get(theirUID).setProfilePic(profilePic);
+                                            Bitmap finalProfilePic = Bitmap.createScaledBitmap(squareProfilePic, width, height, false);
+
+                                            mapPlotterList.get(theirUID).setProfilePic(finalProfilePic);
 
 
                                         }
@@ -112,8 +105,9 @@ public class FriendData {
                             });
 
                         } else {
-                            Log.d("FRIEND", "NORMAL THING RUNNING");
+
                             mapPlotterList.get(theirUID).addFriendMarker(lat, lon);
+
                         }
                     }
 
@@ -124,6 +118,8 @@ public class FriendData {
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                        mapPlotterList.get(theirUID).removeFromMap();
 
                     }
 
@@ -163,8 +159,18 @@ public class FriendData {
 
     }
 
-    public HashMap<String, Boolean> getFriendsList() {
-        return friendsList;
+    private Bitmap getSquareBitmap(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+
+        int narrowSize = Math.min(width, height);
+        int differ = (int)Math.abs((bm.getHeight() - bm.getWidth())/2.0f);
+        width  = (width  == narrowSize) ? 0 : differ;
+        height = (width == 0) ? differ : 0;
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, width, height, narrowSize, narrowSize);
+        bm.recycle();
+        return resizedBitmap;
     }
 
 }

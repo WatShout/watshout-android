@@ -1,6 +1,13 @@
 package com.watshout.tracker;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -70,6 +77,21 @@ public class MapPlotter {
         }
     }
 
+    public void removeFromMap() {
+        clearPolyLines();
+        clearMarkers();
+    }
+
+    public void clearMarkers() {
+
+        for (Marker i : markers){
+            i.setVisible(false);
+        }
+
+        markers = new ArrayList<>();
+
+    }
+
     public void clearPolyLines() {
 
         for (Polyline line : polylines){
@@ -77,7 +99,31 @@ public class MapPlotter {
             line.remove();
 
         }
+        polylines = new ArrayList<>();
 
+    }
+
+    private Bitmap getCircleBitmap(Bitmap bitmap) {
+        final Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(output);
+
+        final int color = Color.RED;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        final RectF rectF = new RectF(rect);
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawOval(rectF, paint);
+
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+
+        //bitmap.recycle();
+
+        return output;
     }
 
     public void addFriendMarker(double lat, double lon){
@@ -89,7 +135,7 @@ public class MapPlotter {
         if (profilePic == null){
             icon = currentLocationIcon;
         } else {
-            icon = BitmapDescriptorFactory.fromBitmap(profilePic);
+            icon = BitmapDescriptorFactory.fromBitmap(getCircleBitmap(profilePic));
         }
 
         // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).

@@ -6,7 +6,14 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -366,8 +373,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if (!currentlyTrackingLocation){
                     mStart.setBackgroundColor(Color.GREEN);
+                    mStart.setText("PAUSE");
                 } else {
-                    mStart.setBackgroundResource(android.R.drawable.btn_default);;
+                    mStart.setBackgroundResource(android.R.drawable.btn_default);
+                    mStart.setText("PLAY");
                 }
 
                 currentlyTrackingLocation = !currentlyTrackingLocation;
