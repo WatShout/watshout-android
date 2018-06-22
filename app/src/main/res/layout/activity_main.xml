@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<!-- Use DrawerLayout as root container for activity -->
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <!-- Layout to contain contents of main body of screen (drawer will slide over this)
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+                                                -->
+    <RelativeLayout
+
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,12 +23,14 @@
     android:id="@+id/relative"
     tools:context="com.watshout.face.com.watshout.tracker.MainActivity">
 
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="402dp"
+        android:layout_below="@+id/toolbar"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true" />
 
@@ -65,6 +83,26 @@
         android:background="@android:color/holo_red_dark"
         android:text="Stop" />
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentEnd="true"
+
+            android:background="#b42828"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+    </RelativeLayout>
+
+    <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/drawer_view"
+        app:headerLayout="@layout/nav_header"/>
+
     <TextView
         android:id="@+id/timerText"
         android:layout_width="wrap_content"
@@ -86,4 +124,4 @@
         android:text="LAP" />
 
 
-</RelativeLayout>
+</android.support.v4.widget.DrawerLayout>
