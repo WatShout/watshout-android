@@ -21,33 +21,26 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class FriendData {
+class FriendData {
 
-    final long TEN_MEGABYTE = 10 * 1024 * 1024;
+    private final long TEN_MEGABYTE = 10 * 1024 * 1024;
 
     private DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
 
     // [theirUID, isUserTracking]
-    private HashMap<String, Boolean> friendsList;
     private HashMap<String, MapPlotter> mapPlotterList;
-    private String uid;
-    private GoogleMap googleMap;
     private boolean firstTime;
     private Bitmap profilePic;
 
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    StorageReference storageReference = storage.getReference();
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storageReference = storage.getReference();
 
     FriendData (String uid, final GoogleMap googleMap) {
 
-        this.uid = uid;
-        this.googleMap = googleMap;
-        friendsList = new HashMap<>();
         mapPlotterList = new HashMap<>();
         this.firstTime = true;
-
 
         ref.child("friend_data").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
@@ -62,14 +55,12 @@ public class FriendData {
                         final double lat = dataSnapshot.child("lat").getValue(Double.class);
                         final double lon = dataSnapshot.child("lon").getValue(Double.class);
 
-                        Log.d("FRIEND", lat + ", " + lon);
-
                         // User just started tracking location
                         if (firstTime){
 
                             firstTime = false;
 
-                            Log.d("FRIEND", "Null thing is running");
+                            Log.d("FRIEND", "First time run");
 
                             mapPlotterList.put(theirUID, new MapPlotter(new ArrayList<Marker>(), googleMap, false));
                             mapPlotterList.get(theirUID).addFriendMarker(lat, lon);
@@ -112,8 +103,9 @@ public class FriendData {
                             });
 
                         } else {
-                            Log.d("FRIEND", "NORMAL THING RUNNING");
+
                             mapPlotterList.get(theirUID).addFriendMarker(lat, lon);
+
                         }
                     }
 
@@ -161,10 +153,6 @@ public class FriendData {
             }
         });
 
-    }
-
-    public HashMap<String, Boolean> getFriendsList() {
-        return friendsList;
     }
 
 }
