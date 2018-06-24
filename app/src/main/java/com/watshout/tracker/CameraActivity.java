@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -55,6 +56,7 @@ public class CameraActivity extends AppCompatActivity {
         btnReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Toast.makeText(getApplicationContext(), "Uploading image...", Toast.LENGTH_LONG).show();
 
                 // Bitmap to byte array
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -63,15 +65,36 @@ public class CameraActivity extends AppCompatActivity {
                 bitmap.recycle();
 
                 // Uploading image to Firebase Storage
-                Date currentTime = Calendar.getInstance().getTime();
+                final Date currentTime = Calendar.getInstance().getTime();
                 String firebaseImageName = (currentTime.getMonth()+1) + "-" + currentTime.getDate() + "-" + (1900+currentTime.getYear()) + "-" + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds();
-                StorageReference imageRef = mStorageRef.child("users/" + uid+"/userImages/"+firebaseImageName);
+                final StorageReference imageRef = mStorageRef.child("users/" + uid+"/userImages/"+firebaseImageName);
 
+                // Upload image
                 imageRef.putBytes(byteArray)
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                Log.e("Upload", "Successful");
+                                // Add metadata
+                                StorageMetadata imageData = new StorageMetadata.Builder()
+                                        .setCustomMetadata("date", (currentTime.getMonth()+1) + "-" + currentTime.getDate() + "-" + (1900+currentTime.getYear()))
+                                        .setCustomMetadata("time", currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds())
+                                        .setCustomMetadata("location", "0")
+                                        .build();
+                                // TODO: Upload location as part of metadata
+
+                                imageRef.updateMetadata(imageData)
+                                        .addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                                            @Override
+                                            public void onSuccess(StorageMetadata storageMetadata) {
+                                                Log.e("Metadata", "Success");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.e("Metadata", "Failure");
+                                            }
+                                        });
                                 Toast.makeText(getApplicationContext(), "Image uploaded!", Toast.LENGTH_LONG).show();
                             }
                         })
@@ -84,11 +107,10 @@ public class CameraActivity extends AppCompatActivity {
                             }
                         });
 
-                // Uploading image info to Firebase Database
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference myRef = database.getReference("users/"+uid+"/imageInfo");
 
-                myRef.setValue(firebaseImageName);
+
+
+
 
 
                 Log.e("Time:", currentTime.getHours() + ":" + currentTime.getMinutes());
