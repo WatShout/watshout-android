@@ -500,6 +500,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         */
 
+        Button cameraButton = (Button) findViewById(R.id.cameraButton);
+        cameraButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                startActivity(intent);
+            }
+        });
+
         // TODO: Turn this into push notification
         ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
