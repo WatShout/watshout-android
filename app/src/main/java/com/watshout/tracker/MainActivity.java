@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -300,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup, null);
 
                     popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
-                    popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+                    //popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
 
                     final EditText mAge = container.findViewById(R.id.age);
 
@@ -504,7 +505,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         cameraButton.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
+                intent.putExtra("uid", uid);
                 startActivity(intent);
             }
         });
