@@ -46,7 +46,7 @@ public class FusedLocation {
             @Override
             public void onLocationResult(LocationResult locationResult) {
 
-                MainActivity.GPSconnected = true;
+                MapFragment.GPSconnected = true;
 
                 Location location = locationResult.getLocations().get(0);
 
@@ -62,14 +62,16 @@ public class FusedLocation {
                 Log.wtf("GPSACCURACY", accuracy + "");
 
                 // Adds the point to the map
+                //if(accuracy <15)
                 mapPlotter.addMarker(lat, lon);
 
-                Log.wtf("GPS", "Lat: " + lat + "\nLong" + lon + "\nTracking: " + MainActivity.currentlyTrackingLocation);
+                Log.wtf("GPS", "Lat: " + lat + "\nLong" + lon + "\nTracking: " + MapFragment.currentlyTrackingLocation);
 
-                if (MainActivity.currentlyTrackingLocation){
+                if (MapFragment.currentlyTrackingLocation){
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
 
                     TrackPoint temp = new TrackPoint();
+                    if(accuracy<16)
                     trackPoints.add(temp);
 
                     TimeZone tz = TimeZone.getTimeZone("UTC");
