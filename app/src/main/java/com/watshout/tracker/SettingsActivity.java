@@ -51,7 +51,7 @@ import java.util.Set;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
-public class SettingsActivity extends MainActivity implements IPickResult {
+public class SettingsActivity extends AppCompatActivity implements IPickResult {
 
     final long TEN_MEGABYTE = 10 * 1024 * 1024;
 
