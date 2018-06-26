@@ -1,5 +1,9 @@
 <resources>
 
+    <style name="popup_window_animation_phone">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
