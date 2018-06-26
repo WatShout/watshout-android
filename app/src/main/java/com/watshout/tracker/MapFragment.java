@@ -55,7 +55,7 @@ import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-public class MapFragment extends android.app.Fragment implements OnMapReadyCallback {
+class MapFragment extends android.app.Fragment implements OnMapReadyCallback {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
@@ -169,6 +169,19 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
         mapPlotter.moveCamera(zoom);
+    }
+
+    public void onPause(){
+        super.onPause();
+
+        Log.d("PAUSE", "You just paused");
+
+    }
+
+    public void onResume(){
+        super.onResume();
+
+        Log.d("PAUSE", "You just resumed");
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -525,6 +538,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
 
     };
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
