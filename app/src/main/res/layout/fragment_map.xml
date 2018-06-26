@@ -17,7 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="513dp"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="54dp"
         app:layout_constraintBottom_toTopOf="@+id/timerText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
