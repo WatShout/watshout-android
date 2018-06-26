@@ -22,6 +22,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.app.Fragment;
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener {
 
     DrawerLayout mDrawerLayout;
-
+    MapFragment mapFragment = new MapFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,12 +115,12 @@ public class MainActivity extends AppCompatActivity implements
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_hamburger);
 
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
         getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.screen_area, new MapFragment())
+                .replace(R.id.screen_area, mapFragment)
                 .commit();
 
     }
@@ -132,10 +133,9 @@ public class MainActivity extends AppCompatActivity implements
         if (id == R.id.nav_home) {
             getFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.screen_area, new MapFragment())
+                    .replace(R.id.screen_area, mapFragment)
                     .commit();
-            //SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-            //mapFragment.getMapAsync(MapFragment);
+
         } else if (id == R.id.nav_music) {
 
 
@@ -143,14 +143,17 @@ public class MainActivity extends AppCompatActivity implements
 
 
         } else if (id == R.id.nav_settings) {
-            /*Fragment fragment;
-            FragmentTransaction fm = getFragmentManager().beginTransaction();
-            fragment = new SettingsFragment();
-            fm.replace(R.id.screen_area, fragment);
-            fm.commit();*/
+
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new SettingsFragment())
+                    .commit();
+
+        } else if (id == R.id.nav_signout) {
+
+            getFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.screen_area, new SignOutFragment())
                     .commit();
 
         }
