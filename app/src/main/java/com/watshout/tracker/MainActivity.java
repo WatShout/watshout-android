@@ -136,12 +136,6 @@ public class MainActivity extends AppCompatActivity implements
                     .replace(R.id.screen_area, mapFragment)
                     .commit();
 
-        } else if (id == R.id.nav_music) {
-
-
-        } else if (id == R.id.nav_friends) {
-
-
         } else if (id == R.id.nav_settings) {
 
             getFragmentManager()
