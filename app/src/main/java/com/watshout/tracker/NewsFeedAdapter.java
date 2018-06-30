@@ -1,104 +1,59 @@
 package com.watshout.tracker;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import java.util.HashMap;
 import java.util.List;
 
-public class NewsFeedAdapter extends BaseExpandableListAdapter {
+public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHolder> {
 
+    private List<NewsFeedItem> listItems;
     private Context context;
-    private HashMap<String, List<String>> testData;
-    private List<String> stringList;
 
-    NewsFeedAdapter(Context context, HashMap<String, List<String>> testData, List<String> stringList){
-
+    public NewsFeedAdapter(List<NewsFeedItem> listItems, Context context) {
+        this.listItems = listItems;
         this.context = context;
-        this.testData = testData;
-        this.stringList = stringList;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.news_feed_card, parent, false);
+
+        return new ViewHolder(view);
 
     }
 
     @Override
-    public int getGroupCount() {
-        return testData.size();
-    }
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-    @Override
-    public int getChildrenCount(int groupPosition) {
-
-        return testData.get(stringList.get(groupPosition)).size();
+        NewsFeedItem newsFeedItem = listItems.get(position);
+        holder.mTitle.setText(newsFeedItem.getTitle());
 
     }
 
     @Override
-    public Object getGroup(int groupPosition) {
-        return stringList.get(groupPosition);
+    public int getItemCount() {
+        return listItems.size();
     }
 
-    @Override
-    public Object getChild(int groupPosition, int childPosition) {
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
-        return testData.get(stringList.get(groupPosition)).get(childPosition);
-    }
+        public TextView mTitle;
 
-    @Override
-    public long getGroupId(int groupPosition) {
-        return groupPosition;
-    }
+        public ViewHolder(View itemView) {
+            super(itemView);
 
-    @Override
-    public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
-    }
-
-    @Override
-    public boolean hasStableIds() {
-        return false;
-    }
-
-    @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-
-        String groupTitle = (String) getGroup(groupPosition);
-
-        if (convertView == null){
-            LayoutInflater inflator = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflator.inflate(R.layout.news_feed_parent, parent, false);
-        }
-
-        TextView parentTextView = convertView.findViewById(R.id.parent_txt);
-        parentTextView.setText(groupTitle);
-
-        return convertView;
-    }
-
-    @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-
-        String childTitle = (String) getChild(groupPosition, childPosition);
-
-        if (convertView == null){
-
-            LayoutInflater inflator = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflator.inflate(R.layout.news_feed_child, parent, false);
+            mTitle = itemView.findViewById(R.id.title);
 
         }
-
-        TextView childText = convertView.findViewById(R.id.child_txt);
-        childText.setText(childTitle);
-
-        return convertView;
-
     }
 
-    @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return false;
-    }
 }
