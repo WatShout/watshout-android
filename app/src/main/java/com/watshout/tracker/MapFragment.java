@@ -55,7 +55,7 @@ import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-class MapFragment extends android.app.Fragment implements OnMapReadyCallback {
+public class MapFragment extends android.app.Fragment implements OnMapReadyCallback {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
