@@ -199,6 +199,7 @@ class XMLCreator {
 
         String fileName = date + ".gpx";
 
+
         storageReference.child("users").child(uid).child("gpx").child(fileName)
                 .putBytes(bytes).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
