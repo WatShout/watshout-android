@@ -15,12 +15,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,14 +34,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
-public class NewsFeedFragment extends android.app.Fragment {
+public class NewsFeedFragment extends android.app.Fragment implements OnMapReadyCallback {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
-
     private List<NewsFeedItem> listItems;
+
+    FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+    String uid = thisUser.getUid();
 
     @Nullable
     @Override
@@ -51,10 +59,11 @@ public class NewsFeedFragment extends android.app.Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         listItems = new ArrayList<>();
+
+        Log.d("UID", uid);
 
         loadRecyclerViewData();
 
@@ -67,7 +76,7 @@ public class NewsFeedFragment extends android.app.Fragment {
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url ="https://watshout.herokuapp.com/json/";
+        String url ="https://watshout.herokuapp.com/maps/download/" + uid + "/";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -80,12 +89,13 @@ public class NewsFeedFragment extends android.app.Fragment {
                         try {
                             Log.d("RESPONSE", response);
                             JSONObject jsonObject = new JSONObject(response);
-                            JSONArray array = jsonObject.getJSONArray("strings");
+                            JSONArray array = jsonObject.getJSONArray("activities");
 
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject o = array.getJSONObject(i);
                                 NewsFeedItem newsFeedItem = new NewsFeedItem(
-                                        o.getString("title")
+                                        o.getString("name"),
+                                        o.getString("image")
                                 );
 
                                 listItems.add(newsFeedItem);
@@ -103,11 +113,16 @@ public class NewsFeedFragment extends android.app.Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Log.e("ERROR", error.toString());
             }
+
         });
 
         queue.add(stringRequest);
+
+    }
+
+    public void onMapReady(GoogleMap googleMap) {
 
     }
 

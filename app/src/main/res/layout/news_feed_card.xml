@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <android.support.v7.widget.CardView
-        android:paddingTop="@dimen/activity_horizontal_margin"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/activity_horizontal_margin"
+        tools:layout_editor_absoluteX="81dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <LinearLayout
-            android:padding="16dp"
-            android:orientation="vertical"
+            android:id="@+id/card_linear_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="TextView" />
+
+            <ImageView
+                android:id="@+id/map"
+                android:layout_width="350dp"
+                android:layout_height="150dp"
+                app:srcCompat="@color/colorPrimary" />
 
 
         </LinearLayout>
@@ -30,4 +40,4 @@
 
 
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
