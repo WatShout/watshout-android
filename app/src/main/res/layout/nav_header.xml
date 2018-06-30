@@ -9,9 +9,9 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView
+        android:id="@+id/nav_head_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="watshout"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
 </LinearLayout>

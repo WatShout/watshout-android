@@ -2,19 +2,25 @@ package com.watshout.tracker;
 
 public class NewsFeedItem {
 
-    private String title;
+    private String name;
     private String imageURL;
+    private String time;
 
-    NewsFeedItem(String title, String imageURL) {
-        this.title = title;
+    NewsFeedItem(String name, String imageURL, String time) {
+        this.name = name;
         this.imageURL = imageURL;
+        this.time = time;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
     public String getImageURL() {
         return imageURL;
+    }
+
+    public String getTime() {
+        return time;
     }
 }

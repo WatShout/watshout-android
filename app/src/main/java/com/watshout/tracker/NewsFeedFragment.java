@@ -120,7 +120,8 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
                                 JSONObject o = array.getJSONObject(i);
                                 NewsFeedItem newsFeedItem = new NewsFeedItem(
                                         o.getString("name"),
-                                        o.getString("image")
+                                        o.getString("image"),
+                                        o.getString("time")
                                 );
 
                                 listItems.add(newsFeedItem);

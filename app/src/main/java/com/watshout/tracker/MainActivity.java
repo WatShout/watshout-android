@@ -9,6 +9,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 
 /*
@@ -32,12 +37,14 @@ public class MainActivity extends AppCompatActivity implements
     DrawerLayout mDrawerLayout;
     MapFragment mapFragment = new MapFragment();
 
+    FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+    String email = thisUser.getEmail();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mDrawerLayout = findViewById(R.id.drawer_layout);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -48,6 +55,10 @@ public class MainActivity extends AppCompatActivity implements
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View navView = navigationView.inflateHeaderView(R.layout.nav_header);
+        TextView mEmail = navView.findViewById(R.id.nav_head_email);
+        mEmail.setText(email);
 
         getFragmentManager()
                 .beginTransaction()
