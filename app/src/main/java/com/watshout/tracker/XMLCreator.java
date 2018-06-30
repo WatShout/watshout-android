@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -204,10 +206,36 @@ class XMLCreator {
                 Log.d("GPX", "Uploaded GPX to Firebase Storage correctly");
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = "https://watshout.herokuapp.com/mobile/strava/" + uid + "/" + date + "/";
+                String stravaURL = "https://watshout.herokuapp.com/mobile/strava/" + uid + "/" + date + "/";
+                String createMapURL = "https://watshout.herokuapp.com/create-map/";
+
+                StringRequest createMapRequest = new StringRequest(Request.Method.POST,
+                        createMapURL, new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+
+                                    Log.d("GPX", "Map image created");
+
+                                }
+                            }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                                Log.d("GPX", "May image creation failed");
+
+                            }
+                        }){
+                    @Override
+                    protected Map<String,String> getParams(){
+                        Map<String,String> params = new HashMap<String, String>();
+                        params.put("uid", uid);
+                        params.put("time_stamp", date);
+                        return params;
+                    }
+                };
 
                 // Request a string response from the provided URL.
-                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                StringRequest stravaRequest = new StringRequest(Request.Method.GET, stravaURL,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -227,7 +255,9 @@ class XMLCreator {
                         Log.d("GPX", "Uploading GPX to Strava failed: " + error);
                     }
                 });
-                queue.add(stringRequest);
+
+                queue.add(createMapRequest);
+                queue.add(stravaRequest);
             }
         });
     }
