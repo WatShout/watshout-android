@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -37,11 +38,12 @@ import java.util.List;
 import java.util.Map;
 
 
-public class NewsFeedFragment extends android.app.Fragment implements OnMapReadyCallback {
+public class NewsFeedFragment extends android.app.Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private List<NewsFeedItem> listItems;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
     String uid = thisUser.getUid();
@@ -65,14 +67,35 @@ public class NewsFeedFragment extends android.app.Fragment implements OnMapReady
 
         Log.d("UID", uid);
 
-        loadRecyclerViewData();
+        // SwipeRefreshLayout
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+        mSwipeRefreshLayout.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                mSwipeRefreshLayout.setRefreshing(true);
+
+                // Fetching data from server
+                loadRecyclerViewData();
+            }
+        });
+
 
     }
 
     private void loadRecyclerViewData() {
         final ProgressDialog progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage("Loading data...");
-        progressDialog.show();
+        //progressDialog.show();
+
+        mSwipeRefreshLayout.setRefreshing(true);
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
@@ -85,6 +108,8 @@ public class NewsFeedFragment extends android.app.Fragment implements OnMapReady
                     public void onResponse(String response) {
 
                         progressDialog.dismiss();
+
+                        listItems = new ArrayList<>();
 
                         try {
                             Log.d("RESPONSE", response);
@@ -99,6 +124,7 @@ public class NewsFeedFragment extends android.app.Fragment implements OnMapReady
                                 );
 
                                 listItems.add(newsFeedItem);
+                                mSwipeRefreshLayout.setRefreshing(false);
 
                             }
 
@@ -122,8 +148,8 @@ public class NewsFeedFragment extends android.app.Fragment implements OnMapReady
 
     }
 
-    public void onMapReady(GoogleMap googleMap) {
-
+    @Override
+    public void onRefresh() {
+        loadRecyclerViewData();
     }
-
 }
