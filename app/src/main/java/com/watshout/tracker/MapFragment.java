@@ -98,7 +98,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             .getInstance()
             .getReference();
 
-    // Not sure which of these is better
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
 
     String uid = thisUser.getUid();
@@ -127,8 +126,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     // Resource file declarations
     Button mStart;
-    Button mLap;
     Button mStop;
+
     Button mCurrent;
     Button mSignOut;
     Button mAddFriend;
@@ -138,7 +137,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     TextView speedTextDialog;
     TextView stepsDialog;
     TextView distanceDialog;
-
 
     long originalStartTime;
 
@@ -206,9 +204,24 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mapPlotter.moveCamera(zoom);
     }
 
+
     /*public void setSpeed(Double speed) {
         distanceText.setText(speed + "");
     }*/
+
+    public void onPause(){
+        super.onPause();
+
+        Log.d("PAUSE", "You just paused");
+
+    }
+
+    public void onResume(){
+        super.onResume();
+
+        Log.d("PAUSE", "You just resumed");
+    }
+
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
@@ -258,6 +271,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         mStart = view.findViewById(R.id.start);
         mStop = view.findViewById(R.id.stop);
+
         //mCurrent = findViewById(R.id.current);
         //mSignOut = findViewById(R.id.signout);
         //mGreeting = findViewById(R.id.greeting);
@@ -268,6 +282,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         distanceDialog = dialogView.findViewById(R.id.distanceDialog);
         timerText = view.findViewById(R.id.timerText);
         //mLap = findViewById(R.id.lap);
+      
         handler = new Handler() ;
 
         String greetingText = "Hello, " + email;
@@ -282,22 +297,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mv.onCreate(null);
         mv.onResume();
         mv.getMapAsync(this);
-        //FragmentManager fm = getChildFragmentManager();
-        //SupportMapFragment fragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
-       // if (fragment == null)
-         //   fragment = SupportMapFragment.newInstance();
-        // Defines a 'fragment' of the activity dedicated to the map
-        //SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
-        //SupportMapFragment m = ((SupportMapFragment) getChildFragmentManager()
-               //.findFragmentById(R.id.map));
-        //SupportMapFragment map= ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-        //MapFragment fragment = getChildFragmentManager().findFragmentById(R.id.map);
-        //SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-              //  .findFragmentById(R.id.map);
-        //mapFragment.getMapAsync(this);
-
-        // Removes the top bar on top of the map
-        //getSupportActionBar().hide();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -363,42 +362,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
-
-        /*
-        // Sets current location
-        mCurrent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkLocationPermissions();
-                checkLocationPermissions();
-
-                Log.wtf("IDS", requestIDs.toString());
-
-                if (GPSconnected) {
-
-                    mapPlotter.moveCamera(16);
-
-                }
-            }
-        });
-        */
-
-        /*
-        mLap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (timeRunning){
-                    Log.d("TIME", mTimerText.getText().toString());
-                    StartTime = SystemClock.uptimeMillis();
-                    TimeBuff = 0;
-                    handler.postDelayed(runnable, 0);
-                } else {
-
-                }
-            }
-        });
-        */
 
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -506,33 +469,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         });
 
-        /*
-        mSignOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AuthUI.getInstance()
-                        .signOut(getApplicationContext())
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            public void onComplete(@NonNull Task<Void> task) {
-                                // user is now signed out
-
-                                Intent openSignIn = new Intent(getApplicationContext(), SignInActivity.class);
-                                getApplicationContext().startActivity(openSignIn);
-                                finish();
-                            }
-                        });
-            }
-        });
-
-        mViewFriends.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
-        */
-
         // TODO: Turn this into push notification
         ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
@@ -608,6 +544,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
 
     };
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
