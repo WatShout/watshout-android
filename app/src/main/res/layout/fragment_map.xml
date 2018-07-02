@@ -65,4 +65,13 @@
         app:layout_constraintStart_toEndOf="@+id/timerText"
         app:layout_constraintTop_toBottomOf="@+id/start" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:background="@android:color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/baseline_pin_drop_black_18dp"/>
+
 </RelativeLayout>
