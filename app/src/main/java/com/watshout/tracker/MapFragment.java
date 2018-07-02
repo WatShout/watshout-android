@@ -2,26 +2,41 @@ package com.watshout.tracker;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
@@ -49,22 +64,33 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-public class MapFragment extends android.app.Fragment implements OnMapReadyCallback {
+public class MapFragment extends android.app.Fragment implements OnMapReadyCallback, SensorEventListener {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
+
+    SensorManager sensorManager;
 
     ArrayList<String> requestIDs = new ArrayList<>();
 
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
     MapView mv;
+
+    int totalSteps;
 
 
     // General database reference
@@ -77,6 +103,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     String uid = thisUser.getUid();
     String email = thisUser.getEmail();
     String name = thisUser.getDisplayName();
+
+    int counter;
 
     GoogleMap googleMapGlobal;
     LatLng home;
@@ -99,7 +127,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     // Resource file declarations
     Button mStart;
     Button mStop;
-    TextView mTimerText;
+
+    Button mCurrent;
+    Button mSignOut;
+    Button mAddFriend;
+    Button mViewFriends;
+    TextView mGreeting;
+    TextView timerText;
+    TextView speedTextDialog;
+    TextView stepsDialog;
+    TextView distanceDialog;
+
     long originalStartTime;
 
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
@@ -151,7 +189,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
         FusedLocation fusedLocation = null;
         try {
-            fusedLocation = new FusedLocation(getActivity().getApplicationContext(), mapPlotter, uid, XMLCreator);
+            fusedLocation = new FusedLocation(getActivity().getApplicationContext(),
+                    mapPlotter, uid, XMLCreator, speedTextDialog, stepsDialog, distanceDialog);
         } catch (TransformerException e) {
             e.printStackTrace();
         } catch (ParserConfigurationException e) {
@@ -160,9 +199,15 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-
+        System.out.println("Speed is: "  +fusedLocation.getTheSpeed());
+        //distanceText.setText(fusedLocation.getTheSpeed() + "");
         mapPlotter.moveCamera(zoom);
     }
+
+
+    /*public void setSpeed(Double speed) {
+        distanceText.setText(speed + "");
+    }*/
 
     public void onPause(){
         super.onPause();
@@ -177,6 +222,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         Log.d("PAUSE", "You just resumed");
     }
 
+
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
@@ -184,8 +230,40 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
         super.onViewCreated(view, savedInstanceState);
+
+
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+
+
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //AlertDialog.Builder alertDialog = new AlertDialog.Builder(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        final View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
+        builder.setView(dialogView);
+        final AlertDialog dialog = builder.create();
+
+
+        FloatingActionButton fabDialog = (FloatingActionButton) dialogView.findViewById(R.id.fabDialog);
+        fabDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.hide();
+            }
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.show();
+            }
+        });
        checkLocationPermissions();
 
         // This helps the app not crash in certain contexts
@@ -193,7 +271,18 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         mStart = view.findViewById(R.id.start);
         mStop = view.findViewById(R.id.stop);
-        mTimerText = view.findViewById(R.id.timerText);
+
+        //mCurrent = findViewById(R.id.current);
+        //mSignOut = findViewById(R.id.signout);
+        //mGreeting = findViewById(R.id.greeting);
+        //mAddFriend = findViewById(R.id.addfriend);
+        //mViewFriends = findViewById(R.id.viewFriends);
+        speedTextDialog = dialogView.findViewById(R.id.speedTextDialog);
+        stepsDialog = dialogView.findViewById(R.id.stepsDialog);
+        distanceDialog = dialogView.findViewById(R.id.distanceDialog);
+        timerText = view.findViewById(R.id.timerText);
+        //mLap = findViewById(R.id.lap);
+      
         handler = new Handler() ;
 
         String greetingText = "Hello, " + email;
@@ -278,6 +367,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
 
+                //BufferedReader br = new BufferedReader(new InputStreamReader("steps.txt"));
+                   // StringTokenizer st = new StringTokenizer(br.readLine());
+                   // totalSteps = Integer.parseInt(st.nextToken());
+                   // System.out.println("The steps were read " + totalSteps);
+
+
+
                 if (timeRunning){
                     TimeBuff += MillisecondTime;
                     handler.removeCallbacks(runnable);
@@ -338,7 +434,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 handler.removeCallbacks(runnable);
                 timeRunning = false;
 
-                mTimerText.setText("0:00");
+                timerText.setText("0:00");
+
 
                 mStart.setBackgroundResource(android.R.drawable.btn_default);
                 currentlyTrackingLocation = false;
@@ -439,8 +536,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             int milliFirstDigit = Integer.parseInt(Integer.toString(MilliSeconds).substring(0, 1));
 
-            mTimerText.setText("" + Minutes + ":"
+            timerText.setText("" + Minutes + ":"
                     + String.format("%02d", Seconds));
+
 
             handler.postDelayed(this, 0);
         }
@@ -484,5 +582,41 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         }
     }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        System.out.println("value of event is: " + event.values[0] + " "
+                );
 
+       if( currentlyTrackingLocation) {
+           /* try{
+            PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("steps.txt")));
+            pw.print(event.values[0]);
+            }
+            catch(IOException e){}*/
+           System.out.println("Total Steps: " + totalSteps);
+            stepsDialog.setText(String.valueOf((int) (event.values[0])) + " steps");
+            //totalSteps = (int)(event.values[0]);
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+
+  /*  @Override
+    public void onPause() {
+        super.onPause();
+        System.out.println("paused method");
+        //sensorManager.unregisterListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER));
+
+    }*/
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        sensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
+
+    }
 }
