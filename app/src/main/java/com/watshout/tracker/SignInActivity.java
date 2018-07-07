@@ -40,6 +40,7 @@ public class SignInActivity extends AppCompatActivity {
 
         if (auth.getCurrentUser() != null) {
             Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
+            openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplicationContext().startActivity(openMain);
             finish();
         } else {
@@ -68,6 +69,7 @@ public class SignInActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
+                openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getApplicationContext().startActivity(openMain);
                 finish();
 

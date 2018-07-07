@@ -216,13 +216,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     }
 
-    public void onResume(){
-        super.onResume();
-
-        Log.d("PAUSE", "You just resumed");
-    }
-
-
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
