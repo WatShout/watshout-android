@@ -28,6 +28,8 @@ public class FusedLocation {
     private String uid;
     private ArrayList<Waypoint> trackPoints;
     private XMLCreator XMLCreator;
+    public static double latitude = 0;
+    public static double longitude = 0;
 
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid, XMLCreator XMLCreator) throws TransformerException, ParserConfigurationException {
@@ -49,6 +51,9 @@ public class FusedLocation {
                 MainActivity.GPSconnected = true;
 
                 Location location = locationResult.getLocations().get(0);
+
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
 
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();

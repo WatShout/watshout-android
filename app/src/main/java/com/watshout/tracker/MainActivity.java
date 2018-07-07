@@ -55,6 +55,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -65,6 +66,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.apache.log4j.chainsaw.Main;
 
@@ -106,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
+
+    private StorageReference mStorageRef;
 
 
     // General database reference
@@ -176,6 +181,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // This ensures that we can make changes to the map outside of this function
         // which is why we defined it globally
         googleMapGlobal = googleMap;
+
+        // Plotting map markers for taken pictures
+        //googleMapGlobal.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Picture"));
+        // TODO: Use Firebase Database info to get all files names/locations, and onDataChange(), add a new marker
 
         // This sets the starting zoom level
         float zoom = 16;
@@ -301,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup, null);
 
                     popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
-                    //popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+                    popupWindow.showAtLocation(mDrawerLayout, Gravity.NO_GRAVITY, 0, 0);
 
                     final EditText mAge = container.findViewById(R.id.age);
 
@@ -336,6 +345,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
+
+        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);

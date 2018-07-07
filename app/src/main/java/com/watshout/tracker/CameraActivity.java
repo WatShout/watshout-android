@@ -22,6 +22,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -46,7 +47,7 @@ public class CameraActivity extends AppCompatActivity {
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // pickImageDIalogue
                 startActivityForResult(intent, 0);
             }
         });
@@ -68,7 +69,6 @@ public class CameraActivity extends AppCompatActivity {
                 final Date currentTime = Calendar.getInstance().getTime();
                 String firebaseImageName = (currentTime.getMonth()+1) + "-" + currentTime.getDate() + "-" + (1900+currentTime.getYear()) + "-" + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds();
                 final StorageReference imageRef = mStorageRef.child("users/" + uid+"/userImages/"+firebaseImageName);
-
                 // Upload image
                 imageRef.putBytes(byteArray)
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -78,7 +78,7 @@ public class CameraActivity extends AppCompatActivity {
                                 StorageMetadata imageData = new StorageMetadata.Builder()
                                         .setCustomMetadata("date", (currentTime.getMonth()+1) + "-" + currentTime.getDate() + "-" + (1900+currentTime.getYear()))
                                         .setCustomMetadata("time", currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds())
-                                        .setCustomMetadata("location", "0")
+                                        .setCustomMetadata("location", FusedLocation.latitude + "," + FusedLocation.longitude)
                                         .build();
                                 // TODO: Upload location as part of metadata
 
@@ -106,6 +106,10 @@ public class CameraActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         });
+                // Uploading to Firebase Database
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference databaseRef = database.getReference("users/" + uid + "/device/pictures");
+                // TODO: Update Firebase Database with file name
 
 
 
