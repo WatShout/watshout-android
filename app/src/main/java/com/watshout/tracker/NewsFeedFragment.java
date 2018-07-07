@@ -112,22 +112,25 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
                         listItems = new ArrayList<>();
 
                         try {
-                            Log.d("RESPONSE", response);
+
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray array = jsonObject.getJSONArray("activities");
 
-                            for (int i = 0; i < array.length(); i++) {
-                                JSONObject o = array.getJSONObject(i);
-                                NewsFeedItem newsFeedItem = new NewsFeedItem(
-                                        o.getString("name"),
-                                        o.getString("image"),
-                                        o.getString("time")
-                                );
+                            if (!response.equals("{\"activities\": []}")) {
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject o = array.getJSONObject(i);
+                                    NewsFeedItem newsFeedItem = new NewsFeedItem(
+                                            o.getString("name"),
+                                            o.getString("image"),
+                                            o.getString("time")
+                                    );
 
-                                listItems.add(newsFeedItem);
-                                mSwipeRefreshLayout.setRefreshing(false);
+                                    listItems.add(newsFeedItem);
 
+                                }
                             }
+
+                            mSwipeRefreshLayout.setRefreshing(false);
 
                             adapter = new NewsFeedAdapter(listItems, getActivity());
                             recyclerView.setAdapter(adapter);
