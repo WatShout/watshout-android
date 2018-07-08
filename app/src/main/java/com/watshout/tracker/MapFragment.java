@@ -283,7 +283,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         //mGreeting.setText(greetingText);
         mStart.setBackgroundResource(android.R.drawable.btn_default);
 
-        //mRelativeLayout = findViewById(R.id.relative);
+        mRelativeLayout = view.findViewById(R.id.relative);
 
         isMapMoving = true;
         mv = (MapView) view.findViewById(R.id.map);
