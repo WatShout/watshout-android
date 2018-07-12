@@ -14,6 +14,12 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.signin.SignIn;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 
@@ -24,6 +30,10 @@ public class SignInActivity extends AppCompatActivity {
     // Choose an arbitrary request code value
     private static final int RC_SIGN_IN = 123;
 
+    private DatabaseReference ref = FirebaseDatabase
+            .getInstance()
+            .getReference();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +41,6 @@ public class SignInActivity extends AppCompatActivity {
 
         checkPermissions();
         checkPermissions();
-
 
         // Removes the top bar on top of the map
         //getSupportActionBar().hide();
@@ -68,10 +77,31 @@ public class SignInActivity extends AppCompatActivity {
             // Successfully signed in
             if (resultCode == RESULT_OK) {
 
-                Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
-                openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getApplicationContext().startActivity(openMain);
-                finish();
+                FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+                String uid = thisUser.getUid();
+
+                // if Firebase user doesn't have profile_pic_format, open RequireProfilePictureActivity
+                ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.hasChild("profile_pic_format")) {
+                            Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
+                            openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            getApplicationContext().startActivity(openMain);
+                            finish();
+                        } else {
+                            Intent openPfp = new Intent(getApplicationContext(), RequireProfilePictureActivity.class);
+                            openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            getApplicationContext().startActivity(openPfp);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
                 Log.wtf(TAG, "It worked");
             } else {
