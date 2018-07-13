@@ -8,6 +8,11 @@
             android:title="News Feed" />
 
         <item
+            android:id="@+id/nav_calendar"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Calendar" />
+
+        <item
             android:id="@+id/nav_home"
             android:checked="true"
             android:icon="@drawable/ic_menu_camera"
@@ -21,5 +26,7 @@
             android:id="@+id/nav_signout"
             android:icon="@drawable/ic_menu_manage"
             android:title="Sign out" />
+
+
     </group>
 </menu>
