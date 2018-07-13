@@ -1,6 +1,7 @@
 package com.watshout.tracker;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -10,6 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.google.android.gms.dynamic.SupportFragmentWrapper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,11 +41,12 @@ import com.google.firebase.storage.UploadTask;
 import com.vansuita.pickimage.bean.PickResult;
 import com.vansuita.pickimage.bundle.PickSetup;
 import com.vansuita.pickimage.dialog.PickImageDialog;
+import com.vansuita.pickimage.listeners.IPickCancel;
 import com.vansuita.pickimage.listeners.IPickResult;
 
 import java.io.ByteArrayOutputStream;
 
-public class SettingsFragment extends android.app.Fragment implements IPickResult {
+public class SettingsFragment extends android.app.Fragment {
     final long TEN_MEGABYTE = 10 * 1024 * 1024;
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -70,11 +75,14 @@ public class SettingsFragment extends android.app.Fragment implements IPickResul
     final int MY_PERMISSIONS_REQUEST_CAMERA = 505;
     String[] permissions = {android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
 
-
+    Context mContext;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        mContext = getActivity();
+
         View view = inflater.inflate(R.layout.settings_fragment, container, false);
 
         return view;
@@ -89,6 +97,27 @@ public class SettingsFragment extends android.app.Fragment implements IPickResul
         mEmailButton = view.findViewById(R.id.email_button);
         mAgeButton = view.findViewById(R.id.age_button);
 
+        mProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PickImageDialog.build(new PickSetup())
+                        .setOnPickResult(new IPickResult() {
+                            @Override
+                            public void onPickResult(PickResult r) {
+                                //TODO: do what you have to...
+                                Log.d("PICK", "worked");
+                            }
+                        })
+                        .setOnPickCancel(new IPickCancel() {
+                            @Override
+                            public void onCancelClick() {
+                                //TODO: do what you have to if user clicked cancel
+                            }
+                        }).show(( (FragmentActivity) mContext).getSupportFragmentManager());
+
+            }
+        });
 
         checkCameraPermissions();
 
@@ -104,14 +133,7 @@ public class SettingsFragment extends android.app.Fragment implements IPickResul
             }
         });
 
-        mProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                //PickImageDialog.build(new PickSetup()).show(getActivity());
-
-            }
-        });
 
         ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -173,8 +195,11 @@ public class SettingsFragment extends android.app.Fragment implements IPickResul
         return byteArray;
     }
 
-    @Override
+    //@Override
     public void onPickResult(PickResult r) {
+
+        Log.e("PICK", "HELLO");
+
         if (r.getError() == null) {
 
             Bitmap bmp1 = r.getBitmap();
