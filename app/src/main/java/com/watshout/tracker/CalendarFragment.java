@@ -20,6 +20,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.applandeo.materialcalendarview.EventDay;
+import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -31,6 +32,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -42,7 +44,11 @@ public class CalendarFragment extends android.app.Fragment {
 
     private com.applandeo.materialcalendarview.CalendarView mCalendarView;
 
-    private List<CalendarItem> listItems;
+    private ArrayList<CalendarItem> listItems;
+
+    private ArrayList<String> roundedDates;
+    private HashMap<String, ArrayList> allEventInfo;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,8 +62,6 @@ public class CalendarFragment extends android.app.Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_calendar, container, false);
 
-
-
     }
 
 
@@ -66,9 +70,24 @@ public class CalendarFragment extends android.app.Fragment {
 
         mCalendarView = view.findViewById(R.id.calendarView);
 
+        mCalendarView.setOnDayClickListener(listener);
+
         getCalendarData();
 
     }
+
+
+    private com.applandeo.materialcalendarview.listeners.OnDayClickListener listener = new OnDayClickListener() {
+        @Override
+        public void onDayClick(EventDay eventDay) {
+
+            String selectedDate = eventDay.getCalendar().getTime().toString();
+
+            try {
+                Log.d("CALENDAR", allEventInfo.get(selectedDate).toString());
+            } catch (NullPointerException e){}
+        }
+    };
 
     @Override
     public void onAttach(Context context) {
@@ -94,6 +113,8 @@ public class CalendarFragment extends android.app.Fragment {
                         progressDialog.dismiss();
 
                         listItems = new ArrayList<>();
+                        allEventInfo = new HashMap<>();
+                        roundedDates = new ArrayList<>();
                         List<EventDay> events = new ArrayList<>();
 
                         try {
@@ -113,20 +134,47 @@ public class CalendarFragment extends android.app.Fragment {
                                 }
                             }
 
-                            for (int i = 0; i < listItems.size(); i++){
+                            for (CalendarItem item : listItems){
 
-                                Timestamp t = new Timestamp(Long.valueOf(listItems.get(0).getTime())); // replace with existing timestamp
+                                Timestamp t = new Timestamp(Long.valueOf(item.getTime())); // replace with existing timestamp
                                 Date d = new Date(t.getTime());
 
                                 Calendar calendar = Calendar.getInstance();
                                 calendar.setTime(d);
 
-                                events.add(new EventDay(calendar, R.drawable.current));
+                                EventDay current = new EventDay(calendar, R.drawable.current);
+                                String roundedDate = current.getCalendar().getTime().toString();
+
+                                if(!roundedDates.contains(roundedDate)){
+                                    roundedDates.add(roundedDate);
+                                }
+
+                                HashMap<String, HashMap> individualItem = new HashMap<>();
+                                HashMap<String, String> individualItemInfo = new HashMap<>();
+
+                                individualItemInfo.put("time", item.getTime());
+                                individualItemInfo.put("link", item.getImageURL());
+
+                                individualItem.put(item.getTime(), individualItemInfo);
+
+                                if (allEventInfo.get(roundedDate) == null) {
+
+                                    ArrayList<HashMap> activityList = new ArrayList<>();
+                                    activityList.add(individualItem);
+
+                                    allEventInfo.put(roundedDate, activityList);
+
+                                } else {
+
+                                    allEventInfo.get(roundedDate).add(individualItem);
+
+                                }
+
+                                events.add(current);
 
                             }
 
                             mCalendarView.setEvents(events);
-
 
                         } catch (JSONException e) {
                             e.printStackTrace();
