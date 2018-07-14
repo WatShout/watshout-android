@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true"
-    tools:context=".SettingsActivity">
+    tools:context=".SettingsActivity"
+    android:background="#000000">
 
     <Button
         android:id="@+id/age_button"
@@ -26,10 +27,12 @@
         android:layout_marginBottom="36dp"
         android:layout_marginTop="16dp"
         android:text="Settings"
+        android:textColor="#ffd529"
         app:layout_constraintBottom_toTopOf="@+id/profile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
 
     <ImageView
         android:id="@+id/profile"
@@ -52,6 +55,7 @@
         android:layout_marginRight="212dp"
         android:layout_marginStart="46dp"
         android:text="Age"
+        android:textColor="#ffd529"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/age_button"
         app:layout_constraintStart_toStartOf="parent" />
@@ -71,6 +75,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="7dp"
         android:text="Tap image to change!"
+        android:textColor="#ffd529"
         app:layout_constraintBottom_toTopOf="@+id/profile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
