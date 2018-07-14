@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MapFragment"
+    android:background="#000000"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:layout_constraintBottom_toBottomOf="@+id/map"
     app:layout_constraintTop_toBottomOf="@+id/map">

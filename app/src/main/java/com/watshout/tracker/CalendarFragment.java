@@ -59,7 +59,6 @@ public class CalendarFragment extends android.app.Fragment {
     private ArrayList<String> roundedDates;
     private HashMap<String, ArrayList> allEventInfo;
 
-    private RelativeLayout mRelativeLayout;
     private RecyclerView mRecycleView;
 
     private RecyclerView.Adapter adapter;
@@ -83,7 +82,6 @@ public class CalendarFragment extends android.app.Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         mCalendarView = view.findViewById(R.id.calendarView);
-        mRelativeLayout = view.findViewById(R.id.calendarLayout);
         mRecycleView = view.findViewById(R.id.calendarRecycle);
         mRecycleView.setHasFixedSize(true);
         mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
