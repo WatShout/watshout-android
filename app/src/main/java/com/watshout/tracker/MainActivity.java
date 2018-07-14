@@ -154,7 +154,15 @@ public class MainActivity extends AppCompatActivity implements
                     .replace(R.id.screen_area, mapFragment)
                     .commit();
 
-        } else if (id == R.id.nav_settings) {
+        }
+        else if (id == R.id.nav_calendar) {
+            getFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.screen_area, new CalendarFragment())
+                    .commit();
+
+        }
+        else if (id == R.id.nav_settings) {
 
             getFragmentManager()
                     .beginTransaction()
