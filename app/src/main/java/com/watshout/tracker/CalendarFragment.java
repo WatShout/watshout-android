@@ -9,12 +9,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -56,7 +59,10 @@ public class CalendarFragment extends android.app.Fragment {
     private ArrayList<String> roundedDates;
     private HashMap<String, ArrayList> allEventInfo;
 
-    private ConstraintLayout mConstraintLayout;
+    private RelativeLayout mRelativeLayout;
+    private RecyclerView mRecycleView;
+
+    private RecyclerView.Adapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,7 +83,10 @@ public class CalendarFragment extends android.app.Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         mCalendarView = view.findViewById(R.id.calendarView);
-        mConstraintLayout = view.findViewById(R.id.calendarLayout);
+        mRelativeLayout = view.findViewById(R.id.calendarLayout);
+        mRecycleView = view.findViewById(R.id.calendarRecycle);
+        mRecycleView.setHasFixedSize(true);
+        mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mCalendarView.setOnDayClickListener(listener);
 
@@ -96,23 +105,27 @@ public class CalendarFragment extends android.app.Fragment {
 
                 ArrayList<HashMap> currentlySelected = allEventInfo.get(selectedDate);
 
+                ArrayList<CalendarItem> listItems = new ArrayList<>();
+
                 for (HashMap hashMap : currentlySelected) {
 
                     String key = (String) hashMap.keySet().toArray()[0];
 
-                    ImageView iv = new ImageView(getActivity());
-                    ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                    iv.setLayoutParams(lp);
-                    mConstraintLayout.addView(iv);
-
                     HashMap<String, String> individual = (HashMap) hashMap.get(key);
-
-                    loadMapImage(individual.get("link"), iv);
+                    CalendarItem current = new CalendarItem(individual.get("link"), individual.get("time"));
+                    listItems.add(current);
 
                 }
 
+                adapter = new CalendarAdapter(listItems, getActivity());
+                mRecycleView.setAdapter(adapter);
 
-            } catch (NullPointerException e){}
+
+            } catch (NullPointerException e){
+
+                mRecycleView.setAdapter(null);
+
+            }
         }
     };
 
@@ -136,8 +149,6 @@ public class CalendarFragment extends android.app.Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-
-                        progressDialog.dismiss();
 
                         listItems = new ArrayList<>();
                         allEventInfo = new HashMap<>();
@@ -202,6 +213,7 @@ public class CalendarFragment extends android.app.Fragment {
                             }
 
                             mCalendarView.setEvents(events);
+                            progressDialog.dismiss();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
