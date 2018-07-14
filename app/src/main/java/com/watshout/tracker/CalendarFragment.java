@@ -2,16 +2,19 @@ package com.watshout.tracker;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
+import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -28,6 +31,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -49,6 +55,7 @@ public class CalendarFragment extends android.app.Fragment {
     private ArrayList<String> roundedDates;
     private HashMap<String, ArrayList> allEventInfo;
 
+    private ConstraintLayout mConstraintLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,6 +76,7 @@ public class CalendarFragment extends android.app.Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         mCalendarView = view.findViewById(R.id.calendarView);
+        mConstraintLayout = view.findViewById(R.id.calendarLayout);
 
         mCalendarView.setOnDayClickListener(listener);
 
@@ -84,7 +92,23 @@ public class CalendarFragment extends android.app.Fragment {
             String selectedDate = eventDay.getCalendar().getTime().toString();
 
             try {
-                Log.d("CALENDAR", allEventInfo.get(selectedDate).toString());
+
+                ArrayList<HashMap> currentlySelected = allEventInfo.get(selectedDate);
+
+                for (HashMap hashMap : currentlySelected) {
+
+                    ImageView iv = new ImageView(getActivity());
+                    ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                    iv.setLayoutParams(lp);
+                    mConstraintLayout.addView(iv);
+
+                    Log.wtf("CALENDAR", (String) hashMap.get("link"));
+
+                    loadMapImage((String) hashMap.get("link"), iv);
+
+                }
+
+
             } catch (NullPointerException e){}
         }
     };
@@ -190,6 +214,27 @@ public class CalendarFragment extends android.app.Fragment {
         });
 
         queue.add(stringRequest);
+
+    }
+
+    private void loadMapImage(final String url, final ImageView mImageView){
+
+        new Thread(new Runnable() {
+            public void run(){
+                try {
+                    //download the drawable
+                    final Drawable drawable = Drawable.createFromStream((InputStream) new URL(url).getContent(), "src");
+                    //edit the view in the UI thread
+                    mImageView.post(new Runnable() {
+                        public void run() {
+                            mImageView.setImageDrawable(drawable);
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
     }
 
