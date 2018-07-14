@@ -38,6 +38,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -97,14 +98,16 @@ public class CalendarFragment extends android.app.Fragment {
 
                 for (HashMap hashMap : currentlySelected) {
 
+                    String key = (String) hashMap.keySet().toArray()[0];
+
                     ImageView iv = new ImageView(getActivity());
                     ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
                     iv.setLayoutParams(lp);
                     mConstraintLayout.addView(iv);
 
-                    Log.wtf("CALENDAR", (String) hashMap.get("link"));
+                    HashMap<String, String> individual = (HashMap) hashMap.get(key);
 
-                    loadMapImage((String) hashMap.get("link"), iv);
+                    loadMapImage(individual.get("link"), iv);
 
                 }
 
