@@ -57,6 +57,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -67,6 +69,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
 import org.apache.log4j.chainsaw.Main;
@@ -111,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     MapPlotter mapPlotter;
 
     private StorageReference mStorageRef;
+    private DatabaseReference activityImagesRef;
 
 
     // General database reference
@@ -142,6 +146,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LayoutInflater layoutInflater;
 
     RelativeLayout mRelativeLayout;
+
+    ArrayList<String> imageNames;
 
     // Resource file declarations
     Button mStart;
@@ -175,16 +181,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // This runs as the map rendering is completed
     @SuppressLint("MissingPermission")
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
 
         // IMPORTANT
         // This ensures that we can make changes to the map outside of this function
         // which is why we defined it globally
         googleMapGlobal = googleMap;
-
-        // Plotting map markers for taken pictures
-        //googleMapGlobal.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Picture"));
-        // TODO: Use Firebase Database info to get all files names/locations, and onDataChange(), add a new marker
 
         // This sets the starting zoom level
         float zoom = 16;
@@ -217,6 +219,61 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
+        // Firebase for getting the images from storage, using a listener for changes in the database that is updated simultaneously as the storage
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+
+        DatabaseReference rootDatabaseRef = FirebaseDatabase.getInstance().getReference();
+        activityImagesRef = rootDatabaseRef.child("users").child(uid).child("activityImages");
+        imageNames = new ArrayList<>();
+
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) { // Firebase
+
+                imageNames = new ArrayList<>();
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    String friend = ds.getKey();
+                    if (ds.getValue(boolean.class)) {
+                        imageNames.add(friend);
+                    }
+                }
+                // Plotting map markers for taken pictures
+                Log.e("TEST", imageNames.toString());
+                if (imageNames != null) {
+                    if (imageNames.size() != 0) { // Making sure there are images in the database
+                        for (int currImgNum = 0; currImgNum < imageNames.size(); currImgNum++) {
+                            // Getting metadata
+                            StorageReference imageRef = mStorageRef.child("users/" + uid+"/activityImages/"+imageNames.get(currImgNum));
+                            imageRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                                @Override
+                                public void onSuccess(StorageMetadata storageMetadata) {
+                                    String imageLatLong = storageMetadata.getCustomMetadata("location");
+                                    double latitude = Double.parseDouble(imageLatLong.split(",")[0]);
+                                    double longitude = Double.parseDouble(imageLatLong.split(",")[1]);
+                                    //mapPlotter.addMarker(latitude, longitude);
+                                    googleMapGlobal.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
+                                    Log.e("Marker", latitude + " , " + longitude);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getApplicationContext(), "Error getting metadata, please try again.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Error plotting markers for taken images", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Do nothing
+            }
+        };
+        activityImagesRef.addValueEventListener(eventListener);
 
         mapPlotter.moveCamera(zoom);
     }
@@ -346,7 +403,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);

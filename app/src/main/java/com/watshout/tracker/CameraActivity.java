@@ -1,9 +1,15 @@
 package com.watshout.tracker;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Camera;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -43,12 +49,22 @@ public class CameraActivity extends AppCompatActivity {
 
         uid = getIntent().getStringExtra("uid");
 
+        final Activity myActivity = this;
+
         Button btnCamera = (Button)findViewById(R.id.btnCamera);
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // pickImageDIalogue
-                startActivityForResult(intent, 0);
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "Camera permission is not enabled, please enable it through Settings.", Toast.LENGTH_SHORT).show();
+                    ActivityCompat.requestPermissions(myActivity,
+                            new String[]{Manifest.permission.CAMERA}, 200);
+                }
+                else {
+                    startActivityForResult(intent, 0);
+                }
             }
         });
         imageView = (ImageView)findViewById(R.id.imageView);
@@ -67,8 +83,8 @@ public class CameraActivity extends AppCompatActivity {
 
                 // Uploading image to Firebase Storage
                 final Date currentTime = Calendar.getInstance().getTime();
-                String firebaseImageName = (currentTime.getMonth()+1) + "-" + currentTime.getDate() + "-" + (1900+currentTime.getYear()) + "-" + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds();
-                final StorageReference imageRef = mStorageRef.child("users/" + uid+"/userImages/"+firebaseImageName);
+                final String firebaseImageName = (currentTime.getMonth()+1) + "-" + currentTime.getDate() + "-" + (1900+currentTime.getYear()) + "-" + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds();
+                final StorageReference imageRef = mStorageRef.child("users/" + uid+"/activityImages/"+firebaseImageName);
                 // Upload image
                 imageRef.putBytes(byteArray)
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -80,13 +96,29 @@ public class CameraActivity extends AppCompatActivity {
                                         .setCustomMetadata("time", currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds())
                                         .setCustomMetadata("location", FusedLocation.latitude + "," + FusedLocation.longitude)
                                         .build();
-                                // TODO: Upload location as part of metadata
 
                                 imageRef.updateMetadata(imageData)
                                         .addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
                                             @Override
                                             public void onSuccess(StorageMetadata storageMetadata) {
                                                 Log.e("Metadata", "Success");
+                                                // Uploading some data to Firebase Database, for easy event listening
+                                                DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+                                                rootRef.child("users").child(uid).child("activityImages").child(firebaseImageName).setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Toast.makeText(getApplicationContext(), "Image uploaded!", Toast.LENGTH_LONG).show();
+                                                        Log.e("Time:", currentTime.getHours() + ":" + currentTime.getMinutes());
+                                                        Log.e("Date:",(currentTime.getMonth()+1) + "/" + currentTime.getDate() + "/" + (1900+currentTime.getYear()));
+                                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                        startActivity(intent);
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(getApplicationContext(), "Image data was not uploaded to database, please try again.", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
@@ -95,7 +127,6 @@ public class CameraActivity extends AppCompatActivity {
                                                 Log.e("Metadata", "Failure");
                                             }
                                         });
-                                Toast.makeText(getApplicationContext(), "Image uploaded!", Toast.LENGTH_LONG).show();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -106,21 +137,6 @@ public class CameraActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         });
-                // Uploading to Firebase Database
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference databaseRef = database.getReference("users/" + uid + "/device/pictures");
-                // TODO: Update Firebase Database with file name
-
-
-
-
-
-
-
-                Log.e("Time:", currentTime.getHours() + ":" + currentTime.getMinutes());
-                Log.e("Date:",(currentTime.getMonth()+1) + "/" + currentTime.getDate() + "/" + (1900+currentTime.getYear()));
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
             }
         });
 
