@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -81,6 +82,8 @@ import java.util.Calendar;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+
+import static com.google.android.gms.maps.model.BitmapDescriptorFactory.fromBitmap;
 
 
 /*
@@ -244,21 +247,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (imageNames.size() != 0) { // Making sure there are images in the database
                         for (int currImgNum = 0; currImgNum < imageNames.size(); currImgNum++) {
                             // Getting metadata
-                            StorageReference imageRef = mStorageRef.child("users/" + uid+"/activityImages/"+imageNames.get(currImgNum));
-                            imageRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                            final StorageReference imageRef = mStorageRef.child("users/" + uid+"/activityImages/"+imageNames.get(currImgNum));
+                            imageRef.getBytes(1024*1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                                 @Override
-                                public void onSuccess(StorageMetadata storageMetadata) {
-                                    String imageLatLong = storageMetadata.getCustomMetadata("location");
-                                    double latitude = Double.parseDouble(imageLatLong.split(",")[0]);
-                                    double longitude = Double.parseDouble(imageLatLong.split(",")[1]);
-                                    //mapPlotter.addMarker(latitude, longitude);
-                                    googleMapGlobal.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
-                                    Log.e("Marker", latitude + " , " + longitude);
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getApplicationContext(), "Error getting metadata, please try again.", Toast.LENGTH_SHORT).show();
+                                public void onSuccess(byte[] bytes) {
+                                    final Bitmap currentBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    imageRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                                        @Override
+                                        public void onSuccess(StorageMetadata storageMetadata) {
+                                            String imageLatLong = storageMetadata.getCustomMetadata("location");
+                                            double latitude = Double.parseDouble(imageLatLong.split(",")[0]);
+                                            double longitude = Double.parseDouble(imageLatLong.split(",")[1]);
+                                            //mapPlotter.addMarker(latitude, longitude);
+                                            googleMapGlobal.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).icon(fromBitmap(currentBitmap)));
+                                            Log.e("Marker", latitude + " , " + longitude);
+                                        }
+                                    });
                                 }
                             });
                         }
