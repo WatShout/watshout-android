@@ -45,7 +45,17 @@
         app:menu="@menu/drawer_view"
         app:headerLayout="@layout/nav_header"/>
 
+        <Button
+            android:id="@+id/cameraButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="96dp"
+            android:text="Camera" />
 
+
+    </RelativeLayout>
 
 
 

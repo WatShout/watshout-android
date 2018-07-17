@@ -29,6 +29,8 @@ public class FusedLocation  {
     private String uid;
     private ArrayList<Waypoint> trackPoints;
     private XMLCreator XMLCreator;
+    public static double latitude = 0;
+    public static double longitude = 0;
     double speed;
     double prevLat;
     double prevLon;
@@ -63,6 +65,9 @@ public class FusedLocation  {
                 MapFragment.GPSconnected = true;
 
                 Location location = locationResult.getLocations().get(0);
+
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
 
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();
