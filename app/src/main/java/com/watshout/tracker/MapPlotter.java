@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -200,7 +201,7 @@ public class MapPlotter {
 
         markers.add(newMarker);
 
-        if (MainActivity.currentlyTrackingLocation){
+        if (com.watshout.tracker.MapFragment.currentlyTrackingLocation){
 
             if (markers.size() > 0) {
 

@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="600dp"
+    android:layout_height="400dp"
+    >
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="center"
+        android:contentDescription="@string/app_name" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabDialog"
+        android:background="@android:color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/baseline_pin_drop_black_18dp"/>
+
+    <TextView
+        android:id="@+id/speedTextDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:text="0 m/s"
+        android:textColor="#009688"
+        android:textSize="42dp"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/stepsDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:text="0 steps"
+        android:textColor="#009688"
+        android:textSize="42dp"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/distanceDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:text="0 m"
+        android:textColor="#009688"
+        android:textSize="42dp"
+        android:textStyle="bold"
+        />
+</LinearLayout>

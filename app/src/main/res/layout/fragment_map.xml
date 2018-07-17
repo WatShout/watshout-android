@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapFragment"
+    android:background="#000000"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_constraintBottom_toBottomOf="@+id/map"
+    app:layout_constraintTop_toBottomOf="@+id/map">
+
+    <com.google.android.gms.maps.MapView
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="513dp"
+        android:layout_alignParentTop="true"
+        app:layout_constraintBottom_toTopOf="@+id/timerText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/timerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:text="0:00"
+        android:textColor="#009688"
+        android:textSize="42dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/stop"
+        app:layout_constraintStart_toEndOf="@+id/start"
+        app:layout_constraintTop_toBottomOf="@+id/map" />
+
+    <Button
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/timerText"
+        android:layout_toStartOf="@+id/timerText"
+        android:text="Start"
+        app:layout_constraintBottom_toTopOf="@+id/stop"
+        app:layout_constraintEnd_toStartOf="@+id/timerText"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/timerText"
+        android:layout_toEndOf="@+id/timerText"
+        android:background="@android:color/holo_red_dark"
+        android:text="Stop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/timerText"
+        app:layout_constraintTop_toBottomOf="@+id/start" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:background="@android:color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/baseline_pin_drop_black_18dp"/>
+
+</RelativeLayout>

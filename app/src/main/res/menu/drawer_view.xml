@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_news_feed"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="News Feed" />
+
+        <item
+            android:id="@+id/nav_calendar"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Calendar" />
+
         <item
             android:id="@+id/nav_home"
+            android:checked="true"
             android:icon="@drawable/ic_menu_camera"
             android:title="Home" />
-        <item
-            android:id="@+id/nav_music"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Music" />
-        <item
-            android:id="@+id/nav_friends"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Friends" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_menu_manage"
             android:title="Settings" />
+
+        <item
+            android:id="@+id/nav_signout"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Sign out" />
+
+
     </group>
 </menu>

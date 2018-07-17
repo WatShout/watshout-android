@@ -2,30 +2,23 @@ package com.watshout.tracker;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.text.InputType;
-import android.util.Base64;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -44,15 +37,12 @@ import com.google.firebase.storage.UploadTask;
 import com.vansuita.pickimage.bean.PickResult;
 import com.vansuita.pickimage.bundle.PickSetup;
 import com.vansuita.pickimage.dialog.PickImageDialog;
+import com.vansuita.pickimage.listeners.IPickCancel;
 import com.vansuita.pickimage.listeners.IPickResult;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Set;
 
-import static android.content.Context.INPUT_METHOD_SERVICE;
-
-public class SettingsActivity extends AppCompatActivity implements IPickResult {
-
+public class SettingsFragment extends android.app.Fragment {
     final long TEN_MEGABYTE = 10 * 1024 * 1024;
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -79,18 +69,51 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
     String fileName;
 
     final int MY_PERMISSIONS_REQUEST_CAMERA = 505;
-    String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+    String[] permissions = {android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+
+    Context mContext;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        mContext = getActivity();
+
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        return view;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mProfile = view.findViewById(R.id.profile);
+        mEmail = view.findViewById(R.id.email);
+        mAge = view.findViewById(R.id.age);
+        mEmailButton = view.findViewById(R.id.email_button);
+        mAgeButton = view.findViewById(R.id.age_button);
 
-        mProfile = findViewById(R.id.profile);
-        mEmail = findViewById(R.id.email);
-        mAge = findViewById(R.id.age);
-        mEmailButton = findViewById(R.id.email_button);
-        mAgeButton = findViewById(R.id.age_button);
+        mProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PickImageDialog.build(new PickSetup())
+                        .setOnPickResult(new IPickResult() {
+                            @Override
+                            public void onPickResult(PickResult r) {
+                                //TODO: do what you have to...
+                                Log.d("PICK", "worked");
+                            }
+                        })
+                        .setOnPickCancel(new IPickCancel() {
+                            @Override
+                            public void onCancelClick() {
+                                //TODO: do what you have to if user clicked cancel
+                            }
+                        }).show(( (FragmentActivity) mContext).getSupportFragmentManager());
+
+            }
+        });
 
         checkCameraPermissions();
 
@@ -106,14 +129,7 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
             }
         });
 
-        mProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                PickImageDialog.build(new PickSetup()).show(SettingsActivity.this);
-
-                }
-        });
 
         ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -155,8 +171,8 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
                     int newAge = Integer.parseInt(mAge.getText().toString());
                     ref.child("users").child(uid).child("age").setValue(newAge);
 
-                    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
                     mAge.clearFocus();
                     mAge.setCursorVisible(false);
 
@@ -164,7 +180,6 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
             }
         });
     }
-
 
     byte[] getImageData(Bitmap bmp) {
 
@@ -176,8 +191,11 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
         return byteArray;
     }
 
-    @Override
+    //@Override
     public void onPickResult(PickResult r) {
+
+        Log.e("PICK", "HELLO");
+
         if (r.getError() == null) {
 
             Bitmap bmp1 = r.getBitmap();
@@ -238,16 +256,16 @@ public class SettingsActivity extends AppCompatActivity implements IPickResult {
     }
 
     public void checkCameraPermissions() {
-        if (ContextCompat.checkSelfPermission(this,
+        if (ContextCompat.checkSelfPermission(this.getActivity(),
                 Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this,
+                ContextCompat.checkSelfPermission(this.getActivity(),
                         Manifest.permission.CAMERA)
                         != PackageManager.PERMISSION_GRANTED) {
 
             // No explanation needed, we can request the permission.
 
-            ActivityCompat.requestPermissions(this,
+            ActivityCompat.requestPermissions(this.getActivity(),
                     permissions,
                     MY_PERMISSIONS_REQUEST_CAMERA);
 

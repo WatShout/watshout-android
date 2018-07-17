@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true"
-    tools:context=".SettingsActivity"
-    android:background="#000000">
+    android:background="#000000"
+   >
 
     <Button
         android:id="@+id/age_button"
@@ -15,6 +15,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:text="Age"
+        android:textColor="#ffd529"
         app:layout_constraintBottom_toBottomOf="@+id/age"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView5"
@@ -23,7 +24,7 @@
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="18dp"
         android:layout_marginBottom="36dp"
         android:layout_marginTop="16dp"
         android:text="Settings"
@@ -66,6 +67,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="number"
+        android:textColor="#ffd529"
         app:layout_constraintStart_toEndOf="@+id/textView5"
         app:layout_constraintTop_toTopOf="@+id/textView5" />
 
