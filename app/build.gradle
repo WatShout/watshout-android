@@ -49,7 +49,6 @@ dependencies {
 
     implementation files('libs/log4j-1.2.17.jar')
     implementation files('libs/gpxparser-20130603.jar')
-    //
     implementation 'com.applandeo:material-calendar-view:1.0.1'
 
 }

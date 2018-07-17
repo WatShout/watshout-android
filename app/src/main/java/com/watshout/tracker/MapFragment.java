@@ -3,40 +3,30 @@ package com.watshout.tracker;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.FragmentManager;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
@@ -52,7 +42,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.auth.FirebaseAuth;
@@ -64,15 +53,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -230,6 +212,16 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
 
+        Button cameraButton = view.findViewById(R.id.cameraButton);
+        cameraButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CameraActivity.class);
+                intent.putExtra("uid", uid);
+                startActivity(intent);
+            }
+        });
+
 
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -265,28 +257,19 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mStart = view.findViewById(R.id.start);
         mStop = view.findViewById(R.id.stop);
 
-        //mCurrent = findViewById(R.id.current);
-        //mSignOut = findViewById(R.id.signout);
-        //mGreeting = findViewById(R.id.greeting);
-        //mAddFriend = findViewById(R.id.addfriend);
-        //mViewFriends = findViewById(R.id.viewFriends);
         speedTextDialog = dialogView.findViewById(R.id.speedTextDialog);
         stepsDialog = dialogView.findViewById(R.id.stepsDialog);
         distanceDialog = dialogView.findViewById(R.id.distanceDialog);
         timerText = view.findViewById(R.id.timerText);
-        //mLap = findViewById(R.id.lap);
-      
+
         handler = new Handler() ;
 
-        String greetingText = "Hello, " + email;
-
-        //mGreeting.setText(greetingText);
         mStart.setBackgroundResource(android.R.drawable.btn_default);
 
         mRelativeLayout = view.findViewById(R.id.relative);
 
         isMapMoving = true;
-        mv = (MapView) view.findViewById(R.id.map);
+        mv = view.findViewById(R.id.map);
         mv.onCreate(null);
         mv.onResume();
         mv.getMapAsync(this);
@@ -479,7 +462,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 assert requestType != null;
                 if (requestType.equals("received")) {
 
-                    Toast.makeText(getActivity().getApplicationContext(), theirID + " wants to be your friend", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getActivity().getApplicationContext(), theirID + " wants to be your friend", Toast.LENGTH_SHORT).show();
 
                 } else if (requestType.equals("sent")) {
 
