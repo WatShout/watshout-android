@@ -24,6 +24,7 @@ public class FinishedActivity extends AppCompatActivity{
         setContentView(R.layout.activity_finished);
 
         // show finished path in an ImageView
+        // TODO fix issue where bitmap is empty
         Bitmap bitmap = (Bitmap) getIntent().getParcelableExtra("MAP_IMAGE");
 
         ImageView displayPath = (ImageView) findViewById(R.id.finishedRun);
@@ -39,7 +40,8 @@ public class FinishedActivity extends AppCompatActivity{
 
         // display time data
         TextView time = (TextView) findViewById(R.id.time);
-        time.setText(min+":"+sec);
+
+        time.setText("" + min + ":" + String.format("%02d", sec));
 
         // display pace and distance data
         TextView distance = (TextView) findViewById(R.id.distance);

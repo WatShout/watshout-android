@@ -450,8 +450,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                 // Takes snapshot of user path on map, show on finished screen
                 captureMapScreen();
-                openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 openNext.putExtra("MAP_IMAGE", pathScreen);
+                openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getActivity().getApplicationContext().startActivity(openNext);
                 getActivity().finish();
 
