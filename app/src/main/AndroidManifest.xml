@@ -70,6 +70,7 @@
 
         <activity android:name=".SettingsActivity" />
         <activity android:name=".CameraActivity"></activity>
+        <activity android:name=".FinishedActivity"></activity>
     </application>
 
 </manifest>

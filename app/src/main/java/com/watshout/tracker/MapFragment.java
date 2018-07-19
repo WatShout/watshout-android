@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -39,6 +40,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -53,6 +55,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -98,6 +101,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     static boolean GPSconnected = false;
     static boolean currentlyTrackingLocation = false;
     static boolean activityRunning = false;
+
+    Bitmap pathScreen;
 
     XMLCreator XMLCreator;
 
@@ -400,6 +405,14 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
 
+                Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
+                openNext.putExtra("MIN", Minutes);
+                openNext.putExtra("SEC", Seconds);
+
+                // TODO: Retrieve distance information
+                // TODO: Calculate pace from distance/time
+
+
                 MillisecondTime = 0L ;
                 StartTime = 0L ;
                 TimeBuff = 0L ;
@@ -412,7 +425,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                 timerText.setText("0:00");
 
-
                 mStart.setBackgroundResource(android.R.drawable.btn_default);
                 currentlyTrackingLocation = false;
                 mapPlotter.clearPolyLines();
@@ -423,7 +435,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 uploadToDatabase.moveCurrentToPast();
 
                 String date = uploadToDatabase.getFormattedDate();
+                openNext.putExtra("GPX_NAME",date+".gpx");
 
+                // Writes an XML file
                 try {
                     XMLCreator.saveFile(date);
                 } catch (TransformerException e) {
@@ -432,14 +446,14 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     e.printStackTrace();
                 }
 
-                try {
-                    XMLCreator.uploadToFirebaseStorage();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Carrier.setXMLCreator(XMLCreator);
 
-                XMLCreator.resetXML();
-
+                // Takes snapshot of user path on map, show on finished screen
+                captureMapScreen();
+                openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                openNext.putExtra("MAP_IMAGE", pathScreen);
+                getActivity().getApplicationContext().startActivity(openNext);
+                getActivity().finish();
 
             }
 
@@ -514,7 +528,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             timerText.setText("" + Minutes + ":"
                     + String.format("%02d", Seconds));
-
 
             handler.postDelayed(this, 0);
         }
@@ -594,5 +607,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         sensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
 
+    }
+
+    public void captureMapScreen()
+    {
+        new SnapshotReadyCallback() {
+
+            @Override
+            public void onSnapshotReady(Bitmap snapshot) {
+                // TODO Auto-generated method stub
+                pathScreen = snapshot;
+            }
+        };
     }
 }
