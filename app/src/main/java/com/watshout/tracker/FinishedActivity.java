@@ -55,8 +55,8 @@ public class FinishedActivity extends AppCompatActivity{
         // display pace and distance data
         TextView distance = (TextView) findViewById(R.id.distance);
         TextView pace = (TextView) findViewById(R.id.pace);
-        distance.setText(dist+" miles");
-        pace.setText(((3600*dist)/((min*60)+sec))+" mph");
+        distance.setText(String.format("%5.2f",dist)+" miles");
+        pace.setText(String.format("%5.2f",((3600*dist)/((min*60)+sec)))+" mph");
 
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
