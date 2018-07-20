@@ -50,13 +50,13 @@ public class FinishedActivity extends AppCompatActivity{
         // display time data
         TextView time = (TextView) findViewById(R.id.time);
 
-        time.setText("" + String.format("%02d", min) + ":" + String.format("%02d", sec));
+        time.setText("" + min + "m " + sec +"s");
 
         // display pace and distance data
         TextView distance = (TextView) findViewById(R.id.distance);
         TextView pace = (TextView) findViewById(R.id.pace);
-        distance.setText(dist+"");
-        pace.setText((dist/((min*60)+sec))+"");
+        distance.setText(dist+" miles");
+        pace.setText(((3600*dist)/((min*60)+sec))+" mph");
 
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();

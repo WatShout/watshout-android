@@ -25,9 +25,10 @@
         android:id="@+id/uploadGpx"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/returnToMap"
-        android:layout_centerHorizontal="true"
-        android:text="upload run to strava"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/returnToMap"
+        android:layout_marginStart="24dp"
+        android:text="upload run"
         android:textSize="20dp" />
 
     <Button
@@ -35,38 +36,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="54dp"
+        android:layout_marginEnd="28dp"
         android:text="return to map"
-        android:textSize="20dp" />
-
-    <TextView
-        android:id="@+id/finishedDistance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="158dp"
-        android:layout_toStartOf="@+id/finishedRun"
-        android:text="Distance:"
-        android:textSize="20dp" />
-
-    <TextView
-        android:id="@+id/finishedTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/finishedDistance"
-        android:layout_marginStart="155dp"
-        android:text="Time:"
-        android:textSize="20dp" />
-
-    <TextView
-        android:id="@+id/finishedPace"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/finishedDistance"
-        android:layout_toEndOf="@+id/finishedRun"
-        android:text="Pace:"
         android:textSize="20dp" />
 
     <TextView
@@ -74,29 +47,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/finishedDistance"
-        android:layout_marginStart="118dp"
-        android:text=""
+        android:layout_alignTop="@+id/time"
+        android:layout_marginStart="60dp"
+        android:text="miles"
         android:textSize="20dp" />
 
     <TextView
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/finishedDistance"
-        android:layout_marginEnd="165dp"
-        android:text=""
+        android:layout_alignTop="@+id/pace"
+        android:layout_centerHorizontal="true"
+        android:text="min:sec"
         android:textSize="20dp" />
 
     <TextView
         android:id="@+id/pace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/finishedDistance"
-        android:layout_marginEnd="47dp"
-        android:text=""
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="166dp"
+        android:layout_toEndOf="@+id/finishedTitle"
+        android:text="mph"
         android:textSize="20dp" />
 
 
