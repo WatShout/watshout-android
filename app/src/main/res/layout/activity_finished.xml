@@ -5,8 +5,9 @@
 
     <ImageView
         android:id="@+id/finishedRun"
-        android:layout_width="179dp"
-        android:layout_height="239dp"
+        android:layout_width="208dp"
+        android:layout_height="277dp"
+        android:adjustViewBounds="true"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="116dp" />
@@ -26,8 +27,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/returnToMap"
-        android:layout_toStartOf="@+id/distance"
+        android:layout_toStartOf="@+id/returnToMap"
         android:text="upload run"
+        android:layout_marginRight="10dp"
         android:textSize="20dp" />
 
     <Button
@@ -45,8 +47,9 @@
         android:id="@+id/distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/finishedRun"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="185dp"
         android:text="miles"
         android:textSize="20dp" />
 
