@@ -24,8 +24,15 @@ public class FinishedActivity extends AppCompatActivity{
         setContentView(R.layout.activity_finished);
 
         // show finished path in an ImageView
-        // TODO fix issue where bitmap is empty
-        Bitmap bitmap = (Bitmap) getIntent().getParcelableExtra("MAP_IMAGE");
+        // TODO fix issue where bitmap is null
+
+        // load bitmap directly
+        //Bitmap bitmap = (Bitmap) getIntent().getParcelableExtra("MAP_IMAGE");
+        //Log.i("Map_Display",bitmap.getWidth()+"x"+bitmap.getHeight());
+
+        // load bitmap as byte array
+        byte[] bitmapdata = getIntent().getByteArrayExtra("MAP_IMAGE");
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
 
         ImageView displayPath = (ImageView) findViewById(R.id.finishedRun);
         displayPath.setImageBitmap(bitmap);
@@ -34,14 +41,16 @@ public class FinishedActivity extends AppCompatActivity{
         int min = getIntent().getIntExtra("MIN",0);
         int sec = getIntent().getIntExtra("SEC",0);
 
-        // TODO retrieve pre-calculated distance from MapFragment
-        // double dist = getIntent().getDoubleExtra("DIST",0.0);
+        // retrieve pre-calculated distance from MapFragment
+        //double dist = getIntent().getDoubleExtra("DIST",0.0);
+
+        // find distance data from GPX file on SD card
         double dist = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
 
         // display time data
         TextView time = (TextView) findViewById(R.id.time);
 
-        time.setText("" + min + ":" + String.format("%02d", sec));
+        time.setText("" + String.format("%02d", min) + ":" + String.format("%02d", sec));
 
         // display pace and distance data
         TextView distance = (TextView) findViewById(R.id.distance);
@@ -52,6 +61,7 @@ public class FinishedActivity extends AppCompatActivity{
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
 
+        // TODO test GPX upload after Firebase Storage gets up again
         Button uploadGpx = (Button) findViewById(R.id.uploadGpx);
         uploadGpx.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +115,9 @@ public class FinishedActivity extends AppCompatActivity{
 
                     double newLon = Double.parseDouble(line.substring(firstQuote+1,secondQuote));
                     double newLat = Double.parseDouble(line.substring(thirdQuote+1,fourthQuote));
+
+                    // check if XMLCreator is printing anything, scanning is correct
+                    Log.i("GPX_FILE","Lat: "+newLat+", Lon: "+newLon);
 
                     if (!(lon==0 && lat==0)){
                         // find Euclidean/Pythagorean distance b/w two points in miles, add to dist

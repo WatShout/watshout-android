@@ -13,6 +13,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -55,6 +56,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -448,9 +450,20 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                 Carrier.setXMLCreator(XMLCreator);
 
-                // Takes snapshot of user path on map, show on finished screen
-                captureMapScreen();
-                openNext.putExtra("MAP_IMAGE", pathScreen);
+                // takes snapshot of user path on map
+                //captureMapScreen();
+
+                // send bitmap directly
+                //openNext.putExtra("MAP_IMAGE", pathScreen);
+
+                // send bitmap as byte array
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                pathScreen.recycle();
+                openNext.putExtra("MAP_IMAGE",byteArray);
+
+                //Log.i("Map_Display",pathScreen.getWidth()+"x"+pathScreen.getHeight());
                 openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getActivity().getApplicationContext().startActivity(openNext);
                 getActivity().finish();
@@ -530,6 +543,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     + String.format("%02d", Seconds));
 
             handler.postDelayed(this, 0);
+
+            captureMapScreen();
         }
 
     };
@@ -611,13 +626,31 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     public void captureMapScreen()
     {
-        new SnapshotReadyCallback() {
+        SnapshotReadyCallback callback = new SnapshotReadyCallback() {
 
             @Override
             public void onSnapshotReady(Bitmap snapshot) {
                 // TODO Auto-generated method stub
                 pathScreen = snapshot;
+                Log.i("Map_Image",(pathScreen == null) + "");
             }
         };
+        googleMapGlobal.snapshot(callback);
+    }
+
+    public boolean allWhite(Bitmap bmp){
+
+        for (int i=0;i<bmp.getWidth();i++){
+            for (int j=0;j<bmp.getHeight();j++){
+                int clr=  bmp.getPixel(i,j);
+                int  red   = (clr & 0x00ff0000) >> 16;
+                int  green = (clr & 0x0000ff00) >> 8;
+                int  blue  =  clr & 0x000000ff;
+                if (!(red == 255 && green==255 && blue==255))
+                    return false;
+            }
+        }
+        return true;
+
     }
 }
