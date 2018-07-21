@@ -144,6 +144,8 @@ class FriendData {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
 
+                Log.d("FRIEND", "Child removed");
+
             }
 
             @Override
@@ -169,7 +171,7 @@ class FriendData {
         height = (width == 0) ? differ : 0;
 
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, width, height, narrowSize, narrowSize);
-        bm.recycle();
+        //bm.recycle();
         return resizedBitmap;
     }
 
