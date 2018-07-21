@@ -119,7 +119,7 @@ class FriendData {
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-
+                        Log.d("FRIEND", "Friend stopped tracking");
 
                     }
 
@@ -143,8 +143,6 @@ class FriendData {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                Log.d("FRIEND", "Child removed");
 
             }
 
