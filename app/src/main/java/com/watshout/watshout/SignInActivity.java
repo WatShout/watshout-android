@@ -1,4 +1,4 @@
-package com.watshout.tracker;
+package com.watshout.watshout;
 
 import android.Manifest;
 import android.content.Intent;

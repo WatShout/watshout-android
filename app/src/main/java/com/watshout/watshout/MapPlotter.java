@@ -1,4 +1,4 @@
-package com.watshout.tracker;
+package com.watshout.watshout;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -201,7 +201,7 @@ public class MapPlotter {
 
         markers.add(newMarker);
 
-        if (com.watshout.tracker.MapFragment.currentlyTrackingLocation){
+        if (com.watshout.watshout.MapFragment.currentlyTrackingLocation){
 
             if (markers.size() > 0) {
 

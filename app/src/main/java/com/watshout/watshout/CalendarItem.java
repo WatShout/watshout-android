@@ -1,4 +1,4 @@
-package com.watshout.tracker;
+package com.watshout.watshout;
 
 public class CalendarItem {
     private String imageURL;

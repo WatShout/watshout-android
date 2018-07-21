@@ -1,4 +1,4 @@
-package com.watshout.tracker;
+package com.watshout.watshout;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
