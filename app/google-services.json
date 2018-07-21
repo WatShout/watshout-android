@@ -1,71 +1,27 @@
 {
   "project_info": {
-    "project_number": "572143736497",
-    "firebase_url": "https://watshout-app.firebaseio.com",
-    "project_id": "watshout-app",
-    "storage_bucket": "watshout-app.appspot.com"
+    "project_number": "644503016905",
+    "firebase_url": "https://watshout-test.firebaseio.com",
+    "project_id": "watshout-test",
+    "storage_bucket": "watshout-test.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:572143736497:android:0c840992285633d0",
+        "mobilesdk_app_id": "1:644503016905:android:550ecdea4692c1ac",
         "android_client_info": {
-          "package_name": "com.watshout.tracker"
+          "package_name": "com.watshout.watshout"
         }
       },
       "oauth_client": [
         {
-          "client_id": "572143736497-ha22i429m9gn4cdqe4esvsp6sckul3n9.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.watshout.tracker",
-            "certificate_hash": "07ced4b87436502aeec18aaac575d00ce5a47991"
-          }
-        },
-        {
-          "client_id": "572143736497-rlkv094nk86u51nm3g0s1id57ltce693.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.watshout.tracker",
-            "certificate_hash": "db8c0f4bd6872cb095db951dc8f262b129b6c28c"
-          }
-        },
-        {
-          "client_id": "572143736497-gqq5078lr89vtu82jnjunq3du33t2500.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.watshout.tracker",
-            "certificate_hash": "7ea9bc23adc53dac720775f0b400b15ff3f5ff05"
-          }
-        },
-        {
-          "client_id": "572143736497-c005715rhqa77fmfhgnq6lvge3bc33cp.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.watshout.tracker",
-            "certificate_hash": "4b2578093df81efdd0520d11c1c348fc34ff6cf0"
-          }
-        },
-        {
-          "client_id": "572143736497-dtajsoc1jipupnjf3ne7k7vrj1m3dr0k.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.watshout.tracker",
-            "certificate_hash": "3bb062a03ef7356966d6521bf543d75c4ffad61f"
-          }
-        },
-        {
-          "client_id": "572143736497-a74mg24ltg2fteia1bgcikmt0mhmh5oj.apps.googleusercontent.com",
-          "client_type": 3
-        },
-        {
-          "client_id": "572143736497-a74mg24ltg2fteia1bgcikmt0mhmh5oj.apps.googleusercontent.com",
+          "client_id": "644503016905-0o7t1mj7kav3j62qrh540qbtd6spvrvl.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAplpF3AbexIMGFywtfpBre7rVZxevqNhQ"
+          "current_key": "AIzaSyBvBm2zQiS_1Qvorpd_fRU7z6NkbQJXkLE"
         }
       ],
       "services": {
@@ -73,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "572143736497-a74mg24ltg2fteia1bgcikmt0mhmh5oj.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2
