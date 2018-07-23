@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="113dp"
+        android:layout_marginTop="52dp"
         android:text="Add a Profile Picture"
         android:textSize="30dp" />
 
@@ -18,9 +18,8 @@
         android:id="@+id/uploadPfpButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/continueButton"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="213dp"
         android:onClick="selectProfilePicture"
         android:text="Select profile picture" />
 
@@ -30,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="142dp"
+        android:layout_marginBottom="108dp"
         android:onClick="continueToMainActivity"
         android:text="Continue without profile picture" />
 
@@ -40,8 +39,27 @@
         android:layout_height="103dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="172dp"
+        android:layout_marginTop="117dp"
         app:srcCompat="@drawable/ic_action_name" />
+
+    <EditText
+        android:id="@+id/age"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="235dp"
+        android:ems="10"
+        android:inputType="number" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="260dp"
+        android:text="Age" />
 
 
 </RelativeLayout>

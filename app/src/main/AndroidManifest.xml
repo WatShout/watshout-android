@@ -56,7 +56,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RequireProfilePictureActivity"></activity>
+        <activity android:name=".InitializeNewAccountActivity"></activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
