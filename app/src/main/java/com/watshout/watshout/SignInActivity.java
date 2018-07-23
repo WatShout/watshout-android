@@ -12,7 +12,6 @@ import android.util.Log;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.signin.SignIn;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -80,7 +79,7 @@ public class SignInActivity extends AppCompatActivity {
                 FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
                 String uid = thisUser.getUid();
 
-                // if Firebase user doesn't have profile_pic_format, open RequireProfilePictureActivity
+                // if Firebase user doesn't have profile_pic_format, open InitializeNewAccountActivity
                 ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -90,7 +89,7 @@ public class SignInActivity extends AppCompatActivity {
                             getApplicationContext().startActivity(openMain);
                             finish();
                         } else {
-                            Intent openPfp = new Intent(getApplicationContext(), RequireProfilePictureActivity.class);
+                            Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
                             openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             getApplicationContext().startActivity(openPfp);
                             finish();

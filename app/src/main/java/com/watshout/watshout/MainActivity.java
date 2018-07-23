@@ -1,6 +1,9 @@
 package com.watshout.watshout;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,8 +18,11 @@ import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -52,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements
     String uid = thisUser.getUid();
     String name = thisUser.getDisplayName();
 
+    String CURRENT_DEVICE_ID;
+
     private StorageReference mStorageRef;
     private DatabaseReference activityImagesRef;
 
@@ -62,12 +70,20 @@ public class MainActivity extends AppCompatActivity implements
 
     LatLng home;
 
+    // Gets a unique hardware ID for a device
+    @SuppressLint("HardwareIds")
+    String getDeviceID() {
+        return Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        CURRENT_DEVICE_ID = getDeviceID();
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -92,6 +108,35 @@ public class MainActivity extends AppCompatActivity implements
                 .beginTransaction()
                 .replace(R.id.screen_area, mapFragment)
                 .commit();
+
+        ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // If data snapshot doesn't exist
+                if (!dataSnapshot.exists()) {
+
+                    // Open activity
+
+                    Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
+                    openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getApplicationContext().startActivity(openPfp);
+
+                } else {
+
+                    // Just set values
+
+                    ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
+                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 

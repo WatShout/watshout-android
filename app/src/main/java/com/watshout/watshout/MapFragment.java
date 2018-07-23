@@ -96,8 +96,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     GoogleMap googleMapGlobal;
     LatLng home;
 
-    String CURRENT_DEVICE_ID;
-
     Boolean isMapMoving;
 
     static boolean GPSconnected = false;
@@ -139,12 +137,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     // For permissions
     int permCode = 200;
-
-    // Gets a unique hardware ID for a device
-    @SuppressLint("HardwareIds")
-    String getDeviceID() {
-        return Settings.Secure.getString(getActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-    }
 
     // This runs as the map rendering is completed
     @SuppressLint("MissingPermission")
@@ -286,62 +278,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         final int displayHeight = displayMetrics.heightPixels;
         final int displayWidth = displayMetrics.widthPixels;
 
-        // I know global variables are bad but I have no clue how else to do this
-        CURRENT_DEVICE_ID = getDeviceID();
-        CurrentID.setCurrent(CURRENT_DEVICE_ID);
-
-        // This is the initial check to see if a user is 'new' or not
-        ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                Log.d("USER", dataSnapshot.exists() + "");
-
-                if (!dataSnapshot.exists()) {
-
-                    layoutInflater = (LayoutInflater) getActivity()
-                            .getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                    assert layoutInflater != null;
-                    ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup, null);
-
-                    popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
-                    popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
-
-                    final EditText mAge = container.findViewById(R.id.age);
-
-                    Button mButton = container.findViewById(R.id.submitinfo);
-                    mButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            int age = Integer.parseInt(mAge.getText().toString());
-
-                            ref.child("users").child(uid).child("name").setValue(name);
-                            ref.child("users").child(uid).child("age").setValue(age);
-                            ref.child("users").child(uid).child("email").setValue(email);
-                            ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
-
-                            popupWindow.dismiss();
-
-                        }
-                    });
-
-                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
-
-
-                } else {
-                    ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
-                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
