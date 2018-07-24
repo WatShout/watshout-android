@@ -38,7 +38,6 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_in);
 
         String[] dangerousPermissions = {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -69,6 +68,8 @@ public class SignInActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(SignInActivity.this,
                 request.toArray(new String[0]),
                 0);
+
+        setContentView(R.layout.activity_sign_in);
 
         // Removes the top bar on top of the map
         //getSupportActionBar().hide();
