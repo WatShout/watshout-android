@@ -79,7 +79,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     int totalSteps;
 
-
     // General database reference
     DatabaseReference ref = FirebaseDatabase
             .getInstance()
@@ -480,10 +479,14 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             handler.postDelayed(this, 0);
 
-            captureMapScreen();
+            if (counter%1000==0) captureMapScreen();
+
+            counter++;
         }
 
     };
+
+
 
 
     @Override
