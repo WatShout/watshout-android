@@ -570,13 +570,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onSnapshotReady(Bitmap snapshot) {
                 // TODO Auto-generated method stub
                 pathScreen = snapshot;
-                Log.i("Map_Image",(pathScreen == null) + "");
+                //Log.i("Map_Image",(pathScreen == null) + "");
             }
         };
         googleMapGlobal.snapshot(callback);
     }
 
-    public boolean allWhite(Bitmap bmp){
+    /*public boolean allWhite(Bitmap bmp){
 
         for (int i=0;i<bmp.getWidth();i++){
             for (int j=0;j<bmp.getHeight();j++){
@@ -590,5 +590,5 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
         return true;
 
-    }
+    }*/
 }

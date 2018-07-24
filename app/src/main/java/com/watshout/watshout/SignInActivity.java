@@ -20,7 +20,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -38,8 +40,35 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        checkPermissions();
-        checkPermissions();
+        String[] dangerousPermissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.GET_ACCOUNTS,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.CAMERA};
+
+        // Go through permissions, check which ones aren't granted
+        List<String> request = new ArrayList<>();
+        for (String permission:dangerousPermissions){
+            if (ContextCompat.checkSelfPermission(SignInActivity.this,
+                    permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                // Permission is not granted
+                if (ActivityCompat.shouldShowRequestPermissionRationale(SignInActivity.this,
+                        permission)) {
+                    // TODO Asynchronously show the rationale for needing permission
+
+                }
+
+                request.add(permission);
+            }
+        }
+
+        // Request the permission
+        ActivityCompat.requestPermissions(SignInActivity.this,
+                request.toArray(new String[0]),
+                0);
 
         // Removes the top bar on top of the map
         //getSupportActionBar().hide();
@@ -118,28 +147,6 @@ public class SignInActivity extends AppCompatActivity {
 
 
                 Log.wtf(TAG, "idk what happened here");
-            }
-        }
-    }
-
-    // Copied and pasted from MainActivity, there should be a better way to do this
-    public void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(SignInActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            if (ActivityCompat.shouldShowRequestPermissionRationale(SignInActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Async error
-
-            } else {
-
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(SignInActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        0);
             }
         }
     }
