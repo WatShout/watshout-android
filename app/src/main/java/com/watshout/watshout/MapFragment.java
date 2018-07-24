@@ -369,7 +369,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                 // Performs Firebase realtime database operations
                 UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
-                uploadToDatabase.moveCurrentToPast();
 
                 String date = uploadToDatabase.getFormattedDate();
                 openNext.putExtra("GPX_NAME",date+".gpx");

@@ -11,12 +11,18 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class FinishedActivity extends AppCompatActivity{
+
+    FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+    String uid = thisUser.getUid();
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -67,9 +73,18 @@ public class FinishedActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 try {
+                    String date = getIntent().getStringExtra("GPX_NAME");
+                    date = date.substring(0, date.length() - 4);
+
+                    UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
+                    uploadToDatabase.moveCurrentToPast(date);
+
                     // Upload GPX to Firebase Storage
-                    XMLCreator.uploadToFirebaseStorage();
+                    XMLCreator.uploadToFirebaseStorage(date);
                     XMLCreator.resetXML();
+
+
+
                 }catch (IOException e){e.printStackTrace();}
             }
         });
