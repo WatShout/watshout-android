@@ -64,10 +64,12 @@ public class SignInActivity extends AppCompatActivity {
             }
         }
 
-        // Request the permission
-        ActivityCompat.requestPermissions(SignInActivity.this,
-                request.toArray(new String[0]),
-                0);
+        if (request.size() > 0) {
+            // Request the permission
+            ActivityCompat.requestPermissions(SignInActivity.this,
+                    request.toArray(new String[0]),
+                    0);
+        }
 
         setContentView(R.layout.activity_sign_in);
 
