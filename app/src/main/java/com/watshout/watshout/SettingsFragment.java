@@ -2,10 +2,13 @@ package com.watshout.watshout;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -41,6 +44,9 @@ import com.vansuita.pickimage.listeners.IPickCancel;
 import com.vansuita.pickimage.listeners.IPickResult;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import static com.watshout.watshout.InitializeNewAccountActivity.GET_FROM_GALLERY;
 
 public class SettingsFragment extends android.app.Fragment {
     final long TEN_MEGABYTE = 10 * 1024 * 1024;
@@ -97,20 +103,9 @@ public class SettingsFragment extends android.app.Fragment {
             @Override
             public void onClick(View v) {
 
-                PickImageDialog.build(new PickSetup())
-                        .setOnPickResult(new IPickResult() {
-                            @Override
-                            public void onPickResult(PickResult r) {
-                                //TODO: do what you have to...
-                                Log.d("PICK", "worked");
-                            }
-                        })
-                        .setOnPickCancel(new IPickCancel() {
-                            @Override
-                            public void onCancelClick() {
-                                //TODO: do what you have to if user clicked cancel
-                            }
-                        }).show(( (FragmentActivity) mContext).getSupportFragmentManager());
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, GET_FROM_GALLERY);
 
             }
         });
@@ -191,28 +186,53 @@ public class SettingsFragment extends android.app.Fragment {
         return byteArray;
     }
 
-    //@Override
-    public void onPickResult(PickResult r) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Log.e("PICK", "HELLO");
 
-        if (r.getError() == null) {
+        try {
 
-            Bitmap bmp1 = r.getBitmap();
-            Bitmap bmp2 = bmp1.copy(bmp1.getConfig(), true);
+            switch (requestCode){
 
-            mProfile.setImageBitmap(bmp1);
+                case GET_FROM_GALLERY:
+                    Uri imageUri = data.getData();
+                    final Bitmap bmp1 = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                    final Bitmap bmp2 = bmp1.copy(bmp1.getConfig(), true);
 
-            final byte[] data = getImageData(bmp2);
+                    mProfile.setImageBitmap(bmp2);
 
-            if (fileName != null){
-                storageReference.child("users").child(uid).child(fileName)
-                        .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bmp1.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                    final byte[] pictureData = baos.toByteArray();
 
+                    if (fileName != null){
+                        storageReference.child("users").child(uid).child(fileName)
+                                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                storageReference.child("users").child(uid).child("profile.png")
+                                        .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                        Log.d("IMG", "Done uploading!");
+
+                                    }
+                                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                        ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+
+                                    }
+                                });
+
+                            }
+                        });
+                    } else {
                         storageReference.child("users").child(uid).child("profile.png")
-                                .putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
@@ -227,32 +247,15 @@ public class SettingsFragment extends android.app.Fragment {
 
                             }
                         });
-
                     }
-                });
-            } else {
-                storageReference.child("users").child(uid).child("profile.png")
-                        .putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
-                        Log.d("IMG", "Done uploading!");
-
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                        ref.child("users").child(uid).child("profile_pic_format").setValue("png");
-
-                    }
-                });
             }
 
 
-        } else {
-            Log.d("IMG", "This didn't work: " + r.getError().toString());
+        } catch (IOException e){
+
         }
+
     }
 
     public void checkCameraPermissions() {
