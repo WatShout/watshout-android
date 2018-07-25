@@ -85,11 +85,13 @@
         android:src="@drawable/baseline_pin_drop_black_18dp" />
 
     <android.support.v7.widget.RecyclerView
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
         android:id="@+id/friendRecycleView"
         android:layout_width="70dp"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:background="@color/colorPrimary" />
+        android:background="@color/fui_transparent" />
 
 </RelativeLayout>

@@ -44,7 +44,7 @@ public class MapFriendAdapter extends RecyclerView.Adapter<MapFriendAdapter.View
         //mapFriendItem.getInitials();
 
         Log.d("RECYCLE", "I am logging from view holder");
-        holder.mInitials.setText("OO");
+        holder.mInitials.setText(mapFriendItem.getInitials());
 
     }
 

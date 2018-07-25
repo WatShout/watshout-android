@@ -74,13 +74,27 @@ class FriendDataManager {
 
                 final String theirUID = dataSnapshot.getKey();
 
-                IndividualFriendData thisFriend = new IndividualFriendData(theirUID, mapPlotterList,
-                        googleMap, recyclerView, context, mapFriendItems);
+                ref.child("users").child(theirUID).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
 
-                thisFriend.startTrackingLocation();
-                thisFriend.listenForStop();
+                        String name = (String) dataSnapshot.getValue();
 
-                friendDataHashMap.put(theirUID, thisFriend);
+                        IndividualFriendData thisFriend = new IndividualFriendData(name, theirUID, mapPlotterList,
+                                googleMap, recyclerView, context, mapFriendItems);
+
+                        thisFriend.startTrackingLocation();
+                        thisFriend.listenForStop();
+
+                        friendDataHashMap.put(theirUID, thisFriend);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
 
             }
 

@@ -32,6 +32,7 @@ public class IndividualFriendData {
             .getInstance()
             .getReference();
 
+    private String name;
     private String uid;
     private HashMap<String, MapPlotter> mapPlotterList;
 
@@ -49,10 +50,11 @@ public class IndividualFriendData {
 
     private int listSize;
 
-    IndividualFriendData(String uid, HashMap mapPlotterList, GoogleMap googleMap,
+    IndividualFriendData(String name, String uid, HashMap mapPlotterList, GoogleMap googleMap,
                          RecyclerView recyclerView, Context context,
                          List mapFriendItems){
 
+        this.name = getInitials(name);
         this.uid = uid;
         this.mapPlotterList = mapPlotterList;
         this.googleMap = googleMap;
@@ -76,7 +78,7 @@ public class IndividualFriendData {
 
                 listSize = mapFriendItems.size();
 
-                mapFriendItems.add(new MapFriendItem(uid));
+                mapFriendItems.add(new MapFriendItem(name));
                 RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context);
                 recyclerView.setAdapter(adapter);
 
@@ -187,8 +189,11 @@ public class IndividualFriendData {
                 // Remove user from the map
                 if (dataSnapshot.getKey().equals("current")){
 
+                    firstEntry = true;
+
                     mapPlotterList.get(uid).removeFromMap();
-                    stopTrackingLocation();
+                    mapPlotterList.remove(uid);
+                    //stopTrackingLocation();
 
                     mapFriendItems.remove(listSize);
 
@@ -225,6 +230,15 @@ public class IndividualFriendData {
         return resizedBitmap;
     }
 
+    public String getInitials(String text) {
+        String firstLetters = "";
+        text = text.replaceAll("[.,]", ""); // Replace dots, etc (optional)
+        for(String s : text.split(" "))
+        {
+            firstLetters += s.charAt(0);
+        }
+        return firstLetters;
+    }
 
 
 }
