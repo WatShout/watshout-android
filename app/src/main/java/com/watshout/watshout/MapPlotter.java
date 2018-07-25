@@ -146,7 +146,7 @@ public class MapPlotter {
                 .position(currentLocation)
                 .icon(icon));
 
-        Log.d("FRIEND", markers.toString());
+        Log.d("MARKERS", markers.toString());
 
         if (markers.size() == 0) {
             previousLocation = currentLocation;

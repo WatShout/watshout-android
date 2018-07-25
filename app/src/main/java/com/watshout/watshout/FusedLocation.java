@@ -100,6 +100,7 @@ public class FusedLocation  {
                 Log.wtf("GPSGPSGPS", "Lat: " + lat + "\nLong" + lon + "\nTracking: " +"Speed: " + speed + MapFragment.currentlyTrackingLocation);
 
                 if (MapFragment.currentlyTrackingLocation){
+                    Log.d("TRACKING", "Currently uploading a location object");
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
 
                     TrackPoint temp = new TrackPoint();

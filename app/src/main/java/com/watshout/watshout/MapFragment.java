@@ -13,28 +13,24 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -57,7 +53,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -100,6 +95,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     static boolean GPSconnected = false;
     static boolean currentlyTrackingLocation = false;
     static boolean activityRunning = false;
+
+    RecyclerView mRecyclerView;
 
     Bitmap pathScreen;
 
@@ -163,7 +160,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             e.printStackTrace();
         }
 
-        FriendData friendData = new FriendData(uid, googleMapGlobal);
+        FriendDataManager friendDataManager = new FriendDataManager(uid, googleMapGlobal, mRecyclerView, getActivity(),
+                new MapRecycleViewCarrier(mRecyclerView));
 
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
@@ -207,7 +205,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     {
         super.onViewCreated(view, savedInstanceState);
 
-
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
 
         Button cameraButton = view.findViewById(R.id.cameraButton);
@@ -221,6 +218,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         });
 
 
+        mRecyclerView = view.findViewById(R.id.friendRecycleView);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //AlertDialog.Builder alertDialog = new AlertDialog.Builder(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
