@@ -62,7 +62,7 @@ class FriendData {
 
                             Log.d("FRIEND", "First time run");
 
-                            mapPlotterList.put(theirUID, new MapPlotter(new ArrayList<Marker>(), googleMap, false));
+                            mapPlotterList.put(theirUID, new MapPlotter(new ArrayList<Marker>(), googleMap, false, theirUID));
                             mapPlotterList.get(theirUID).addFriendMarker(lat, lon);
 
                             ref.child("users").child(theirUID).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -112,6 +112,26 @@ class FriendData {
                     }
 
                     @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {}
+                });
+
+
+                ref.child("users").child(theirUID).child("device").addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
                     }
@@ -119,7 +139,14 @@ class FriendData {
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-                        Log.d("FRIEND", "Friend stopped tracking");
+                        // Remove user from the map
+                        if (dataSnapshot.getKey().equals("current")){
+
+                            mapPlotterList.get(theirUID).removeFromMap();
+
+
+                        }
+
 
                     }
 
@@ -134,27 +161,20 @@ class FriendData {
                     }
                 });
 
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
             }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
 
-            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
         });
 
     }

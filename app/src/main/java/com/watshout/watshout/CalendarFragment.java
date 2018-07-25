@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -136,7 +137,9 @@ public class CalendarFragment extends android.app.Fragment {
 
             } catch (NullPointerException e){
 
-                mRecycleView.setAdapter(null);
+                Toast.makeText(getActivity(), "Error with retrieving events", Toast.LENGTH_SHORT).show();
+
+                //mRecycleView.setAdapter(null);
 
             }
         }

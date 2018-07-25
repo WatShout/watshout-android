@@ -45,12 +45,14 @@ public class MapPlotter {
     private Boolean isMapFollowing = true;
     private ArrayList<Polyline> polylines = new ArrayList<>();
     private Bitmap profilePic;
+    private String uid;
 
 
-    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf){
+    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf, String uid){
         this.markers = markers;
         this.googleMap = googleMap;
         this.profilePic = null;
+        this.uid = uid;
 
         if (isSelf){
             this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
