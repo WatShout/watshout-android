@@ -45,6 +45,7 @@ dependencies {
     implementation 'com.akhgupta:android-easylocation:1.0.1'
 
     implementation 'com.github.jrvansuita:PickImage:+'
+    implementation 'com.github.jkwiecien:EasyImage:+'
     implementation 'commons-io:commons-io:2.4'
     implementation files('libs/log4j-1.2.17.jar')
     implementation files('libs/gpxparser-20130603.jar')

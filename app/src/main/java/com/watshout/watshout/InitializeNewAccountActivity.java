@@ -136,11 +136,15 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
 
         super.onActivityResult(requestCode, resultCode, data);
+
+        Log.i(TAG,"Photo picker complete.");
         try {
             switch (requestCode) {
 
                 case GET_FROM_GALLERY:
                     if (resultCode == Activity.RESULT_OK) {
+                        Log.i(TAG,"Uploading image.");
+
                         //data gives you the image uri. Try to convert that to bitmap
                         //convert data to bitmap, display in ImageView
                         Uri imageUri = data.getData();
@@ -152,6 +156,8 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                         updateButtonText();
 
                         uploadBitmapAsProfilePicture(bmp,uid);
+
+                        uploadedOwnPicture = true;
 
                         break;
                     } else if (resultCode == Activity.RESULT_CANCELED) {
