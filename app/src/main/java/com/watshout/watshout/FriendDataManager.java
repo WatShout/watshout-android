@@ -74,6 +74,8 @@ class FriendDataManager {
 
                 final String theirUID = dataSnapshot.getKey();
 
+                Log.d("FRIENDSS", theirUID);
+
                 ref.child("users").child(theirUID).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
