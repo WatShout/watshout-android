@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -78,8 +79,8 @@ public class IndividualFriendData {
 
                 listSize = mapFriendItems.size();
 
-                mapFriendItems.add(new MapFriendItem(name));
-                RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context);
+                mapFriendItems.add(new MapFriendItem(name, new LatLng(lat, lon)));
+                RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
                 recyclerView.setAdapter(adapter);
 
                 firstEntry = false;
@@ -130,8 +131,13 @@ public class IndividualFriendData {
 
             } else {
 
+                mapFriendItems.get(listSize).setCoords(new LatLng(lat, lon));
+
                 Log.d("FIRST", "Not first");
                 mapPlotterList.get(uid).addFriendMarker(lat, lon);
+
+                RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
+                recyclerView.setAdapter(adapter);
 
             }
 
@@ -197,7 +203,7 @@ public class IndividualFriendData {
 
                     mapFriendItems.remove(listSize);
 
-                    RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context);
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
                     recyclerView.setAdapter(adapter);
 
 
