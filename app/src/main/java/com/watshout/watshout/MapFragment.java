@@ -153,7 +153,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // Marker list is a array of the current user's Markers
         markerList = new ArrayList<>();
 
-        mapPlotter = new MapPlotter(markerList, googleMapGlobal, true);
+        mapPlotter = new MapPlotter(markerList, googleMapGlobal, true, uid);
 
         try {
             XMLCreator = new XMLCreator(getActivity().getApplicationContext(), uid);
