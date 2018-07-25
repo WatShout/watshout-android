@@ -18,7 +18,7 @@
         android:layout_height="match_parent"
         android:layout_weight="65"
         app:datePicker="false"
-        app:headerColor="#000000"
+        app:headerColor="#262523"
         app:headerLabelColor="#ffd529"
         app:todayLabelColor="@color/colorPrimary"
 

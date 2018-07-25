@@ -10,7 +10,7 @@
 
 
     <fragment
-        android:name="com.watshout.tracker.MainActivity"
+        android:name="com.watshout.watshout.MainActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/screen_area"/>
@@ -22,7 +22,8 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:menu="@menu/drawer_view"
-        app:headerLayout="@layout/nav_header"/>
+        app:headerLayout="@layout/nav_header"
+        android:background="#262523"/>
 
 
 </android.support.v4.widget.DrawerLayout>
