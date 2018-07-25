@@ -143,8 +143,7 @@ public class MapPlotter {
 
         // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
-                .position(currentLocation)
-                .icon(icon));
+                .position(currentLocation));
 
         Log.d("MARKERS", markers.toString());
 

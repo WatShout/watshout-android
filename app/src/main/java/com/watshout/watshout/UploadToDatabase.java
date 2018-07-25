@@ -71,7 +71,7 @@ public class UploadToDatabase {
                 });
     }
 
-    private void removeCurrentEntry() {
+    public void removeCurrentEntry() {
         ref.child("users").child(uid).child("device").child("current").removeValue();
     }
 }
