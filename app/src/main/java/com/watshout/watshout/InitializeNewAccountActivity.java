@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -13,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -136,22 +138,38 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
 
         super.onActivityResult(requestCode, resultCode, data);
+
+        Log.i(TAG,"Photo picker complete.");
         try {
             switch (requestCode) {
 
                 case GET_FROM_GALLERY:
                     if (resultCode == Activity.RESULT_OK) {
+                        Log.i(TAG,"Uploading image.");
+
                         //data gives you the image uri. Try to convert that to bitmap
                         //convert data to bitmap, display in ImageView
                         Uri imageUri = data.getData();
                         Bitmap bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                        bmp = ImageUtils.reshapeAsProfilePicture(bmp,this);
+
+                        // display selected image
                         ImageView tv1;
                         tv1= (ImageView) findViewById(R.id.profilePictureDisplay);
                         tv1.setImageBitmap(bmp);
 
-                        updateButtonText();
+                        // resize ImageView
+                        final int numDp = 20;
+                        Resources r = getResources();
+                        final int pxDim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, numDp, r.getDisplayMetrics());
 
+                        tv1.getLayoutParams().width = pxDim;
+                        tv1.getLayoutParams().height = pxDim;
+
+                        updateButtonText();
                         uploadBitmapAsProfilePicture(bmp,uid);
+
+                        uploadedOwnPicture = true;
 
                         break;
                     } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -160,7 +178,7 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                     break;
             }
         } catch (Exception e) {
-            Log.e(TAG, "Exception in onActivityResult : " + e.getMessage());
+            Log.e(TAG, "Exception in onActivityResult: " + e.getMessage());
         }
 
     }

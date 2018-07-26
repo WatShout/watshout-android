@@ -71,6 +71,8 @@ public class IndividualFriendData {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+            Log.d("FRIEND", "This works now");
+
             final double lat = dataSnapshot.child("lat").getValue(Double.class);
             final double lon = dataSnapshot.child("lon").getValue(Double.class);
 
