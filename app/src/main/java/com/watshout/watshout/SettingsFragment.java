@@ -132,19 +132,6 @@ public class SettingsFragment extends android.app.Fragment {
         checkCameraPermissions();
         Log.i(TAG,"Checked camera permissions.");
 
-        ref.child("users").child(uid).child("age").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mAge.setText(dataSnapshot.getValue().toString());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
 
         ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -179,7 +166,7 @@ public class SettingsFragment extends android.app.Fragment {
             }
         });
 
-        mAgeButton.setOnClickListener(new View.OnClickListener() {
+        /*mAgeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -196,6 +183,7 @@ public class SettingsFragment extends android.app.Fragment {
                 }
             }
         });
+        */
     }
 
     byte[] getImageData(Bitmap bmp) {
@@ -434,7 +422,7 @@ public class SettingsFragment extends android.app.Fragment {
                 ref.child("users").child(uid).child("profile_pic_format").setValue("png");
                 ref.child("users").child(uid).child("email").setValue(email);
                 ref.child("users").child(uid).child("name").setValue(name);
-                ref.child("users").child(uid).child("age").setValue(Integer.valueOf(mAge.getText().toString()));
+                //ref.child("users").child(uid).child("age").setValue(Integer.valueOf(mAge.getText().toString()));
 
             }
         });
