@@ -11,7 +11,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="52dp"
-        android:text="Add a Profile Picture"
+        android:text="New Account"
         android:textSize="30dp" />
 
     <Button
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="108dp"
+        android:layout_marginBottom="35dp"
         android:onClick="continueToMainActivity"
         android:text="Continue without profile picture" />
 
@@ -42,24 +42,14 @@
         android:layout_marginTop="117dp"
         app:srcCompat="@drawable/ic_action_name" />
 
-    <EditText
-        android:id="@+id/age"
+    <Button
+        android:id="@+id/birthdayButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="235dp"
-        android:ems="10"
-        android:inputType="number" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="260dp"
-        android:text="Age" />
+        android:layout_marginBottom="240dp"
+        android:text="Date of Birth" />
 
 
 </RelativeLayout>

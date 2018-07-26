@@ -1,12 +1,15 @@
 package com.watshout.watshout;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +20,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -38,6 +42,9 @@ import com.vansuita.pickimage.dialog.PickImageDialog;
 import com.vansuita.pickimage.listeners.IPickResult;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class InitializeNewAccountActivity extends AppCompatActivity {
 
@@ -52,7 +59,10 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
     ImageView mProfile;
     EditText mAge;
 
+    Button mBirthday;
     boolean uploadedOwnPicture = false;
+
+    boolean pickedBirthday = false;
 
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
@@ -61,6 +71,9 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
             .getInstance()
             .getReference();
 
+    private DatePickerDialog.OnDateSetListener mDateSetListener;
+    String birthday;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -68,6 +81,49 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
 
         mProfile = findViewById(R.id.profilePictureDisplay);
         mAge = findViewById(R.id.age);
+        mBirthday = findViewById(R.id.birthdayButton);
+
+        Calendar cal = Calendar.getInstance();
+
+        final int year = cal.get(Calendar.YEAR);
+        final int month = cal.get(Calendar.MONTH);
+        final int day = cal.get(Calendar.DAY_OF_MONTH);
+
+        mBirthday.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                DatePickerDialog dialog = new DatePickerDialog(
+                        InitializeNewAccountActivity.this,
+                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        mDateSetListener,
+                        year, month, day);
+
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+
+            }
+        });
+
+
+
+        mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
+                pickedBirthday = true;
+
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("MM-dd-yyyy");
+                Date d = new Date(year - 1900, month, dayOfMonth);
+                String strDate = dateFormatter.format(d);
+
+                birthday = strDate;
+
+                mBirthday.setText(strDate);
+
+            }
+        };
+
 
     }
 
@@ -104,7 +160,7 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                     ref.child("users").child(uid).child("profile_pic_format").setValue("png");
                     ref.child("users").child(uid).child("email").setValue(email);
                     ref.child("users").child(uid).child("name").setValue(name);
-                    ref.child("users").child(uid).child("age").setValue(Integer.valueOf(mAge.getText().toString()));
+                    ref.child("users").child(uid).child("birthday").setValue(birthday);
 
                     goToMainActivity();
 
@@ -207,7 +263,7 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                 ref.child("users").child(uid).child("profile_pic_format").setValue("png");
                 ref.child("users").child(uid).child("email").setValue(email);
                 ref.child("users").child(uid).child("name").setValue(name);
-                ref.child("users").child(uid).child("age").setValue(Integer.valueOf(mAge.getText().toString()));
+                ref.child("users").child(uid).child("birthday").setValue(birthday);
 
             }
         });
