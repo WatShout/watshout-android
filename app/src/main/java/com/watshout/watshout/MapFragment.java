@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback;
 import com.google.android.gms.maps.MapView;
@@ -63,6 +65,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
+
+    FusedLocation fusedLocation;
 
     SensorManager sensorManager;
 
@@ -121,6 +125,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     TextView stepsDialog;
     TextView distanceDialog;
 
+    ImageButton mCenter;
+    LatLng myLastLocation;
+
     long originalStartTime;
 
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
@@ -165,7 +172,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
-        FusedLocation fusedLocation = null;
+        fusedLocation = null;
         try {
             fusedLocation = new FusedLocation(getActivity().getApplicationContext(),
                     mapPlotter, uid, XMLCreator, speedTextDialog, stepsDialog, distanceDialog);
@@ -201,8 +208,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
-    {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
@@ -217,6 +223,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         });
 
+        mCenter = view.findViewById(R.id.recenter);
 
         mRecyclerView = view.findViewById(R.id.friendRecycleView);
 
@@ -278,6 +285,22 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
+
+        mCenter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                double[] coords = fusedLocation.getLatestCoords();
+
+                double latitude = coords[0];
+                double longitude = coords[1];
+
+                LatLng current = new LatLng(latitude, longitude);
+
+                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 16));
+
+            }
+        });
 
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -527,7 +550,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         System.out.println("value of event is: " + event.values[0] + " "
                 );
 
-       if( currentlyTrackingLocation) {
+       if(currentlyTrackingLocation) {
            /* try{
             PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("steps.txt")));
             pw.print(event.values[0]);
