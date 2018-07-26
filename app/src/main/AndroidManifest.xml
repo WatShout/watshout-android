@@ -46,6 +46,7 @@
             android:name=".MainActivity"
             android:noHistory="true"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".SignInActivity"
             android:screenOrientation="portrait">
