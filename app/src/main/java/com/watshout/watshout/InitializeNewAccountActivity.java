@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -23,6 +24,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,8 +33,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -48,6 +53,8 @@ import java.util.Date;
 
 public class InitializeNewAccountActivity extends AppCompatActivity {
 
+    final long TEN_MEGABYTE = 10 * 1024 * 1024;
+
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
     final String uid = thisUser.getUid();
     final String email = thisUser.getEmail();
@@ -60,7 +67,7 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
     EditText mAge;
 
     Button mBirthday;
-    boolean uploadedOwnPicture = false;
+    boolean uploadedOwnPicture;
 
     boolean pickedBirthday = false;
 
@@ -79,6 +86,8 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialize_account);
 
+        uploadedOwnPicture = Carrier.getUploadedOwnProfilePicture();
+
         mProfile = findViewById(R.id.profilePictureDisplay);
         mAge = findViewById(R.id.age);
         mBirthday = findViewById(R.id.birthdayButton);
@@ -88,6 +97,41 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
         final int year = cal.get(Calendar.YEAR);
         final int month = cal.get(Calendar.MONTH);
         final int day = cal.get(Calendar.DAY_OF_MONTH);
+
+        // Load current profile picture, display in ImageView
+        ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.getValue() != null){
+                    String fileFormat = dataSnapshot.getValue().toString();
+                    String fileName = "profile." + fileFormat;
+                    uploadedOwnPicture = true;
+
+                    storageReference.child("users").child(uid).child(fileName).getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                        @Override
+                        public void onSuccess(byte[] bytes) {
+
+                            Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            mProfile.setImageBitmap(bmp);
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+
+                            // Handle any errors
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         mBirthday.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,7 +168,35 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
             }
         };
 
+        fixScreen();
 
+    }
+
+    public void fixScreen(){
+        TextView title = findViewById(R.id.addPfp);
+
+        Log.d("Debug",uploadedOwnPicture+"");
+
+        if (uploadedOwnPicture){
+            // update title
+            title.setText("Change Profile Picture");
+
+            // resize ImageView
+            ImageView tv1;
+            tv1= (ImageView) findViewById(R.id.profilePictureDisplay);
+
+            final int numDp = 250;
+            Resources r = getResources();
+            final int pxDim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, numDp, r.getDisplayMetrics());
+
+            Log.d("Debug","Profile picture side length: "+pxDim+"px");
+
+            tv1.getLayoutParams().width = pxDim;
+            tv1.getLayoutParams().height = pxDim;
+
+            // Conceal date picker
+            ((Button)findViewById(R.id.birthdayButton)).setVisibility(View.INVISIBLE);
+        }
     }
 
     public void selectProfilePicture(View v){
@@ -166,12 +238,16 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
 
                 }
             });
+
+            uploadedOwnPicture = true;
         } else {
             goToMainActivity();
         }
     }
 
     public void goToMainActivity(){
+
+        Carrier.setUploadedOwnProfilePicture(true);
 
         Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
         openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -215,9 +291,11 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                         tv1.setImageBitmap(bmp);
 
                         // resize ImageView
-                        final int numDp = 20;
+                        final int numDp = 250;
                         Resources r = getResources();
                         final int pxDim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, numDp, r.getDisplayMetrics());
+
+                        Log.d("Debug","Profile picture side length: "+pxDim+"px");
 
                         tv1.getLayoutParams().width = pxDim;
                         tv1.getLayoutParams().height = pxDim;
@@ -226,6 +304,7 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                         uploadBitmapAsProfilePicture(bmp,uid);
 
                         uploadedOwnPicture = true;
+                        fixScreen();
 
                         break;
                     } else if (resultCode == Activity.RESULT_CANCELED) {

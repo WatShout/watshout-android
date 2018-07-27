@@ -116,11 +116,13 @@ public class SignInActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChild("profile_pic_format")) {
+                            Carrier.setUploadedOwnProfilePicture(true);
                             Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
                             openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             getApplicationContext().startActivity(openMain);
                             finish();
                         } else {
+                            Carrier.setUploadedOwnProfilePicture(false);
                             Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
                             openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             getApplicationContext().startActivity(openPfp);
