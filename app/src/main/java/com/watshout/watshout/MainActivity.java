@@ -11,6 +11,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         CURRENT_DEVICE_ID = getDeviceID();
 
@@ -206,6 +209,12 @@ public class MainActivity extends AppCompatActivity implements
                     .replace(R.id.screen_area, new SignOutFragment())
                     .commit();
 
+        } else if (id == R.id.nav_friends) {
+
+            getFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.screen_area, new FriendFragment())
+                    .commit();
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -220,5 +229,12 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.image_toolbar, menu);
+        return true;
     }
 }
