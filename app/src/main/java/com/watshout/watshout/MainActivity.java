@@ -139,6 +139,28 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
+        ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // generate color for new user
+                // 5 colors -> red, yellow, green, blue, magenta
+                String[] colorNames = {"red", "yellow", "green", "blue", "magenta"};
+
+                if(!dataSnapshot.hasChild("color"))
+                {
+                    int selection = (int) (Math.random() * colorNames.length);
+                    ref.child("users").child(uid).child("color").push();
+                    ref.child("users").child(uid).child("color").setValue(colorNames[selection]);
+                    Log.i("GenColor","Generated color successfully.");
+                } else Log.i("GenColor","Loaded color successfully.");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
