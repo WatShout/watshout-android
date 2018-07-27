@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         CURRENT_DEVICE_ID = getDeviceID();
 
         mDrawerLayout = findViewById(R.id.drawer_layout);

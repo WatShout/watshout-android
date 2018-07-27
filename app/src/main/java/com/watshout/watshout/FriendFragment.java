@@ -1,7 +1,6 @@
 package com.watshout.watshout;
 
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,6 +9,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,7 +20,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.applandeo.materialcalendarview.EventDay;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -27,12 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
 
 public class FriendFragment extends android.app.Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
@@ -53,6 +48,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        setHasOptionsMenu(true);
 
         mRecyclerView = view.findViewById(R.id.friendRecyclerView);
         mRecyclerView.setHasFixedSize(true);
@@ -138,5 +135,12 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     @Override
     public void onRefresh() {
         getFriendsList();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu items for use in the action bar
+        inflater.inflate(R.menu.friend, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 }
