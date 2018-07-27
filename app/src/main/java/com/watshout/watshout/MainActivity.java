@@ -206,6 +206,12 @@ public class MainActivity extends AppCompatActivity implements
                     .replace(R.id.screen_area, new SignOutFragment())
                     .commit();
 
+        } else if (id == R.id.nav_friends) {
+
+            getFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.screen_area, new FriendFragment())
+                    .commit();
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
