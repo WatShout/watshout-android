@@ -1,6 +1,9 @@
 package com.watshout.watshout;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -13,8 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -85,23 +92,13 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
 
     private void loadProfilePic(final String url, final ImageView mImageView){
 
-        new Thread(new Runnable() {
-            public void run(){
-                try {
-                    //download the drawable
-                    final Drawable drawable = Drawable.createFromStream((InputStream) new URL(url).getContent(), "src");
-                    //edit the view in the UI thread
-                    mImageView.post(new Runnable() {
-                        public void run() {
-                            mImageView.setImageDrawable(drawable);
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        Picasso.get()
+                .load(url)
+                .resize(256, 256)
+                .centerCrop()
+                .into(mImageView);
 
     }
+
 
 }

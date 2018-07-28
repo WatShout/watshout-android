@@ -13,6 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -84,25 +86,13 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
         }
     }
-
     private void loadProfilePic(final String url, final ImageView mImageView){
 
-        new Thread(new Runnable() {
-            public void run(){
-                try {
-                    //download the drawable
-                    final Drawable drawable = Drawable.createFromStream((InputStream) new URL(url).getContent(), "src");
-                    //edit the view in the UI thread
-                    mImageView.post(new Runnable() {
-                        public void run() {
-                            mImageView.setImageDrawable(drawable);
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        Picasso.get()
+                .load(url)
+                .resize(256, 256)
+                .centerCrop()
+                .into(mImageView);
 
     }
 
