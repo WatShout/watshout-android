@@ -41,15 +41,14 @@
                 android:textColor="#ffd529" />
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/yes"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/button2"
+                android:layout_centerInParent="true"
                 android:text="Y" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/no"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_centerVertical="true"

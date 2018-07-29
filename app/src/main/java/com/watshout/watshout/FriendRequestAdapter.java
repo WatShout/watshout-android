@@ -8,11 +8,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -29,6 +34,15 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
     private List<FriendItem> listItems;
     private Context context;
+
+    FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+    String email = thisUser.getEmail();
+    String uid = thisUser.getUid();
+
+    DatabaseReference ref = FirebaseDatabase
+            .getInstance()
+            .getReference();
+
 
     FriendRequestAdapter(List<FriendItem> listItems, Context context) {
         this.listItems = listItems;
@@ -50,19 +64,36 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
         final FriendItem friendItem = listItems.get(position);
+
         holder.mName.setText(friendItem.getName());
+        loadProfilePic(friendItem.getProfilePic(), holder.mProfilePic);
 
-        Log.d("FRIEND_REQUEST", "Binding");
+        final String theirUID = friendItem.getUID();
 
-        holder.mRelative.setOnClickListener(new View.OnClickListener() {
+        final String millis = Long.toString(System.currentTimeMillis());
+
+        holder.mAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("FRIEND", "Clicked on " + friendItem.getUID());
+
+                ref.child("friend_data").child(uid).child(theirUID).setValue(millis);
+                ref.child("friend_data").child(theirUID).child(uid).setValue(millis);
+
+                ref.child("friend_requests").child(uid).child(theirUID).removeValue();
+                ref.child("friend_requests").child(theirUID).child(uid).removeValue();
+
             }
         });
 
+        holder.mReject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        loadProfilePic(friendItem.getProfilePic(), holder.mProfilePic);
+                ref.child("friend_requests").child(uid).child(theirUID).removeValue();
+                ref.child("friend_requests").child(theirUID).child(uid).removeValue();
+
+            }
+        });
 
     }
 
@@ -76,6 +107,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
         TextView mName;
         ImageView mProfilePic;
         RelativeLayout mRelative;
+        Button mAccept;
+        Button mReject;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -83,6 +116,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             mName = itemView.findViewById(R.id.name);
             mProfilePic = itemView.findViewById(R.id.profilePic);
             mRelative = itemView.findViewById(R.id.card_relative);
+            mAccept = itemView.findViewById(R.id.yes);
+            mReject = itemView.findViewById(R.id.no);
 
         }
     }

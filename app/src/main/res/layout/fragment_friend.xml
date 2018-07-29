@@ -6,11 +6,13 @@
         android:id="@+id/friendSwipeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark"
         tools:context=".FriendFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark">
 
 
         <!-- TODO: Update blank fragment layout -->
@@ -18,16 +20,37 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/friendRequestView"
             android:layout_width="match_parent"
-            android:layout_height="115dp"
-            android:background="@color/colorAccent"></android.support.v7.widget.RecyclerView>
+            android:layout_height="109dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="21dp"
+            android:background="@color/colorPrimaryDark"></android.support.v7.widget.RecyclerView>
 
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/friendRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="463dp"
+            android:layout_height="417dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"></android.support.v7.widget.RecyclerView>
+
+        <TextView
+            android:id="@+id/textView4"
+            android:textColor="@color/colorPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/friendRequestView"></android.support.v7.widget.RecyclerView>
+            android:layout_alignParentTop="true"
+            android:text="Friend Requests" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:textColor="@color/colorPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/friendRequestView"
+            android:text="Friends" />
 
 
     </RelativeLayout>
