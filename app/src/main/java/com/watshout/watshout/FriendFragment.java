@@ -15,6 +15,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -29,6 +32,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +47,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     RecyclerView.Adapter friendAdapter;
     RecyclerView.Adapter requestAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    Button mSendRequest;
+    EditText mEmail;
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
     String email = thisUser.getEmail();
@@ -79,6 +85,83 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
+
+        mSendRequest = view.findViewById(R.id.sendRequest);
+        mEmail = view.findViewById(R.id.emailInput);
+
+        mSendRequest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final String theirEmail = mEmail.getText().toString();
+
+                ref.child("users").orderByChild("email").equalTo(theirEmail)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                if (dataSnapshot.getValue() != null){
+
+                                    for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+
+                                        final String theirUID = childSnapshot.getKey();
+
+                                        ref.child("friend_data").child(uid).child(theirUID)
+                                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                                        if (dataSnapshot.getValue() != null){
+
+                                                            Toast.makeText(getActivity(),
+                                                                    "You are already friends with this user",
+                                                                    Toast.LENGTH_SHORT).show();
+
+                                                        } else {
+
+                                                            Log.d("EMAIL", uid + ", " + theirUID);
+
+                                                            ref.child("friend_requests").child(uid).child(theirUID)
+                                                                    .child("request_type").setValue("sent");
+
+                                                            ref.child("friend_requests").child(theirUID).child(uid)
+                                                                    .child("request_type").setValue("received");
+
+                                                            Toast.makeText(getActivity(), "Request sent!", Toast.LENGTH_SHORT).show();
+
+                                                        }
+
+
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                });
+
+                                    }
+
+
+
+                                } else {
+
+                                    Toast.makeText(getActivity(), "User not found",
+                                            Toast.LENGTH_SHORT).show();
+
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Log.d("EMAIL", databaseError.toString());
+                            }
+                        });
+
+
+            }
+        });
 
         mSwipeRefreshLayout.post(new Runnable() {
 
