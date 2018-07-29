@@ -89,47 +89,9 @@ public class IndividualFriendData {
 
                 Log.d("FIRST", "First time run");
 
-                mapPlotterList.put(uid, new MapPlotter(new ArrayList<Marker>(), googleMap, false, uid));
+                mapPlotterList.put(uid, new MapPlotter(new ArrayList<Marker>(), googleMap, false, uid,
+                        context));
                 mapPlotterList.get(uid).addFriendMarker(lat, lon);
-
-                ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot profilePicSnapshot) {
-
-                        String profilePicFormat = profilePicSnapshot.child("profile_pic_format").getValue(String.class);
-
-                        storageReference.child("users").child(uid).child("profile." + profilePicFormat).getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                            @Override
-                            public void onSuccess(byte[] bytes) {
-
-                                Log.d("FRIEND", "Picture downloaded");
-
-                                profilePic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                                Bitmap squareProfilePic = getSquareBitmap(profilePic);
-
-                                int height = 50;
-                                int width = 50;
-
-                                Bitmap finalProfilePic = Bitmap.createScaledBitmap(squareProfilePic, width, height, false);
-
-                                mapPlotterList.get(uid).setProfilePic(finalProfilePic);
-
-
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
 
             } else {
 

@@ -51,6 +51,8 @@ dependencies {
     implementation files('libs/gpxparser-20130603.jar')
     implementation 'com.applandeo:material-calendar-view:1.0.1'
 
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 }
 
 

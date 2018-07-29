@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -93,22 +95,9 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
 
     private void loadMapImage(final String url, final ImageView mImageView){
 
-        new Thread(new Runnable() {
-            public void run(){
-                try {
-                    //download the drawable
-                    final Drawable drawable = Drawable.createFromStream((InputStream) new URL(url).getContent(), "src");
-                    //edit the view in the UI thread
-                    mImageView.post(new Runnable() {
-                        public void run() {
-                            mImageView.setImageDrawable(drawable);
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        Picasso.get()
+                .load(url)
+                .into(mImageView);
 
     }
 
