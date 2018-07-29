@@ -24,6 +24,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +47,10 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
     String email = thisUser.getEmail();
     String uid = thisUser.getUid();
+
+    DatabaseReference ref = FirebaseDatabase
+            .getInstance()
+            .getReference();
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
@@ -76,8 +85,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             @Override
             public void run() {
 
-                mSwipeRefreshLayout.setRefreshing(true);
-
                 // Fetching data from server
                 getFriendsList();
 
@@ -85,11 +92,55 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             }
         });
 
+        ref.child("friend_data").child(uid).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                onRefresh();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                onRefresh();
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
+        ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                onRefresh();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                onRefresh();
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
 
 
     }
 
     public void getFriendRequests() {
+
+        mSwipeRefreshLayout.setRefreshing(true);
 
         Log.d("REQUEST_DATA", "hello");
 
@@ -130,6 +181,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                             requestAdapter = new FriendRequestAdapter(friendRequests, getActivity());
                             mRequestRecyclerView.setAdapter(requestAdapter);
 
+                            mSwipeRefreshLayout.setRefreshing(false);
+
                         } catch (JSONException e) {
 
                             Log.d("REQUEST_DATA", "ERROR!!!");
@@ -150,6 +203,9 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     }
 
     public void getFriendsList() {
+
+        mSwipeRefreshLayout.setRefreshing(true);
+
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         String url ="https://watshout.herokuapp.com/friends/" + uid + "/";
@@ -184,6 +240,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
                             friendAdapter = new FriendAdapter(listItems, getActivity());
                             mFriendRecyclerView.setAdapter(friendAdapter);
+
+                            mSwipeRefreshLayout.setRefreshing(false);
 
                         } catch (JSONException e) {
                             e.printStackTrace();

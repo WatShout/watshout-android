@@ -76,11 +76,14 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             @Override
             public void onClick(View v) {
 
+                Log.d("FRIEND", "Clicked accept");
+
                 ref.child("friend_data").child(uid).child(theirUID).setValue(millis);
                 ref.child("friend_data").child(theirUID).child(uid).setValue(millis);
 
                 ref.child("friend_requests").child(uid).child(theirUID).removeValue();
                 ref.child("friend_requests").child(theirUID).child(uid).removeValue();
+
 
             }
         });
