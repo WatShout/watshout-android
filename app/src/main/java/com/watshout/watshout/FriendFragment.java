@@ -1,6 +1,7 @@
 package com.watshout.watshout;
 
 
+import android.app.ActionBar;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -71,9 +72,19 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         setHasOptionsMenu(true);
 
+        getActivity().setTitle("friends");
+
         mFriendRecyclerView = view.findViewById(R.id.friendRecyclerView);
         mFriendRecyclerView.setHasFixedSize(true);
         mFriendRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        ArrayList<String> tempList = new ArrayList<>();
+        //tempList.add("one");
+        //tempList.add("two");
+        //tempList.add("three");
+
+        friendAdapter = new FriendLoadingAdapter(3);
+        mFriendRecyclerView.setAdapter(friendAdapter);
 
         mRequestRecyclerView = view.findViewById(R.id.friendRequestView);
         mRequestRecyclerView.setHasFixedSize(true);
@@ -360,7 +371,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu items for use in the action bar
-        inflater.inflate(R.menu.friend, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 }

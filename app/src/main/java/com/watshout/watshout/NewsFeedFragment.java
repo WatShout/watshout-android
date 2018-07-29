@@ -59,6 +59,8 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
+        getActivity().setTitle("news feed");
+
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

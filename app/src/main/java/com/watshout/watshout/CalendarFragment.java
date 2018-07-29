@@ -87,6 +87,8 @@ public class CalendarFragment extends android.app.Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
+        getActivity().setTitle("calendar");
+
         mCalendarView = view.findViewById(R.id.calendarView);
         mCalendarView.setOnDayClickListener(listener);
 

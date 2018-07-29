@@ -128,6 +128,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
         Picasso.get()
                 .load(url)
+                .placeholder(R.drawable.loading)
                 .resize(256, 256)
                 .centerCrop()
                 .into(mImageView);

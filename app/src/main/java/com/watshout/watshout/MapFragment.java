@@ -211,6 +211,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        getActivity().setTitle("map");
+
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
 
         Button cameraButton = view.findViewById(R.id.cameraButton);

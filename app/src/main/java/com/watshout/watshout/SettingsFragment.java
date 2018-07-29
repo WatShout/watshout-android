@@ -104,6 +104,9 @@ public class SettingsFragment extends android.app.Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        getActivity().setTitle("settings");
+
         mProfile = view.findViewById(R.id.profile);
         mEmail = view.findViewById(R.id.email);
         mAge = view.findViewById(R.id.age);

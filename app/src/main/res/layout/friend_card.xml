@@ -17,7 +17,7 @@
             android:id="@+id/card_relative"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#262523"
+            android:background="#87867a"
             android:padding="16dp">
 
             <ImageView
