@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -85,6 +86,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
+
+        mSwipeRefreshLayout.setEnabled(false);
 
         mSendRequest = view.findViewById(R.id.sendRequest);
         mEmail = view.findViewById(R.id.emailInput);
@@ -323,6 +326,11 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
                             friendAdapter = new FriendAdapter(listItems, getActivity());
                             mFriendRecyclerView.setAdapter(friendAdapter);
+
+                            SwipeController swipeController = new SwipeController(listItems,
+                                    uid);
+                            ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+                            itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
 
                             mSwipeRefreshLayout.setRefreshing(false);
 
