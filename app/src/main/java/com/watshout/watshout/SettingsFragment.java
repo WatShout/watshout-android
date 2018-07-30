@@ -120,7 +120,9 @@ public class SettingsFragment extends android.app.Fragment {
         ref.child("users").child(uid).child("age").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mAge.setText(dataSnapshot.getValue().toString());
+                try{dataSnapshot.getValue().toString();
+                    mAge.setText(dataSnapshot.getValue().toString());}
+                catch(Exception e){}
             }
 
             @Override

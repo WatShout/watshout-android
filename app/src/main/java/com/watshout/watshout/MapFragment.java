@@ -23,12 +23,18 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
@@ -79,6 +85,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     int totalSteps;
 
+    PopupWindow popUp;
+
+    //LayoutParams params;
+
 
     // General database reference
     DatabaseReference ref = FirebaseDatabase
@@ -116,6 +126,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     // Resource file declarations
     Button mStart;
     Button mStop;
+
+    Button popUpStart;
+    Button popUpStop;
 
     Button mCurrent;
     Button mSignOut;
@@ -219,15 +232,24 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
 
-        Button cameraButton = view.findViewById(R.id.cameraButton);
-        cameraButton.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CameraActivity.class);
-                intent.putExtra("uid", uid);
-                startActivity(intent);
-            }
-        });
+
+
+        //popUp = new PopupWindow()
+
+        mRelativeLayout = view.findViewById(R.id.relative);
+
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        final int displayHeight = displayMetrics.heightPixels;
+        final int displayWidth = displayMetrics.widthPixels;
+        layoutInflater = (LayoutInflater) getActivity()
+                .getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        assert layoutInflater != null;
+        //ViewGroup container1 = (ViewGroup) layoutInflater.inflate(R.layout.fragment_dialog, null);
+        //final DrawerLayout mRelativeLayout = view.findViewById(R.id.drawer_layout);
+
+
 
 
 
@@ -236,16 +258,60 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        final View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
-        builder.setView(dialogView);
+        //final View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
+        final View popUpView = inflater.inflate(R.layout.fragment_dialog, null);
+        builder.setView(popUpView);
+        popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
+
+       // popUp.setTouchable(true);
+        Button cameraButton = (Button) popUpView.findViewById(R.id.cameraButton);
+        Log.d("Camera button ID", cameraButton.toString());
+        cameraButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Camera button", "Button clicked");
+                Intent intent = new Intent(getActivity(), CameraActivity.class);
+                intent.putExtra("uid", uid);
+                startActivity(intent);
+            }
+        });
         final AlertDialog dialog = builder.create();
+        //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 
-        FloatingActionButton fabDialog = (FloatingActionButton) dialogView.findViewById(R.id.fabDialog);
+
+        FloatingActionButton fabDialog = (FloatingActionButton) popUpView.findViewById(R.id.fabDialog);
         fabDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.hide();
+                final Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
+                        R.anim.fui_slide_out_left);
+                final ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+
+                hiddenPanel.startAnimation(bottomUp);
+                bottomUp.setAnimationListener(new Animation.AnimationListener() {
+                    public void onAnimationStart(Animation anim)
+                    {
+
+                    };
+                    public void onAnimationRepeat(Animation anim)
+                    {
+                    };
+                    public void onAnimationEnd(Animation anim)
+                    {
+                        hiddenPanel.setVisibility(View.INVISIBLE);
+                        popUp.dismiss();
+                    };
+                });
+                /*try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }*/
+
+                //popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+                //popUp.dismiss();
             }
         });
 
@@ -253,7 +319,16 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.show();
+                Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
+                        R.anim.fui_slide_in_right);
+                ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+                hiddenPanel.startAnimation(bottomUp);
+                hiddenPanel.setVisibility(View.VISIBLE);
+                popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+                //popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+
+
+                //popUp.showAsDropDown(popUpView);
             }
         });
        checkLocationPermissions();
@@ -263,17 +338,22 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         mStart = view.findViewById(R.id.start);
         mStop = view.findViewById(R.id.stop);
+        popUpStop = popUpView.findViewById(R.id.stop);
+        popUpStart = popUpView.findViewById(R.id.popUpStart);
 
-        speedTextDialog = dialogView.findViewById(R.id.speedTextDialog);
-        stepsDialog = dialogView.findViewById(R.id.stepsDialog);
-        distanceDialog = dialogView.findViewById(R.id.distanceDialog);
-        timerText = view.findViewById(R.id.timerText);
+        mStop.setVisibility(View.INVISIBLE);
+        popUpStop.setVisibility(View.INVISIBLE);
+
+        speedTextDialog = popUpView.findViewById(R.id.speedTextDialog);
+        stepsDialog = popUpView.findViewById(R.id.stepsDialog);
+        distanceDialog = popUpView.findViewById(R.id.distanceDialog);
+        timerText = popUpView.findViewById(R.id.timerText1);
 
         handler = new Handler() ;
 
         mStart.setBackgroundResource(android.R.drawable.btn_default);
 
-        mRelativeLayout = view.findViewById(R.id.relative);
+
 
         isMapMoving = true;
         mv = view.findViewById(R.id.map);
@@ -281,10 +361,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mv.onResume();
         mv.getMapAsync(this);
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        final int displayHeight = displayMetrics.heightPixels;
-        final int displayWidth = displayMetrics.widthPixels;
+        //DisplayMetrics displayMetrics = new DisplayMetrics();
+        //getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        //final int displayHeight = displayMetrics.heightPixels;
+        //final int displayWidth = displayMetrics.widthPixels;
 
         // I know global variables are bad but I have no clue how else to do this
         CURRENT_DEVICE_ID = getDeviceID();
@@ -349,125 +429,45 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //BufferedReader br = new BufferedReader(new InputStreamReader("steps.txt"));
-                   // StringTokenizer st = new StringTokenizer(br.readLine());
-                   // totalSteps = Integer.parseInt(st.nextToken());
-                   // System.out.println("The steps were read " + totalSteps);
-
-
-
-                if (timeRunning){
-                    TimeBuff += MillisecondTime;
-                    handler.removeCallbacks(runnable);
-                    timeRunning = false;
-                } else {
-                    StartTime = SystemClock.uptimeMillis();
-                    originalStartTime = StartTime;
-                    handler.postDelayed(runnable, 0);
-                    timeRunning = true;
-                }
-
-                if (!activityRunning){
-                    ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
-
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-                            dataSnapshot.getRef().removeValue();
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-
-                        }
-
-                    });
-
-                    activityRunning = true;
-                }
-
-                if (!currentlyTrackingLocation){
-                    mStart.setBackgroundColor(Color.GREEN);
-                    mStart.setText("PAUSE");
-                } else {
-                    mStart.setBackgroundResource(android.R.drawable.btn_default);
-                    mStart.setText("PLAY");
-                }
-
-                currentlyTrackingLocation = !currentlyTrackingLocation;
+                //ActionBar actionBar = getSupportActionBar();
+                ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+                //actionBar.hide();
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                actionBar.setHomeButtonEnabled(false);
+                Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
+                        R.anim.fui_slide_in_right);
+                ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+                hiddenPanel.startAnimation(bottomUp);
+                hiddenPanel.setVisibility(View.VISIBLE);
+                popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+                startClick();
 
 
             }
         });
 
+        popUpStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startClick();
+            }
+
+        });
+
+
+
+        popUpStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopClick();
+            }
+
+        });
+
         mStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
-                openNext.putExtra("MIN", Minutes);
-                openNext.putExtra("SEC", Seconds);
-
-                // TODO: Retrieve distance information
-                // TODO: Calculate pace from distance/time
-
-
-                MillisecondTime = 0L ;
-                StartTime = 0L ;
-                TimeBuff = 0L ;
-                UpdateTime = 0L ;
-                Seconds = 0 ;
-                Minutes = 0 ;
-                MilliSeconds = 0 ;
-                handler.removeCallbacks(runnable);
-                timeRunning = false;
-
-                timerText.setText("0:00");
-
-                mStart.setBackgroundResource(android.R.drawable.btn_default);
-                currentlyTrackingLocation = false;
-                mapPlotter.clearPolyLines();
-                activityRunning  = false;
-
-                // Performs Firebase realtime database operations
-                UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
-                uploadToDatabase.moveCurrentToPast();
-
-                String date = uploadToDatabase.getFormattedDate();
-                openNext.putExtra("GPX_NAME",date+".gpx");
-
-                // Writes an XML file
-                try {
-                    XMLCreator.saveFile(date);
-                } catch (TransformerException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Carrier.setXMLCreator(XMLCreator);
-
-                // takes snapshot of user path on map
-                //captureMapScreen();
-
-                // send bitmap directly
-                //openNext.putExtra("MAP_IMAGE", pathScreen);
-
-                // send bitmap as byte array
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-                pathScreen.recycle();
-                openNext.putExtra("MAP_IMAGE",byteArray);
-
-                //Log.i("Map_Display",pathScreen.getWidth()+"x"+pathScreen.getHeight());
-                openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getActivity().getApplicationContext().startActivity(openNext);
-                getActivity().finish();
-
+                stopClick();
             }
 
         });
@@ -543,7 +543,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     + String.format("%02d", Seconds));
 
             handler.postDelayed(this, 0);
-
+            if(!currentlyTrackingLocation)
             captureMapScreen();
         }
 
@@ -639,7 +639,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     public boolean allWhite(Bitmap bmp){
-
         for (int i=0;i<bmp.getWidth();i++){
             for (int j=0;j<bmp.getHeight();j++){
                 int clr=  bmp.getPixel(i,j);
@@ -652,5 +651,135 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
         return true;
 
+    }
+
+    public void startClick() {
+
+
+        //BufferedReader br = new BufferedReader(new InputStreamReader("steps.txt"));
+        // StringTokenizer st = new StringTokenizer(br.readLine());
+        // totalSteps = Integer.parseInt(st.nextToken());
+        // System.out.println("The steps were read " + totalSteps);
+
+        mStop.setVisibility(View.VISIBLE);
+
+        popUpStop.setVisibility(View.VISIBLE);
+
+        if (timeRunning){
+            TimeBuff += MillisecondTime;
+            handler.removeCallbacks(runnable);
+            timeRunning = false;
+        } else {
+            StartTime = SystemClock.uptimeMillis();
+            originalStartTime = StartTime;
+            handler.postDelayed(runnable, 0);
+            timeRunning = true;
+        }
+
+        if (!activityRunning){
+            ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    dataSnapshot.getRef().removeValue();
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+
+                }
+
+            });
+
+            activityRunning = true;
+        }
+
+        currentlyTrackingLocation = !currentlyTrackingLocation;
+
+        if (currentlyTrackingLocation){
+            mStart.setBackgroundColor(Color.GREEN);
+            mStart.setText("Pause");
+
+            popUpStart.setBackgroundColor(Color.GREEN);
+            popUpStart.setText("Pause");
+        } else {
+            mStart.setBackgroundColor(Color.GREEN);
+            //mStart.setBackgroundResource(android.R.drawable.btn_default);
+            mStart.setText("Resume");
+
+            popUpStart.setBackgroundColor(Color.GREEN);
+            popUpStart.setText("Resume");
+        }
+
+
+
+
+    }
+
+    public void stopClick() {
+        Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
+        openNext.putExtra("MIN", Minutes);
+        openNext.putExtra("SEC", Seconds);
+
+        // TODO: Retrieve distance information
+        // TODO: Calculate pace from distance/time
+
+
+        MillisecondTime = 0L ;
+        StartTime = 0L ;
+        TimeBuff = 0L ;
+        UpdateTime = 0L ;
+        Seconds = 0 ;
+        Minutes = 0 ;
+        MilliSeconds = 0 ;
+        handler.removeCallbacks(runnable);
+        timeRunning = false;
+
+        timerText.setText("0:00");
+
+        mStart.setBackgroundResource(android.R.drawable.btn_default);
+        currentlyTrackingLocation = false;
+        mapPlotter.clearPolyLines();
+        activityRunning  = false;
+
+        // Performs Firebase realtime database operations
+        UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
+        uploadToDatabase.moveCurrentToPast();
+
+        String date = uploadToDatabase.getFormattedDate();
+        openNext.putExtra("GPX_NAME",date+".gpx");
+
+        // Writes an XML file
+        try {
+            XMLCreator.saveFile(date);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Carrier.setXMLCreator(XMLCreator);
+
+        // takes snapshot of user path on map
+        //I un commented this because it should be called when when "stop" is pressed, otherwise error
+        //captureMapScreen();
+
+        // send bitmap directly
+        //openNext.putExtra("MAP_IMAGE", pathScreen);
+
+        // send bitmap as byte array
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        pathScreen.recycle();
+        openNext.putExtra("MAP_IMAGE",byteArray);
+
+        //Log.i("Map_Display",pathScreen.getWidth()+"x"+pathScreen.getHeight());
+        openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getActivity().getApplicationContext().startActivity(openNext);
+        getActivity().finish();
     }
 }

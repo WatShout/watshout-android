@@ -31,6 +31,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
+        android:visibility="invisible"
         android:text="0:00"
         android:textColor="#009688"
         android:textSize="42dp"
@@ -66,14 +67,14 @@
         app:layout_constraintStart_toEndOf="@+id/timerText"
         app:layout_constraintTop_toBottomOf="@+id/start" />
 
-    <Button
+ <!--   <Button
         android:id="@+id/cameraButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="96dp"
-        android:text="Camera" />
+        android:text="Camera" />-->
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
