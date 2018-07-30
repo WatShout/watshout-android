@@ -17,14 +17,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,7 +46,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
+
+import static android.content.Context.INPUT_METHOD_SERVICE;
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class FriendFragment extends android.app.Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
@@ -83,7 +93,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
         //tempList.add("two");
         //tempList.add("three");
 
-        friendAdapter = new FriendLoadingAdapter(3);
+        friendAdapter = new FriendLoadingAdapter(0);
         mFriendRecyclerView.setAdapter(friendAdapter);
 
         mRequestRecyclerView = view.findViewById(R.id.friendRequestView);
@@ -107,7 +117,11 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             @Override
             public void onClick(View v) {
 
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+
                 final String theirEmail = mEmail.getText().toString();
+                mEmail.setText("");
 
                 ref.child("users").orderByChild("email").equalTo(theirEmail)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -183,24 +197,20 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             public void run() {
 
                 // Fetching data from server
-                getFriendsList();
-
-                getFriendRequests();
+                refreshData();
             }
         });
 
         ref.child("friend_data").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                onRefresh();
-            }
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) { refreshData(); }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                onRefresh();
+                refreshData();
             }
 
             @Override
@@ -213,7 +223,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
         ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                onRefresh();
+                refreshData();
             }
 
             @Override
@@ -221,7 +231,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                onRefresh();
+                refreshData();
             }
 
             @Override
@@ -303,8 +313,16 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         mSwipeRefreshLayout.setRefreshing(true);
 
+        File cache = getActivity().getCacheDir();
+
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+
+        //RequestQueue requestQueue;
+        //Cache cache = new DiskBasedCache(getActivity().getCacheDir(), 10 * 1024 * 1024); // 10MB cap
+        //Network network = new BasicNetwork(new HurlStack());
+        //requestQueue = new RequestQueue(cache, network);
+
         String url ="https://watshout.herokuapp.com/friends/" + uid + "/";
 
         // Request a string response from the provided URL.
@@ -336,10 +354,12 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                             Log.d("FRIEND_DATA", listItems.toString());
 
                             friendAdapter = new FriendAdapter(listItems, getActivity());
-                            mFriendRecyclerView.setAdapter(friendAdapter);
 
                             SwipeController swipeController = new SwipeController(listItems,
-                                    uid);
+                                    uid, getActivity(), friendAdapter, mFriendRecyclerView);
+
+                            mFriendRecyclerView.setAdapter(friendAdapter);
+
                             ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
                             itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
 
@@ -358,8 +378,13 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         });
 
-        queue.add(stringRequest);
+        requestQueue.add(stringRequest);
 
+    }
+
+    public void refreshData() {
+        getFriendsList();
+        getFriendRequests();
     }
 
     @Override

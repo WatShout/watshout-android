@@ -1,6 +1,9 @@
 package com.watshout.watshout;
 
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -31,13 +34,24 @@ class SwipeController extends Callback {
     String myUID;
 
     private Paint p = new Paint();
+    private Context context;
 
     final ColorDrawable background = new ColorDrawable(Color.RED);
 
+    RecyclerView.Adapter adapter;
+    RecyclerView recyclerView;
 
-    SwipeController(ArrayList<FriendItem> listItems, String myUID) {
+
+    SwipeController(ArrayList<FriendItem> listItems, String myUID, Context context,
+                    RecyclerView.Adapter adapter, RecyclerView recyclerView) {
+
         this.listItems = listItems;
         this.myUID = myUID;
+        this.context = context;
+        this.adapter = adapter;
+        this.recyclerView = recyclerView;
+
+        this.recyclerView.setItemAnimator(null);
     }
 
     @Override
@@ -50,6 +64,7 @@ class SwipeController extends Callback {
         return false;
     }
 
+
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 
@@ -57,10 +72,12 @@ class SwipeController extends Callback {
 
         FriendItem current = listItems.get(index);
         String theirUID = current.getUID();
+        String theirName = current.getName();
 
-        removeFriend(theirUID);
+        removeFriend(theirName, theirUID, index, adapter);
 
     }
+
 
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
@@ -82,15 +99,46 @@ class SwipeController extends Callback {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
 
-    private void removeFriend(String theirUID) {
 
-        ref.child("friend_data").child(myUID).child(theirUID).removeValue();
-        ref.child("friend_data").child(theirUID).child(myUID).removeValue();
+    private void removeFriend(String theirName, final String theirUID, final int index,
+                              final RecyclerView.Adapter adapter) {
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        builder.setMessage("Are you sure you want to unfriend " + theirName + "?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        Log.d("FRIEND", "Removing friend");
+
+                        ref.child("friend_data").child(myUID).child(theirUID).removeValue();
+                        ref.child("friend_data").child(theirUID).child(myUID).removeValue();
+
+                        adapter.notifyItemRemoved(index);
+                        recyclerView.setAdapter(adapter);
+
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        adapter.notifyItemChanged(index);
+                        recyclerView.setAdapter(adapter);
+
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+
+                        adapter.notifyItemChanged(index);
+                        recyclerView.setAdapter(adapter);
+
+                    }
+                })
+                .create()
+                .show();
 
     }
-
-
-
 
 }
