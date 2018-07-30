@@ -57,7 +57,7 @@ public class FinishedActivity extends AppCompatActivity{
         // display time data
         TextView time = (TextView) findViewById(R.id.time);
 
-        time.setText(min + "m " + sec +"s");
+        time.setText("" + min + "m " + sec +"s");
 
         // display pace and distance data
         TextView distance = (TextView) findViewById(R.id.distance);
@@ -156,13 +156,6 @@ public class FinishedActivity extends AppCompatActivity{
 
         return dist;
 
-    }
-
-    @Override
-    public void onBackPressed(){
-        Intent intent = new Intent(FinishedActivity.this,MainActivity.class);
-        startActivity(intent);
-        finish();
     }
 
 }

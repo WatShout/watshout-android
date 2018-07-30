@@ -358,11 +358,4 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
         continueButton.setText("Continue");
 
     }
-
-    @Override
-    public void onBackPressed(){
-        Intent intent = new Intent(InitializeNewAccountActivity.this,SignInActivity.class);
-        startActivity(intent);
-        finish();
-    }
 }

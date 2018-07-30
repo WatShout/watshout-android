@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements
     String name = thisUser.getDisplayName();
 
     String CURRENT_DEVICE_ID;
-    int currentId,lastId;
 
     private StorageReference mStorageRef;
     private DatabaseReference activityImagesRef;
@@ -177,17 +176,12 @@ public class MainActivity extends AppCompatActivity implements
 
             Log.e("NEWS", "news feed");
 
-            lastId = currentId;
-            currentId = id;
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new NewsFeedFragment())
                     .commit();
 
         } else if (id == R.id.nav_home) {
-
-            lastId = currentId;
-            currentId = id;
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, mapFragment)
@@ -195,9 +189,6 @@ public class MainActivity extends AppCompatActivity implements
 
         }
         else if (id == R.id.nav_calendar) {
-
-            lastId = currentId;
-            currentId = id;
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new CalendarFragment())
@@ -206,8 +197,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         else if (id == R.id.nav_settings) {
 
-            lastId = currentId;
-            currentId = id;
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new SettingsFragment())
@@ -215,8 +204,6 @@ public class MainActivity extends AppCompatActivity implements
 
         } else if (id == R.id.nav_signout) {
 
-            lastId = currentId;
-            currentId = id;
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new SignOutFragment())
@@ -224,8 +211,6 @@ public class MainActivity extends AppCompatActivity implements
 
         } else if (id == R.id.nav_friends) {
 
-            lastId = currentId;
-            currentId = id;
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new FriendFragment())
@@ -234,72 +219,6 @@ public class MainActivity extends AppCompatActivity implements
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    @Override
-    public void onBackPressed(){
-
-        int id = lastId;
-
-        if (id == R.id.nav_news_feed) {
-
-            Log.e("NEWS", "news feed");
-
-            lastId = currentId;
-            currentId = id;
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new NewsFeedFragment())
-                    .commit();
-
-        } else if (id == R.id.nav_home) {
-
-            lastId = currentId;
-            currentId = id;
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, mapFragment)
-                    .commit();
-
-        }
-        else if (id == R.id.nav_calendar) {
-
-            lastId = currentId;
-            currentId = id;
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new CalendarFragment())
-                    .commit();
-
-        }
-        else if (id == R.id.nav_settings) {
-
-            lastId = currentId;
-            currentId = id;
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new SettingsFragment())
-                    .commit();
-
-        } else if (id == R.id.nav_signout) {
-
-            lastId = currentId;
-            currentId = id;
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new SignOutFragment())
-                    .commit();
-
-        } else if (id == R.id.nav_friends) {
-
-            lastId = currentId;
-            currentId = id;
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new FriendFragment())
-                    .commit();
-        }
-
     }
 
     @Override

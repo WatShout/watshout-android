@@ -148,11 +148,4 @@ public class CameraActivity extends AppCompatActivity {
         imageView.setImageBitmap(bitmap);
         btnReturn.setVisibility(View.VISIBLE);
     }
-
-    @Override
-    public void onBackPressed(){
-        Intent intent = new Intent(CameraActivity.this,MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
 }
