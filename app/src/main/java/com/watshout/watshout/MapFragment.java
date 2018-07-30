@@ -503,7 +503,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             if(!currentlyTrackingLocation)
             captureMapScreen();
 
-            if (counter%1000==0) captureMapScreen();
+            if (counter % 20000 == 0) {
+                captureMapScreen();
+            }
 
             counter++;
         }
