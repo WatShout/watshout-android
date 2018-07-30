@@ -1,8 +1,11 @@
 package com.watshout.watshout;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -45,12 +48,20 @@ public class MapPlotter {
     private Boolean isMapFollowing = true;
     private ArrayList<Polyline> polylines = new ArrayList<>();
     private Bitmap profilePic;
+    private String uid;
+    private Context context;
+    private Bitmap currentIcon;
 
 
-    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf){
+    MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf, String uid,
+               Context context){
         this.markers = markers;
         this.googleMap = googleMap;
         this.profilePic = null;
+        this.uid = uid;
+        this.context = context;
+
+        currentIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.current);
 
         if (isSelf){
             this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
@@ -131,20 +142,11 @@ public class MapPlotter {
         LatLng currentLocation = new LatLng(lat, lon);
         LatLng previousLocation;
 
-        BitmapDescriptor icon;
-
-        if (profilePic == null){
-            icon = currentLocationIcon;
-        } else {
-            icon = BitmapDescriptorFactory.fromBitmap(getCircleBitmap(profilePic));
-        }
-
         // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
-                .position(currentLocation)
-                .icon(icon));
+                .position(currentLocation));
 
-        Log.d("FRIEND", markers.toString());
+        Log.d("MARKERS", markers.toString());
 
         if (markers.size() == 0) {
             previousLocation = currentLocation;

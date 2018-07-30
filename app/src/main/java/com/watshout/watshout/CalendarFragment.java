@@ -12,12 +12,16 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -44,6 +48,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 
 public class CalendarFragment extends android.app.Fragment {
@@ -81,11 +87,9 @@ public class CalendarFragment extends android.app.Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        mCalendarView = view.findViewById(R.id.calendarView);
-        mRecycleView = view.findViewById(R.id.calendarRecycle);
-        mRecycleView.setHasFixedSize(true);
-        mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        getActivity().setTitle("calendar");
 
+        mCalendarView = view.findViewById(R.id.calendarView);
         mCalendarView.setOnDayClickListener(listener);
 
         getCalendarData();
@@ -115,13 +119,29 @@ public class CalendarFragment extends android.app.Fragment {
 
                 }
 
+                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = inflater.inflate(R.layout.popup_calendar, null);
+                // create the popup window
+                int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                int height = LinearLayout.LayoutParams.MATCH_PARENT;
+                boolean focusable = true; // lets taps outside the popup also dismiss it
+
+                mRecycleView = popupView.findViewById(R.id.calendarRecycle);
+                mRecycleView.setHasFixedSize(true);
+                mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
                 adapter = new CalendarAdapter(listItems, getActivity());
                 mRecycleView.setAdapter(adapter);
+
+                PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
 
 
             } catch (NullPointerException e){
 
-                mRecycleView.setAdapter(null);
+                Toast.makeText(getActivity(), "Error with retrieving events", Toast.LENGTH_SHORT).show();
+
+                //mRecycleView.setAdapter(null);
 
             }
         }
@@ -157,6 +177,8 @@ public class CalendarFragment extends android.app.Fragment {
 
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray array = jsonObject.getJSONArray("activities");
+
+                            Log.d("CALENDAR", array.toString());
 
                             if (!response.equals("{\"activities\": []}")) {
                                 for (int i = 0; i < array.length(); i++) {

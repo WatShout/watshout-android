@@ -10,17 +10,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="113dp"
-        android:text="Add a Profile Picture"
+        android:layout_marginTop="52dp"
+        android:text="New Account"
         android:textSize="30dp" />
 
     <Button
         android:id="@+id/uploadPfpButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/continueButton"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="213dp"
         android:onClick="selectProfilePicture"
         android:text="Select profile picture" />
 
@@ -30,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="142dp"
+        android:layout_marginBottom="35dp"
         android:onClick="continueToMainActivity"
         android:text="Continue without profile picture" />
 
@@ -40,8 +39,17 @@
         android:layout_height="103dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="172dp"
+        android:layout_marginTop="117dp"
         app:srcCompat="@drawable/ic_action_name" />
+
+    <Button
+        android:id="@+id/birthdayButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="240dp"
+        android:text="Date of Birth" />
 
 
 </RelativeLayout>

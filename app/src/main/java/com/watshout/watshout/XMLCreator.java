@@ -192,11 +192,9 @@ class XMLCreator {
 
     }
 
-    public void uploadToFirebaseStorage() throws IOException {
+    public void uploadToFirebaseStorage(final String date) throws IOException {
 
         byte[] bytes = fileToBytes(gpxFile);
-
-        final String date = this.date;
 
         String fileName = date + ".gpx";
 

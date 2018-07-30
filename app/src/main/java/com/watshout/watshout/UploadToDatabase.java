@@ -48,7 +48,7 @@ public class UploadToDatabase {
 
     // Takes the 'current' activity and places it as an entry in
     // the 'past' entry
-    public void moveCurrentToPast() {
+    public void moveCurrentToPast(final String date) {
 
         ref.child("users").child(uid).child("device").child("current")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -56,8 +56,6 @@ public class UploadToDatabase {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         EventInfo metadata = createMetadata("run");
-
-                        String date = currentDate;
 
                         ref.child("users").child(uid).child("device").child("past")
                                 .child(date).setValue(metadata);
@@ -73,7 +71,7 @@ public class UploadToDatabase {
                 });
     }
 
-    private void removeCurrentEntry() {
+    public void removeCurrentEntry() {
         ref.child("users").child(uid).child("device").child("current").removeValue();
     }
 }

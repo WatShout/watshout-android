@@ -11,12 +11,11 @@
     app:layout_constraintBottom_toBottomOf="@+id/map"
     app:layout_constraintTop_toBottomOf="@+id/map">
 
-    <com.google.android.gms.maps.MapView
-        xmlns:tools="http://schemas.android.com/tools"
+    <com.google.android.gms.maps.MapView xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="513dp"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         app:layout_constraintBottom_toTopOf="@+id/timerText"
         app:layout_constraintEnd_toEndOf="parent"
@@ -78,11 +77,30 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
-        android:background="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
         android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:src="@drawable/baseline_pin_drop_black_18dp"/>
+        android:background="@android:color/white"
+        android:src="@drawable/baseline_pin_drop_black_18dp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:id="@+id/friendRecycleView"
+        android:layout_width="70dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/fui_transparent" />
+
+    <ImageButton
+        android:id="@+id/recenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:src="@android:drawable/ic_menu_mylocation" />
 
 </RelativeLayout>

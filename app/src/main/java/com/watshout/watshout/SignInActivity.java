@@ -12,7 +12,6 @@ import android.util.Log;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.signin.SignIn;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -21,7 +20,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -37,10 +38,40 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_in);
 
-        checkPermissions();
-        checkPermissions();
+        String[] dangerousPermissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.GET_ACCOUNTS,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.CAMERA};
+
+        // Go through permissions, check which ones aren't granted
+        List<String> request = new ArrayList<>();
+        for (String permission:dangerousPermissions){
+            if (ContextCompat.checkSelfPermission(SignInActivity.this,
+                    permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                // Permission is not granted
+                if (ActivityCompat.shouldShowRequestPermissionRationale(SignInActivity.this,
+                        permission)) {
+                    // TODO Asynchronously show the rationale for needing permission
+
+                }
+
+                request.add(permission);
+            }
+        }
+
+        if (request.size() > 0) {
+            // Request the permission
+            ActivityCompat.requestPermissions(SignInActivity.this,
+                    request.toArray(new String[0]),
+                    0);
+        }
+
+        setContentView(R.layout.activity_sign_in);
 
         // Removes the top bar on top of the map
         //getSupportActionBar().hide();
@@ -80,17 +111,19 @@ public class SignInActivity extends AppCompatActivity {
                 FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
                 String uid = thisUser.getUid();
 
-                // if Firebase user doesn't have profile_pic_format, open RequireProfilePictureActivity
+                // if Firebase user doesn't have profile_pic_format, open InitializeNewAccountActivity
                 ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChild("profile_pic_format")) {
+                            Carrier.setUploadedOwnProfilePicture(true);
                             Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
                             openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             getApplicationContext().startActivity(openMain);
                             finish();
                         } else {
-                            Intent openPfp = new Intent(getApplicationContext(), RequireProfilePictureActivity.class);
+                            Carrier.setUploadedOwnProfilePicture(false);
+                            Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
                             openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             getApplicationContext().startActivity(openPfp);
                             finish();
@@ -119,28 +152,6 @@ public class SignInActivity extends AppCompatActivity {
 
 
                 Log.wtf(TAG, "idk what happened here");
-            }
-        }
-    }
-
-    // Copied and pasted from MainActivity, there should be a better way to do this
-    public void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(SignInActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            if (ActivityCompat.shouldShowRequestPermissionRationale(SignInActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Async error
-
-            } else {
-
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(SignInActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        0);
             }
         }
     }

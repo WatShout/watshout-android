@@ -11,12 +11,19 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class FinishedActivity extends AppCompatActivity{
+
+    FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+    String uid = thisUser.getUid();
+    String date;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -61,15 +68,25 @@ public class FinishedActivity extends AppCompatActivity{
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
 
+        date = getIntent().getStringExtra("GPX_NAME");
+        date = date.substring(0, date.length() - 4);
+
         // TODO test GPX upload after Firebase Storage gets up again
         Button uploadGpx = (Button) findViewById(R.id.uploadGpx);
         uploadGpx.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
+
+                    UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
+                    uploadToDatabase.moveCurrentToPast(date);
+
                     // Upload GPX to Firebase Storage
-                    XMLCreator.uploadToFirebaseStorage();
+                    XMLCreator.uploadToFirebaseStorage(date);
                     XMLCreator.resetXML();
+
+
+
                 }catch (IOException e){e.printStackTrace();}
             }
         });
@@ -78,6 +95,10 @@ public class FinishedActivity extends AppCompatActivity{
         returnToMap.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
+
+                UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
+                uploadToDatabase.removeCurrentEntry();
+
                 // Redirect to MapFragment
                 Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
                 openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

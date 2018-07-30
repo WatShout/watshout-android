@@ -1,11 +1,15 @@
 package com.watshout.watshout;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +23,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,6 +46,12 @@ import com.vansuita.pickimage.listeners.IPickCancel;
 import com.vansuita.pickimage.listeners.IPickResult;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import pl.aprilapps.easyphotopicker.DefaultCallback;
+import pl.aprilapps.easyphotopicker.EasyImage;
 
 public class SettingsFragment extends android.app.Fragment {
     final long TEN_MEGABYTE = 10 * 1024 * 1024;
@@ -71,11 +82,17 @@ public class SettingsFragment extends android.app.Fragment {
     final int MY_PERMISSIONS_REQUEST_CAMERA = 505;
     String[] permissions = {android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
 
+    static final String TAG = "ChangePfp";
+
+    final int GET_FROM_GALLERY = 123;
+
     Context mContext;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        super.onCreateView(inflater,container,savedInstanceState);
 
         mContext = getActivity();
 
@@ -87,6 +104,9 @@ public class SettingsFragment extends android.app.Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        getActivity().setTitle("settings");
+
         mProfile = view.findViewById(R.id.profile);
         mEmail = view.findViewById(R.id.email);
         mAge = view.findViewById(R.id.age);
@@ -97,25 +117,12 @@ public class SettingsFragment extends android.app.Fragment {
             @Override
             public void onClick(View v) {
 
-                PickImageDialog.build(new PickSetup())
-                        .setOnPickResult(new IPickResult() {
-                            @Override
-                            public void onPickResult(PickResult r) {
-                                //TODO: do what you have to...
-                                Log.d("PICK", "worked");
-                            }
-                        })
-                        .setOnPickCancel(new IPickCancel() {
-                            @Override
-                            public void onCancelClick() {
-                                //TODO: do what you have to if user clicked cancel
-                            }
-                        }).show(( (FragmentActivity) mContext).getSupportFragmentManager());
+                Log.i(TAG,"Opening photo picker.");
 
-            }
-        });
+                Intent openPfp = new Intent(getActivity().getApplicationContext(), InitializeNewAccountActivity.class);
+                openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getActivity().getApplicationContext().startActivity(openPfp);
 
-        checkCameraPermissions();
 
         ref.child("users").child(uid).child("age").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -125,12 +132,16 @@ public class SettingsFragment extends android.app.Fragment {
                 catch(Exception e){}
             }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                /*Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, GET_FROM_GALLERY);*/
+                //EasyImage.openChooserWithGallery(SettingsFragment.this, "Choose Profile Picture", 0);
 
             }
         });
 
+        checkCameraPermissions();
+        Log.i(TAG,"Checked camera permissions.");
 
 
         ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -152,7 +163,9 @@ public class SettingsFragment extends android.app.Fragment {
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
+
                             // Handle any errors
+
                         }
                     });
                 }
@@ -164,7 +177,7 @@ public class SettingsFragment extends android.app.Fragment {
             }
         });
 
-        mAgeButton.setOnClickListener(new View.OnClickListener() {
+        /*mAgeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -181,6 +194,7 @@ public class SettingsFragment extends android.app.Fragment {
                 }
             }
         });
+        */
     }
 
     byte[] getImageData(Bitmap bmp) {
@@ -193,28 +207,123 @@ public class SettingsFragment extends android.app.Fragment {
         return byteArray;
     }
 
-    //@Override
-    public void onPickResult(PickResult r) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Log.e("PICK", "HELLO");
+        super.onActivityResult(requestCode,resultCode,data);
 
-        if (r.getError() == null) {
+        Log.i(TAG,"Profile picture selected!");
 
-            Bitmap bmp1 = r.getBitmap();
-            Bitmap bmp2 = bmp1.copy(bmp1.getConfig(), true);
+        /*EasyImage.handleActivityResult(requestCode, resultCode, data, this.getActivity(), new DefaultCallback() {
+            @Override
+            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
+                //Some error handling
+                Log.i(TAG,"Error when selecting images.");
+            }
 
-            mProfile.setImageBitmap(bmp1);
+            @Override
+            public void onImagesPicked(List<File> imagesFiles, EasyImage.ImageSource source, int type) {
+                //Handle the images
+                Log.i(TAG,"Received "+imagesFiles.size()+" images");
 
-            final byte[] data = getImageData(bmp2);
+                String filePath = imagesFiles.get(0).getPath();
+                Bitmap bitmap = BitmapFactory.decodeFile(filePath);
 
-            if (fileName != null){
-                storageReference.child("users").child(uid).child(fileName)
-                        .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                Bitmap bitmapCopy = bitmap.copy(bitmap.getConfig(), true);
 
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmapCopy.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                final byte[] pictureData = baos.toByteArray();
+
+                if (fileName != null){
+                    storageReference.child("users").child(uid).child(fileName)
+                            .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+
+                            storageReference.child("users").child(uid).child("profile.png")
+                                    .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                    Log.d("IMG", "Done uploading!");
+
+                                }
+                            }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                    ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+
+                                }
+                            });
+
+                        }
+                    });
+                } else {
+                    storageReference.child("users").child(uid).child("profile.png")
+                            .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                            Log.d("IMG", "Done uploading!");
+
+                        }
+                    }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                            ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+
+                        }
+                    });
+                }
+            }
+        });*/
+
+        try {
+
+            switch (requestCode){
+
+                case GET_FROM_GALLERY:
+                    /*Uri imageUri = data.getData();
+                    final Bitmap bmp1 = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                    final Bitmap bmp2 = bmp1.copy(bmp1.getConfig(), true);
+
+                    mProfile.setImageBitmap(bmp2);
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bmp1.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                    final byte[] pictureData = baos.toByteArray();
+
+                    if (fileName != null){
+                        storageReference.child("users").child(uid).child(fileName)
+                                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                storageReference.child("users").child(uid).child("profile.png")
+                                        .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                        Log.d("IMG", "Done uploading!");
+
+                                    }
+                                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                        ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+
+                                    }
+                                });
+
+                            }
+                        });
+                    } else {
                         storageReference.child("users").child(uid).child("profile.png")
-                                .putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
@@ -229,32 +338,30 @@ public class SettingsFragment extends android.app.Fragment {
 
                             }
                         });
+                    }*/
 
+                    if (resultCode == Activity.RESULT_OK) {
+                        //data gives you the image uri. Try to convert that to bitmap
+                        //convert data to bitmap, display in ImageView
+                        Uri imageUri = data.getData();
+                        Bitmap bmp = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                        mProfile.setImageBitmap(bmp);
+
+                        uploadBitmapAsProfilePicture(bmp,uid);
+
+                        break;
+                    } else if (resultCode == Activity.RESULT_CANCELED) {
+                        Log.e(TAG, "Selecting picture cancelled");
                     }
-                });
-            } else {
-                storageReference.child("users").child(uid).child("profile.png")
-                        .putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    break;
 
-                        Log.d("IMG", "Done uploading!");
-
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                        ref.child("users").child(uid).child("profile_pic_format").setValue("png");
-
-                    }
-                });
             }
 
 
-        } else {
-            Log.d("IMG", "This didn't work: " + r.getError().toString());
+        } catch (IOException e){
+            Log.e(TAG, "Exception in onActivityResult : " + e.getMessage());
         }
+
     }
 
     public void checkCameraPermissions() {
@@ -267,17 +374,21 @@ public class SettingsFragment extends android.app.Fragment {
 
             // No explanation needed, we can request the permission.
 
+            Log.e(TAG,"Some camera permissions not granted.");
+
             ActivityCompat.requestPermissions(this.getActivity(),
                     permissions,
                     MY_PERMISSIONS_REQUEST_CAMERA);
 
 
-        }
+        } else Log.i(TAG,"Proceeding with required permissions.");
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_CAMERA: {
                 // If request is cancelled, the result arrays are empty.
@@ -296,5 +407,36 @@ public class SettingsFragment extends android.app.Fragment {
             }
 
         }
+    }
+
+    public void uploadBitmapAsProfilePicture(Bitmap bitmap, final String uid){
+
+        // Create a reference to profile picture
+        StorageReference pfpRef = storageReference.child("users/"+uid+"/profile.png");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        UploadTask uploadTask = pfpRef.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                Toast.makeText(getActivity(),"Failed to upload image",Toast.LENGTH_LONG);
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+
+                ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+                ref.child("users").child(uid).child("email").setValue(email);
+                ref.child("users").child(uid).child("name").setValue(name);
+                //ref.child("users").child(uid).child("age").setValue(Integer.valueOf(mAge.getText().toString()));
+
+            }
+        });
+
     }
 }

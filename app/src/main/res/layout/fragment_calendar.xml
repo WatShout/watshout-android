@@ -14,24 +14,14 @@
 
     <com.applandeo.materialcalendarview.CalendarView
         android:id="@+id/calendarView"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_weight="65"
         app:datePicker="false"
-        app:headerColor="#000000"
+        app:headerColor="#262523"
         app:headerLabelColor="#ffd529"
-        app:todayLabelColor="#ffffff"
+        app:todayLabelColor="@color/colorPrimary"
 
-         />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/calendarRecycle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="35"
-        android:background="#000000"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="382dp" />
-
+        />
 
 </LinearLayout>

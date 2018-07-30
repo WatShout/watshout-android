@@ -13,11 +13,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -26,9 +24,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,16 +34,16 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback;
 import com.google.android.gms.maps.MapView;
@@ -63,7 +61,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -74,6 +71,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
+
+    FusedLocation fusedLocation;
 
     SensorManager sensorManager;
 
@@ -88,7 +87,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     PopupWindow popUp;
 
     //LayoutParams params;
-
 
     // General database reference
     DatabaseReference ref = FirebaseDatabase
@@ -106,13 +104,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     GoogleMap googleMapGlobal;
     LatLng home;
 
-    String CURRENT_DEVICE_ID;
-
     Boolean isMapMoving;
 
     static boolean GPSconnected = false;
     static boolean currentlyTrackingLocation = false;
     static boolean activityRunning = false;
+
+    RecyclerView mRecyclerView;
 
     Bitmap pathScreen;
 
@@ -140,6 +138,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     TextView stepsDialog;
     TextView distanceDialog;
 
+    ImageButton mCenter;
+    LatLng myLastLocation;
+
     long originalStartTime;
 
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
@@ -152,12 +153,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     // For permissions
     int permCode = 200;
-
-    // Gets a unique hardware ID for a device
-    @SuppressLint("HardwareIds")
-    String getDeviceID() {
-        return Settings.Secure.getString(getActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-    }
 
     // This runs as the map rendering is completed
     @SuppressLint("MissingPermission")
@@ -175,7 +170,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // Marker list is a array of the current user's Markers
         markerList = new ArrayList<>();
 
-        mapPlotter = new MapPlotter(markerList, googleMapGlobal, true);
+        mapPlotter = new MapPlotter(markerList, googleMapGlobal, true, uid, getActivity());
 
         try {
             XMLCreator = new XMLCreator(getActivity().getApplicationContext(), uid);
@@ -185,11 +180,12 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             e.printStackTrace();
         }
 
-        FriendData friendData = new FriendData(uid, googleMapGlobal);
+        FriendDataManager friendDataManager = new FriendDataManager(uid, googleMapGlobal, mRecyclerView, getActivity(),
+                new MapRecycleViewCarrier(mRecyclerView));
 
         // Starts location-getting process
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
-        FusedLocation fusedLocation = null;
+        fusedLocation = null;
         try {
             fusedLocation = new FusedLocation(getActivity().getApplicationContext(),
                     mapPlotter, uid, XMLCreator, speedTextDialog, stepsDialog, distanceDialog);
@@ -225,10 +221,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
-    {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        getActivity().setTitle("map");
 
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
 
@@ -251,7 +247,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
 
 
+        mCenter = view.findViewById(R.id.recenter);
 
+        mRecyclerView = view.findViewById(R.id.friendRecycleView);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //AlertDialog.Builder alertDialog = new AlertDialog.Builder(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
@@ -366,65 +364,25 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         //final int displayHeight = displayMetrics.heightPixels;
         //final int displayWidth = displayMetrics.widthPixels;
 
-        // I know global variables are bad but I have no clue how else to do this
-        CURRENT_DEVICE_ID = getDeviceID();
-        CurrentID.setCurrent(CURRENT_DEVICE_ID);
-
-        // This is the initial check to see if a user is 'new' or not
-        ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                Log.d("USER", dataSnapshot.exists() + "");
-
-                if (!dataSnapshot.exists()) {
-
-                    layoutInflater = (LayoutInflater) getActivity()
-                            .getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                    assert layoutInflater != null;
-                    ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup, null);
-
-                    popupWindow = new PopupWindow(container, displayWidth, displayHeight, true);
-                    popupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
-
-                    final EditText mAge = container.findViewById(R.id.age);
-
-                    Button mButton = container.findViewById(R.id.submitinfo);
-                    mButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            int age = Integer.parseInt(mAge.getText().toString());
-
-                            ref.child("users").child(uid).child("name").setValue(name);
-                            ref.child("users").child(uid).child("age").setValue(age);
-                            ref.child("users").child(uid).child("email").setValue(email);
-                            ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
-
-                            popupWindow.dismiss();
-
-                        }
-                    });
-
-                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
-
-
-                } else {
-                    ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
-                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
+
+        mCenter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                double[] coords = fusedLocation.getLatestCoords();
+
+                double latitude = coords[0];
+                double longitude = coords[1];
+
+                LatLng current = new LatLng(latitude, longitude);
+
+                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 16));
+
+            }
+        });
 
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -451,10 +409,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onClick(View v) {
                 startClick();
             }
-
         });
-
-
 
         popUpStop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -543,11 +498,18 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     + String.format("%02d", Seconds));
 
             handler.postDelayed(this, 0);
+
             if(!currentlyTrackingLocation)
             captureMapScreen();
+
+            if (counter%1000==0) captureMapScreen();
+
+            counter++;
         }
 
     };
+
+
 
 
     @Override
@@ -591,7 +553,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         System.out.println("value of event is: " + event.values[0] + " "
                 );
 
-       if( currentlyTrackingLocation) {
+       if(currentlyTrackingLocation) {
            /* try{
             PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("steps.txt")));
             pw.print(event.values[0]);
@@ -632,7 +594,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onSnapshotReady(Bitmap snapshot) {
                 // TODO Auto-generated method stub
                 pathScreen = snapshot;
-                Log.i("Map_Image",(pathScreen == null) + "");
+                //Log.i("Map_Image",(pathScreen == null) + "");
             }
         };
         googleMapGlobal.snapshot(callback);
@@ -650,7 +612,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         }
         return true;
-
     }
 
     public void startClick() {
@@ -782,4 +743,5 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         getActivity().getApplicationContext().startActivity(openNext);
         getActivity().finish();
     }
+
 }

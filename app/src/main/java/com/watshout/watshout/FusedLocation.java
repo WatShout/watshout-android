@@ -9,6 +9,7 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
@@ -40,10 +41,10 @@ public class FusedLocation  {
     TextView stepsDialog;
     TextView distanceDialog;
 
-
     FusedLocation(Context context, MapPlotter mapPlotter, String uid,
                   XMLCreator XMLCreator, TextView speedTextDialog,
-                  TextView stepsDialog, TextView distanceDialog) throws TransformerException, ParserConfigurationException {
+                  TextView stepsDialog, TextView distanceDialog)
+            throws TransformerException, ParserConfigurationException {
 
         this.context = context;
         this.mapPlotter = mapPlotter;
@@ -100,6 +101,7 @@ public class FusedLocation  {
                 Log.wtf("GPSGPSGPS", "Lat: " + lat + "\nLong" + lon + "\nTracking: " +"Speed: " + speed + MapFragment.currentlyTrackingLocation);
 
                 if (MapFragment.currentlyTrackingLocation){
+                    Log.d("TRACKING", "Currently uploading a location object");
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
 
                     TrackPoint temp = new TrackPoint();
@@ -166,5 +168,15 @@ public class FusedLocation  {
 
         return distanceTemp;
 
+    }
+
+    public double[] getLatestCoords() {
+
+        double[] coords = new double[2];
+
+        coords[0] = latitude;
+        coords[1] = longitude;
+
+        return coords;
     }
 }
