@@ -714,7 +714,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         String date = uploadToDatabase.getFormattedDate();
 
-        uploadToDatabase.moveCurrentToPast(date);
+        openNext.putExtra("GPX_NAME_ONLY", date);
+
+        //uploadToDatabase.moveCurrentToPast(date);
         openNext.putExtra("GPX_NAME",date+".gpx");
 
         // Writes an XML file
