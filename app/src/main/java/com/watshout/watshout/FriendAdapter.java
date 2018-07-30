@@ -60,7 +60,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
         holder.mRelative.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("FRIEND", "Clicked on " + friendItem.getUID());
+                Log.d("FRIEND ", "Clicked on " + friendItem.getUID());
             }
         });
 
