@@ -220,7 +220,7 @@ class XMLCreator {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                                Log.d("GPX", "May image creation failed");
+                                Log.d("GPX", "Map image creation failed");
 
                             }
                         }){
