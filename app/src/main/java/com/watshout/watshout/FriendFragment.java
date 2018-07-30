@@ -313,7 +313,12 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         mSwipeRefreshLayout.setRefreshing(true);
 
-        File cache = getActivity().getCacheDir();
+        try {
+            File cache = getActivity().getCacheDir();
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
 
         // Instantiate the RequestQueue.
         RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
