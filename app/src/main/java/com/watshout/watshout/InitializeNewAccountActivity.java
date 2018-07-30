@@ -41,6 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.vansuita.pickimage.bean.PickResult;
 import com.vansuita.pickimage.bundle.PickSetup;
 import com.vansuita.pickimage.dialog.PickImageDialog;
@@ -108,7 +109,25 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                     String fileName = "profile." + fileFormat;
                     uploadedOwnPicture = true;
 
-                    storageReference.child("users").child(uid).child(fileName).getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    storageReference.child("users").child(uid).child(fileName)
+                            .getDownloadUrl()
+                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+
+                                    Picasso.get()
+                                            .load(uri)
+                                            .placeholder(R.drawable.loading)
+                                            .resize(256, 256)
+                                            .centerCrop()
+                                            .into(mProfile);
+
+                                }
+                            });
+
+                    /*
+                    storageReference.child("users").child(uid).child(fileName).getBytes(TEN_MEGABYTE)
+                            .addOnSuccessListener(new OnSuccessListener<byte[]>() {
                         @Override
                         public void onSuccess(byte[] bytes) {
 
@@ -124,6 +143,8 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
 
                         }
                     });
+                    */
+
                 }
             }
 
