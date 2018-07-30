@@ -1,7 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="600dp"
-    android:layout_height="400dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/dialogLayout"
+    android:background="@color/cardview_dark_background"
     >
     <ImageView
         android:layout_width="wrap_content"
@@ -53,6 +56,42 @@
         android:layout_marginBottom="20dp"
         android:text="0 m"
         android:textColor="#009688"
+        android:textSize="42dp"
+        android:textStyle="bold"
+        />
+
+   <Button
+        android:id="@+id/popUpStart"
+        android:text="Start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/distanceDialog"
+        />
+
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_red_dark"
+        android:text="Stop"
+        />
+
+    <Button
+        android:id="@+id/cameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Camera" />
+
+    <TextView
+        android:id="@+id/timerText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="0:00"
+        android:textColor="@android:color/white"
         android:textSize="42dp"
         android:textStyle="bold"
         />

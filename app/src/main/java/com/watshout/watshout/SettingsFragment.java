@@ -123,10 +123,18 @@ public class SettingsFragment extends android.app.Fragment {
                 openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getActivity().getApplicationContext().startActivity(openPfp);
 
+
+        ref.child("users").child(uid).child("age").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try{dataSnapshot.getValue().toString();
+                    mAge.setText(dataSnapshot.getValue().toString());}
+                catch(Exception e){}
+            }
+
                 /*Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
                 photoPickerIntent.setType("image/*");
                 startActivityForResult(photoPickerIntent, GET_FROM_GALLERY);*/
-
                 //EasyImage.openChooserWithGallery(SettingsFragment.this, "Choose Profile Picture", 0);
 
             }
