@@ -27,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -708,9 +709,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         // Performs Firebase realtime database operations
         UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
-        uploadToDatabase.moveCurrentToPast();
 
         String date = uploadToDatabase.getFormattedDate();
+
+        uploadToDatabase.moveCurrentToPast(date);
         openNext.putExtra("GPX_NAME",date+".gpx");
 
         // Writes an XML file

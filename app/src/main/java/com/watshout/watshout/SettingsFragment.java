@@ -117,273 +117,84 @@ public class SettingsFragment extends android.app.Fragment {
             @Override
             public void onClick(View v) {
 
-                Log.i(TAG,"Opening photo picker.");
+                Log.i(TAG, "Opening photo picker.");
 
                 Intent openPfp = new Intent(getActivity().getApplicationContext(), InitializeNewAccountActivity.class);
                 openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getActivity().getApplicationContext().startActivity(openPfp);
 
 
-        ref.child("users").child(uid).child("age").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try{dataSnapshot.getValue().toString();
-                    mAge.setText(dataSnapshot.getValue().toString());}
-                catch(Exception e){}
-            }
-
-                /*Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, GET_FROM_GALLERY);*/
-                //EasyImage.openChooserWithGallery(SettingsFragment.this, "Choose Profile Picture", 0);
-
-            }
-        });
-
-        checkCameraPermissions();
-        Log.i(TAG,"Checked camera permissions.");
+                checkCameraPermissions();
+                Log.i(TAG, "Checked camera permissions.");
 
 
-        ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+                ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
 
-                if(dataSnapshot.getValue() != null){
-                    fileFormat = dataSnapshot.getValue().toString();
-                    fileName = "profile." + fileFormat;
+                        if (dataSnapshot.getValue() != null) {
+                            fileFormat = dataSnapshot.getValue().toString();
+                            fileName = "profile." + fileFormat;
 
-                    storageReference.child("users").child(uid).child(fileName).getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                        @Override
-                        public void onSuccess(byte[] bytes) {
-
-                            Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                            mProfile.setImageBitmap(bmp);
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-
-                            // Handle any errors
-
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        /*mAgeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (mAge.getText().toString().length() > 0){
-
-                    int newAge = Integer.parseInt(mAge.getText().toString());
-                    ref.child("users").child(uid).child("age").setValue(newAge);
-
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
-                    mAge.clearFocus();
-                    mAge.setCursorVisible(false);
-
-                }
-            }
-        });
-        */
-    }
-
-    byte[] getImageData(Bitmap bmp) {
-
-        ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, bao); // bmp is bitmap from user image file
-        bmp.recycle();
-        byte[] byteArray = bao.toByteArray();
-
-        return byteArray;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode,resultCode,data);
-
-        Log.i(TAG,"Profile picture selected!");
-
-        /*EasyImage.handleActivityResult(requestCode, resultCode, data, this.getActivity(), new DefaultCallback() {
-            @Override
-            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
-                //Some error handling
-                Log.i(TAG,"Error when selecting images.");
-            }
-
-            @Override
-            public void onImagesPicked(List<File> imagesFiles, EasyImage.ImageSource source, int type) {
-                //Handle the images
-                Log.i(TAG,"Received "+imagesFiles.size()+" images");
-
-                String filePath = imagesFiles.get(0).getPath();
-                Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-
-                Bitmap bitmapCopy = bitmap.copy(bitmap.getConfig(), true);
-
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmapCopy.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                final byte[] pictureData = baos.toByteArray();
-
-                if (fileName != null){
-                    storageReference.child("users").child(uid).child(fileName)
-                            .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-
-                            storageReference.child("users").child(uid).child("profile.png")
-                                    .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            storageReference.child("users").child(uid).child(fileName).getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                                 @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                public void onSuccess(byte[] bytes) {
 
-                                    Log.d("IMG", "Done uploading!");
+                                    Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    mProfile.setImageBitmap(bmp);
 
                                 }
-                            }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            }).addOnFailureListener(new OnFailureListener() {
                                 @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                public void onFailure(@NonNull Exception exception) {
 
-                                    ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+                                    // Handle any errors
 
                                 }
                             });
-
                         }
-                    });
-                } else {
-                    storageReference.child("users").child(uid).child("profile.png")
-                            .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                            Log.d("IMG", "Done uploading!");
-
-                        }
-                    }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                            ref.child("users").child(uid).child("profile_pic_format").setValue("png");
-
-                        }
-                    });
-                }
-            }
-        });*/
-
-        try {
-
-            switch (requestCode){
-
-                case GET_FROM_GALLERY:
-                    /*Uri imageUri = data.getData();
-                    final Bitmap bmp1 = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                    final Bitmap bmp2 = bmp1.copy(bmp1.getConfig(), true);
-
-                    mProfile.setImageBitmap(bmp2);
-
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bmp1.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                    final byte[] pictureData = baos.toByteArray();
-
-                    if (fileName != null){
-                        storageReference.child("users").child(uid).child(fileName)
-                                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-
-                                storageReference.child("users").child(uid).child("profile.png")
-                                        .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                                        Log.d("IMG", "Done uploading!");
-
-                                    }
-                                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                                        ref.child("users").child(uid).child("profile_pic_format").setValue("png");
-
-                                    }
-                                });
-
-                            }
-                        });
-                    } else {
-                        storageReference.child("users").child(uid).child("profile.png")
-                                .putBytes(pictureData).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                                Log.d("IMG", "Done uploading!");
-
-                            }
-                        }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                                ref.child("users").child(uid).child("profile_pic_format").setValue("png");
-
-                            }
-                        });
-                    }*/
-
-                    if (resultCode == Activity.RESULT_OK) {
-                        //data gives you the image uri. Try to convert that to bitmap
-                        //convert data to bitmap, display in ImageView
-                        Uri imageUri = data.getData();
-                        Bitmap bmp = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                        mProfile.setImageBitmap(bmp);
-
-                        uploadBitmapAsProfilePicture(bmp,uid);
-
-                        break;
-                    } else if (resultCode == Activity.RESULT_CANCELED) {
-                        Log.e(TAG, "Selecting picture cancelled");
                     }
-                    break;
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
             }
 
+            byte[] getImageData(Bitmap bmp) {
 
-        } catch (IOException e){
-            Log.e(TAG, "Exception in onActivityResult : " + e.getMessage());
-        }
+                ByteArrayOutputStream bao = new ByteArrayOutputStream();
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, bao); // bmp is bitmap from user image file
+                bmp.recycle();
+                byte[] byteArray = bao.toByteArray();
 
-    }
+                return byteArray;
+            }
 
-    public void checkCameraPermissions() {
-        if (ContextCompat.checkSelfPermission(this.getActivity(),
-                Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this.getActivity(),
+
+            public void checkCameraPermissions() {
+                if (ContextCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
+                        != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(getActivity(),
+                                Manifest.permission.CAMERA)
+                                != PackageManager.PERMISSION_GRANTED) {
 
-            // No explanation needed, we can request the permission.
+                    // No explanation needed, we can request the permission.
 
-            Log.e(TAG,"Some camera permissions not granted.");
+                    Log.e(TAG, "Some camera permissions not granted.");
 
-            ActivityCompat.requestPermissions(this.getActivity(),
-                    permissions,
-                    MY_PERMISSIONS_REQUEST_CAMERA);
+                    ActivityCompat.requestPermissions(getActivity(),
+                            permissions,
+                            MY_PERMISSIONS_REQUEST_CAMERA);
 
 
-        } else Log.i(TAG,"Proceeding with required permissions.");
-    }
+                } else Log.i(TAG, "Proceeding with required permissions.");
+            }
 
+    /*
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -407,36 +218,38 @@ public class SettingsFragment extends android.app.Fragment {
             }
 
         }
-    }
+    } */
 
-    public void uploadBitmapAsProfilePicture(Bitmap bitmap, final String uid){
+            public void uploadBitmapAsProfilePicture(Bitmap bitmap, final String uid) {
 
-        // Create a reference to profile picture
-        StorageReference pfpRef = storageReference.child("users/"+uid+"/profile.png");
+                // Create a reference to profile picture
+                StorageReference pfpRef = storageReference.child("users/" + uid + "/profile.png");
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] data = baos.toByteArray();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                byte[] data = baos.toByteArray();
 
-        UploadTask uploadTask = pfpRef.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-                Toast.makeText(getActivity(),"Failed to upload image",Toast.LENGTH_LONG);
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                UploadTask uploadTask = pfpRef.putBytes(data);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        Toast.makeText(getActivity(), "Failed to upload image", Toast.LENGTH_LONG);
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
 
-                ref.child("users").child(uid).child("profile_pic_format").setValue("png");
-                ref.child("users").child(uid).child("email").setValue(email);
-                ref.child("users").child(uid).child("name").setValue(name);
-                //ref.child("users").child(uid).child("age").setValue(Integer.valueOf(mAge.getText().toString()));
+                        ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+                        ref.child("users").child(uid).child("email").setValue(email);
+                        ref.child("users").child(uid).child("name").setValue(name);
+                        //ref.child("users").child(uid).child("age").setValue(Integer.valueOf(mAge.getText().toString()));
+
+                    }
+                });
 
             }
         });
-
     }
 }
