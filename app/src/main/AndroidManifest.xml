@@ -49,6 +49,15 @@
             android:windowSoftInputMode="adjustPan"/>
 
         <activity
+            android:name=".SplashActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".SignInActivity"
             android:screenOrientation="portrait">
 
@@ -61,12 +70,6 @@
 
         <activity android:name=".InitializeNewAccountActivity"></activity>
 
-        <activity
-            android:name=".SplashActivity"
-            android:theme="@style/SplashTheme">
-
-        </activity>
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -77,9 +80,9 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
-        <activity android:name=".SettingsActivity" />
         <activity android:name=".CameraActivity"></activity>
-        <activity android:name=".FinishedActivity"></activity>
+        <activity android:name=".FinishedActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
