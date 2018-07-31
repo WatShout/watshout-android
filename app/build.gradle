@@ -44,6 +44,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:15.0.1'
     implementation 'com.akhgupta:android-easylocation:1.0.1'
 
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
     implementation 'com.github.jrvansuita:PickImage:+'
     implementation 'com.github.jkwiecien:EasyImage:+'
     implementation 'commons-io:commons-io:2.4'

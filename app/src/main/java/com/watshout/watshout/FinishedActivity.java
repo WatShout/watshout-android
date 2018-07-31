@@ -158,4 +158,11 @@ public class FinishedActivity extends AppCompatActivity{
 
     }
 
+    @Override
+    public void onBackPressed(){
+        Intent intent = new Intent(FinishedActivity.this,MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
 }
