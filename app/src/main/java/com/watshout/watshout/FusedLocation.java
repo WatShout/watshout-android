@@ -1,7 +1,9 @@
 package com.watshout.watshout;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -40,6 +42,8 @@ public class FusedLocation  {
     TextView speedTextDialog;
     TextView stepsDialog;
     TextView distanceDialog;
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid,
                   XMLCreator XMLCreator, TextView speedTextDialog,
@@ -54,7 +58,16 @@ public class FusedLocation  {
         this.speedTextDialog = speedTextDialog;
         this.stepsDialog = stepsDialog;
         this.distanceDialog = distanceDialog;
+        this.settings = PreferenceManager.getDefaultSharedPreferences(context);
+        this.editor = settings.edit();
 
+    }
+
+    private void updateSharedPreferenceValues(double lat, double lon){
+
+        editor.putString("last_latitude", lat + "");
+        editor.putString("last_longitude", lon + "");
+        editor.commit();
     }
 
     public LocationCallback buildLocationCallback() {
@@ -69,6 +82,8 @@ public class FusedLocation  {
 
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
+
+                updateSharedPreferenceValues(latitude, longitude);
 
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();

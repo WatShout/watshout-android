@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -164,6 +166,16 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // This ensures that we can make changes to the map outside of this function
         // which is why we defined it globally
         googleMapGlobal = googleMap;
+
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        double last_latitude = Double
+                .parseDouble(settings.getString("last_latitude", "37.4419"));
+        double last_longitude = Double
+                .parseDouble(settings.getString("last_longitude", "-122.1430"));
+
+        googleMapGlobal.moveCamera(CameraUpdateFactory
+                .newLatLngZoom(new LatLng(last_latitude, last_longitude), 16));
 
         // This sets the starting zoom level
         float zoom = 16;
