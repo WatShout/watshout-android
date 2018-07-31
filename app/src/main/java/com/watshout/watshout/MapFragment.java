@@ -356,7 +356,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         MapsInitializer.initialize(getActivity().getApplicationContext());
 
         mStart = view.findViewById(R.id.start);
-        //mStop = view.findViewById(R.id.stop);
+        mStop = view.findViewById(R.id.stop);
         popUpStop = popUpView.findViewById(R.id.stop);
         popUpStart = popUpView.findViewById(R.id.popUpStart);
 
