@@ -146,6 +146,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     long originalStartTime;
 
+    FloatingActionButton fab;
+
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
     int Seconds, Minutes, MilliSeconds ;
@@ -156,6 +158,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     // For permissions
     int permCode = 200;
+
+    public MapFragment() {
+    }
 
     // This runs as the map rendering is completed
     @SuppressLint("MissingPermission")
@@ -326,7 +331,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -342,13 +347,16 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 //popUp.showAsDropDown(popUpView);
             }
         });
+
+        fab.hide();
+
        checkLocationPermissions();
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getActivity().getApplicationContext());
 
         mStart = view.findViewById(R.id.start);
-        mStop = view.findViewById(R.id.stop);
+        //mStop = view.findViewById(R.id.stop);
         popUpStop = popUpView.findViewById(R.id.stop);
         popUpStart = popUpView.findViewById(R.id.popUpStart);
 
@@ -400,6 +408,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 //ActionBar actionBar = getSupportActionBar();
                 ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
                 //actionBar.hide();
@@ -631,6 +640,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     public void startClick() {
 
+        fab.show();
 
         //BufferedReader br = new BufferedReader(new InputStreamReader("steps.txt"));
         // StringTokenizer st = new StringTokenizer(br.readLine());
@@ -696,6 +706,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     public void stopClick() {
+
+        fab.show();
+
         Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
         openNext.putExtra("MIN", Minutes);
         openNext.putExtra("SEC", Seconds);
