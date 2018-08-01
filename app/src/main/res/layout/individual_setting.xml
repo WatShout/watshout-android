@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:paddingTop="@dimen/activity_horizontal_margin"
+        android:id="@+id/individual_setting"
         tools:layout_editor_absoluteX="81dp"
         tools:layout_editor_absoluteY="0dp">
 
@@ -30,6 +31,15 @@
                 android:layout_marginStart="89dp"
                 android:layout_marginTop="19dp"
                 android:text="Placeholder"
+                android:textColor="#ffd529" />
+
+            <TextView
+                android:id="@+id/settingValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="48dp"
                 android:textColor="#ffd529" />
 
 

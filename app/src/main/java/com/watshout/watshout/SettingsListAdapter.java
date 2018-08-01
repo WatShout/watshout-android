@@ -1,6 +1,9 @@
 package com.watshout.watshout;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +21,7 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
     private Context context;
     private HashMap<Integer, String> settingsGroupNames;
     private String[][] settingsLabels;
+    private SettingsFunctions settingsFunctions;
 
     public SettingsListAdapter(Context context, List<ParentItem> itemList) {
         this.itemList = itemList;
@@ -95,33 +99,26 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
     }
 
     static class GroupViewHolder {
-        TextView mTest;
+        TextView mLabel;
     }
 
-    static class SettingViewHolder {
-        TextView mTest;
-    }
+
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
 
         GroupViewHolder viewHolder;
 
-        if (convertView == null) {
+        convertView = inflater.inflate(R.layout.settings_group, parent, false);
 
-            convertView = inflater.inflate(R.layout.settings_group, parent, false);
+        viewHolder = new GroupViewHolder();
+        viewHolder.mLabel = convertView.findViewById(R.id.setting_group_label);
 
-            viewHolder = new GroupViewHolder();
-            viewHolder.mTest = convertView.findViewById(R.id.setting_group_label);
+        viewHolder.mLabel.setText(settingsGroupNames.get(groupPosition));
 
-            viewHolder.mTest.setText(settingsGroupNames.get(groupPosition));
+        Log.d("POSITION", groupPosition + "");
 
-            Log.d("POSITION", groupPosition + "");
-
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (GroupViewHolder) convertView.getTag();
-        }
+        convertView.setTag(viewHolder);
 
         return convertView;
 
@@ -131,20 +128,41 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
                              final ViewGroup parent) {
 
-        GroupViewHolder viewHolder;
+        final SettingViewHolder viewHolder;
 
         convertView = inflater.inflate(R.layout.individual_setting, parent, false);
 
-        viewHolder = new GroupViewHolder();
-        viewHolder.mTest = convertView.findViewById(R.id.setting_name);
+        viewHolder = new SettingViewHolder();
+        viewHolder.individualSetting = convertView.findViewById(R.id.individual_setting);
+        viewHolder.mLabel = convertView.findViewById(R.id.setting_name);
+        viewHolder.mLabel.setText(settingsLabels[groupPosition][childPosition]);
 
-        viewHolder.mTest.setText(settingsLabels[groupPosition][childPosition]);
+        settingsFunctions = new SettingsFunctions(context, viewHolder, convertView);
 
-        convertView.setTag(viewHolder);
+        switch (settingsLabels[groupPosition][childPosition]) {
 
+            case "Language":
+                settingsFunctions.language();
+                break;
+
+            case "Units":
+                settingsFunctions.units();
+                break;
+
+            case "Email":
+                settingsFunctions.email();
+                break;
+
+            case "Password":
+                settingsFunctions.password();
+                break;
+
+        }
 
         return convertView;
     }
+
+
 
 
 }
