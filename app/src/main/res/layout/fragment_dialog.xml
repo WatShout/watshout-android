@@ -76,6 +76,7 @@
         android:text="Stop"
         />
 
+    <!--
     <Button
         android:id="@+id/cameraButton"
         android:layout_width="wrap_content"
@@ -83,6 +84,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:text="Camera" />
+        -->
 
     <TextView
         android:id="@+id/timerText1"
