@@ -1,6 +1,7 @@
 package com.watshout.watshout;
 
 import android.annotation.SuppressLint;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -196,7 +197,6 @@ public class MainActivity extends AppCompatActivity implements
 
         }
         else if (id == R.id.nav_settings) {
-
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new SettingsFragment())
