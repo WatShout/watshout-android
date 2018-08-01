@@ -43,6 +43,71 @@ public class SettingsFunctions {
         this.convertView = convertView;
     }
 
+    public void messagePresets() {
+        viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Configure messages");
+
+                LinearLayout layout = new LinearLayout(context);
+                layout.setOrientation(LinearLayout.VERTICAL);
+
+                final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+                String storedFirstMessage = settings.getString("first_message",
+                        "Need help. Can you come?");
+                String storedSecondMessage = settings.getString("second_message",
+                        "On my way back.");
+                String storedThirdMessage = settings.getString("third_message",
+                        "I'm safe.");
+
+                // Set up the input
+                final EditText firstMessage = new EditText(context);
+                final EditText secondMessage = new EditText(context);
+                final EditText thirdMessage = new EditText(context);
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                firstMessage.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                secondMessage.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                thirdMessage.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+                firstMessage.setText(storedFirstMessage);
+                secondMessage.setText(storedSecondMessage);
+                thirdMessage.setText(storedThirdMessage);
+
+                layout.addView(firstMessage);
+                layout.addView(secondMessage);
+                layout.addView(thirdMessage);
+
+                builder.setView(layout);
+
+                // Set up the buttons
+                builder.setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString("first_message", firstMessage.getText().toString());
+                        editor.putString("second_message", secondMessage.getText().toString());
+                        editor.putString("third_message", thirdMessage.getText().toString());
+                        editor.apply();
+
+
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+
+            }
+        });
+    }
+
     public void watch() {
 
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {

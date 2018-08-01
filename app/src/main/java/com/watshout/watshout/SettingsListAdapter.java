@@ -177,6 +177,10 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 settingsFunctions.termsOfUse();
                 break;
 
+            case "Message presets":
+                settingsFunctions.messagePresets();
+                break;
+
         }
 
         return convertView;
