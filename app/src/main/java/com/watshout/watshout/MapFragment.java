@@ -280,6 +280,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
        // popUp.setTouchable(true);
+        /*
         Button cameraButton = (Button) popUpView.findViewById(R.id.cameraButton);
         Log.d("Camera button ID", cameraButton.toString());
         cameraButton.setOnClickListener(new Button.OnClickListener() {
@@ -291,6 +292,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 startActivity(intent);
             }
         });
+        */
         final AlertDialog dialog = builder.create();
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
