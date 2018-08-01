@@ -38,15 +38,30 @@ public class SettingsFragment extends android.app.Fragment {
         ParentItem parent1 = new ParentItem();
         parent1.getChildItemList().add(new ChildItem());
         parent1.getChildItemList().add(new ChildItem());
-        parent1.getChildItemList().add(new ChildItem());
 
         ParentItem parent2 = new ParentItem();
         parent2.getChildItemList().add(new ChildItem());
         parent2.getChildItemList().add(new ChildItem());
         parent2.getChildItemList().add(new ChildItem());
 
+        ParentItem parent3 = new ParentItem();
+        parent3.getChildItemList().add(new ChildItem());
+        parent3.getChildItemList().add(new ChildItem());
+        parent3.getChildItemList().add(new ChildItem());
+
+        ParentItem parent4 = new ParentItem();
+        parent4.getChildItemList().add(new ChildItem());
+
+        ParentItem parent5 = new ParentItem();
+        parent5.getChildItemList().add(new ChildItem());
+        parent5.getChildItemList().add(new ChildItem());
+        parent5.getChildItemList().add(new ChildItem());
+
         itemList.add(parent1);
         itemList.add(parent2);
+        itemList.add(parent3);
+        itemList.add(parent4);
+        itemList.add(parent5);
 
         SettingsListAdapter adapter = new SettingsListAdapter(getActivity(), itemList);
 
