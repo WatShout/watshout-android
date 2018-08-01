@@ -157,6 +157,10 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 settingsFunctions.password();
                 break;
 
+            case "Pair a device":
+                settingsFunctions.watch();
+                break;
+
         }
 
         return convertView;
