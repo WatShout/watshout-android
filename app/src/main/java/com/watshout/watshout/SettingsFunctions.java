@@ -55,6 +55,58 @@ public class SettingsFunctions {
 
     }
 
+    public void support() {
+
+        viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Lol you're out of luck", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+    }
+
+
+    public void privacyPolicy() {
+
+        viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Who actually reads this?", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+    }
+
+
+    public void license() {
+
+        viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Are you the CIA?", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+    }
+
+
+    public void termsOfUse() {
+
+        viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Please go outside", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+    }
+
+
     public void email() {
 
         //TODO: Open popup window that asks for new email

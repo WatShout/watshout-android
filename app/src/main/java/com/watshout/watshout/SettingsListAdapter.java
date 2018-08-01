@@ -161,6 +161,22 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 settingsFunctions.watch();
                 break;
 
+            case "Support":
+                settingsFunctions.support();
+                break;
+
+            case "Privacy policy":
+                settingsFunctions.privacyPolicy();
+                break;
+
+            case "License":
+                settingsFunctions.license();
+                break;
+
+            case "Terms of use":
+                settingsFunctions.termsOfUse();
+                break;
+
         }
 
         return convertView;

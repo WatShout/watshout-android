@@ -16,6 +16,7 @@ import java.util.List;
 public class SettingsFragment extends android.app.Fragment {
 
     ExpandableListView expandableListView;
+    private int lastPosition = -1;
 
 
     @Nullable
@@ -66,6 +67,17 @@ public class SettingsFragment extends android.app.Fragment {
         SettingsListAdapter adapter = new SettingsListAdapter(getActivity(), itemList);
 
         expandableListView.setAdapter(adapter);
+
+        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if (lastPosition != -1 && groupPosition != lastPosition) {
+                    expandableListView.collapseGroup(lastPosition);
+                }
+                lastPosition = groupPosition;
+            }
+        });
 
     }
 
