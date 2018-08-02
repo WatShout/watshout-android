@@ -40,8 +40,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
+        android:overScrollMode="never"
         android:background="@color/colorPrimaryDark"
-
+        app:itemBackground="@drawable/nav_drawer_divider"
         app:theme="@style/ThemeOverlay.AppCompat.navTheme"
         app:menu="@menu/drawer_view"
         app:headerLayout="@layout/nav_header"
