@@ -88,6 +88,7 @@ public class SignInActivity extends AppCompatActivity {
                     // Get an instance of AuthUI based on the default app
                     AuthUI.getInstance()
                             .createSignInIntentBuilder()
+                            .setLogo(R.drawable.small_logo)
                             .setIsSmartLockEnabled(false)
                             .setTheme(R.style.LoginTheme)
                             .setAvailableProviders(Arrays.asList(

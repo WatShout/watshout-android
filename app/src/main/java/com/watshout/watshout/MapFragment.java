@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -144,6 +146,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     long originalStartTime;
 
+    FloatingActionButton fab;
+
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
     int Seconds, Minutes, MilliSeconds ;
@@ -155,6 +159,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     // For permissions
     int permCode = 200;
 
+    public MapFragment() {
+    }
+
     // This runs as the map rendering is completed
     @SuppressLint("MissingPermission")
     @Override
@@ -164,6 +171,16 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // This ensures that we can make changes to the map outside of this function
         // which is why we defined it globally
         googleMapGlobal = googleMap;
+
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        double last_latitude = Double
+                .parseDouble(settings.getString("last_latitude", "37.4419"));
+        double last_longitude = Double
+                .parseDouble(settings.getString("last_longitude", "-122.1430"));
+
+        googleMapGlobal.moveCamera(CameraUpdateFactory
+                .newLatLngZoom(new LatLng(last_latitude, last_longitude), 16));
 
         // This sets the starting zoom level
         float zoom = 16;
@@ -263,6 +280,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
        // popUp.setTouchable(true);
+        /*
         Button cameraButton = (Button) popUpView.findViewById(R.id.cameraButton);
         Log.d("Camera button ID", cameraButton.toString());
         cameraButton.setOnClickListener(new Button.OnClickListener() {
@@ -274,6 +292,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 startActivity(intent);
             }
         });
+        */
         final AlertDialog dialog = builder.create();
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -314,7 +333,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -330,6 +349,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 //popUp.showAsDropDown(popUpView);
             }
         });
+
+        fab.hide();
+
        checkLocationPermissions();
 
         // This helps the app not crash in certain contexts
@@ -388,6 +410,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 //ActionBar actionBar = getSupportActionBar();
                 ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
                 //actionBar.hide();
@@ -619,6 +642,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     public void startClick() {
 
+        fab.show();
 
         //BufferedReader br = new BufferedReader(new InputStreamReader("steps.txt"));
         // StringTokenizer st = new StringTokenizer(br.readLine());
@@ -684,6 +708,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     public void stopClick() {
+
+        fab.show();
+
         Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
         openNext.putExtra("MIN", Minutes);
         openNext.putExtra("SEC", Seconds);
