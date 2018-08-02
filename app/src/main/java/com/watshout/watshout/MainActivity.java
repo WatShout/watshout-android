@@ -1,9 +1,11 @@
 package com.watshout.watshout;
 
 import android.annotation.SuppressLint;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.internal.NavigationMenuView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -27,6 +29,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /*
@@ -98,11 +103,83 @@ public class MainActivity extends AppCompatActivity implements
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setBackgroundColor(0xFF262523);
+        //navigationView.setItemIconTintList(null);
+        disableNavigationViewScrollbars(navigationView);
 
-        final View navView = navigationView.inflateHeaderView(R.layout.nav_header);
-        TextView mEmail = navView.findViewById(R.id.nav_head_email);
+        View headerView = navigationView.getHeaderView(0);
+
+        TextView mInitials = headerView.findViewById(R.id.nav_header_initials);
+        String initials = "";
+        for (String s : name.split(" ")) {
+            initials += s.charAt(0);
+        }
+        mInitials.setText(initials);
+
+        TextView mName = headerView.findViewById(R.id.nav_header_name);
+        mName.setText(name);
+
+        TextView mEmail = headerView.findViewById(R.id.nav_header_email);
         mEmail.setText(email);
+
+        final TextView mLastActive = headerView.findViewById(R.id.nav_header_last_active);
+        ref.child("users").child(uid).child("device").child("past").orderByChild("time").limitToLast(1)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                            Long time = ds.child("time").getValue(Long.class);
+
+                            String date;
+
+                            try {
+                                date = new java.text.SimpleDateFormat("MMM dd")
+                                        .format(new java.util.Date (time));
+
+                            } catch (NullPointerException e){
+                                date = "Never";
+                            }
+
+                            mLastActive.setText(date);
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        final TextView mRuns = headerView.findViewById(R.id.nav_header_total_runs);
+        ref.child("users").child(uid).child("device").child("past").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String runCount = dataSnapshot.getChildrenCount() + "";
+                mRuns.setText(runCount);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        final TextView mFriends = headerView.findViewById(R.id.nav_header_friends);
+        ref.child("friend_data").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String friendCount = dataSnapshot.getChildrenCount() + "";
+                mFriends.setText(friendCount);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        TextView mDistance = headerView.findViewById(R.id.nav_header_total_distance);
 
 
         // Ideally we would want this to be the location one is at when they start the app
@@ -196,7 +273,6 @@ public class MainActivity extends AppCompatActivity implements
 
         }
         else if (id == R.id.nav_settings) {
-
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new SettingsFragment())
@@ -236,5 +312,14 @@ public class MainActivity extends AppCompatActivity implements
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.image_toolbar, menu);
         return true;
+    }
+
+    private void disableNavigationViewScrollbars(NavigationView navigationView) {
+        if (navigationView != null) {
+            NavigationMenuView navigationMenuView = (NavigationMenuView) navigationView.getChildAt(0);
+            if (navigationMenuView != null) {
+                navigationMenuView.setVerticalScrollBarEnabled(false);
+            }
+        }
     }
 }

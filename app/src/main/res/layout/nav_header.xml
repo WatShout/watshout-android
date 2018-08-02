@@ -1,24 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout2"
     android:layout_width="match_parent"
-    android:layout_height="110dp"
+    android:layout_height="250sp"
     android:background="#ffd529"
-    android:gravity="bottom"
-    android:orientation="vertical"
-    android:padding="16dp"
+    android:paddingTop="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
-        android:id="@+id/profilePic"
-        android:layout_width="60dp"
-        android:layout_height="60dp"/>
+    <TextView
+        android:id="@+id/textView22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="15dp"
+        android:text="Last active on"
+        android:textColor="#000" />
 
     <TextView
-        android:id="@+id/nav_head_email"
-        android:layout_width="match_parent"
+        android:id="@+id/textView23"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="#262523" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/textView22"
+        android:layout_marginBottom="55dp"
+        android:text="Total runs"
+        android:textColor="#000" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/textView24"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView25"
+        android:layout_centerVertical="true"
+        android:text="Friends"
+        android:textColor="#000" />
+
+    <TextView
+        android:id="@+id/textView25"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/nav_header_friends"
+        android:layout_alignTop="@+id/textView23"
+        android:text="Total distance"
+        android:textColor="#000" />
+
+    <TextView
+        android:id="@+id/nav_header_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageView2"
+        android:layout_toEndOf="@+id/textView23"
+        android:text="Elizabeth Bailey"
+        android:textColor="#000"
+        android:textSize="22dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/nav_header_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignBottom="@+id/imageView2"
+        android:layout_toEndOf="@+id/textView23"
+        android:text="elizabeth.bailey@watshout.com"
+        android:textColor="#000"
+        android:textSize="12dp" />
+
+
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/imageView2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/textView22"
+        android:layout_marginTop="26dp"
+        app:cardBackgroundColor="@color/defaultColor"
+        android:shape="ring"
+        app:cardCornerRadius="24dp">
+
+
+        <TextView
+            android:id="@+id/nav_header_initials"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="EB"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp" />
+    </android.support.v7.widget.CardView>
+
+    <TextView
+        android:id="@+id/nav_header_last_active"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView22"
+        android:layout_below="@+id/textView22"
+        android:text="Jun 03"
+        android:textColor="#000"
+        android:textSize="22dp" />
+
+    <TextView
+        android:id="@+id/nav_header_total_runs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView22"
+        android:layout_below="@+id/textView23"
+        android:layout_marginTop="-55dp"
+        android:text="26"
+        android:textColor="#000"
+        android:textSize="22dp" />
+
+    <TextView
+        android:id="@+id/nav_header_friends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView22"
+        android:layout_centerHorizontal="true"
+        android:text="14"
+        android:textColor="#000"
+        android:textSize="22dp" />
+
+    <TextView
+        android:id="@+id/nav_header_total_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView24"
+        android:layout_below="@+id/textView23"
+        android:layout_marginTop="-55dp"
+        android:text="156.9 mi"
+        android:textColor="#000"
+        android:textSize="22dp" />
+</RelativeLayout>

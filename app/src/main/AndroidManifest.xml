@@ -46,26 +46,20 @@
             android:name=".MainActivity"
             android:noHistory="true"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"/>
-
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SignInActivity"
-            android:screenOrientation="portrait">
-
-
-
-        </activity>
-
-        <activity android:name=".InitializeNewAccountActivity"></activity>
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".InitializeNewAccountActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -77,9 +71,10 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
-        <activity android:name=".CameraActivity"></activity>
-        <activity android:name=".FinishedActivity"
-            android:screenOrientation="portrait"></activity>
+        <activity android:name=".CameraActivity" />
+        <activity
+            android:name=".FinishedActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
