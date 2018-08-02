@@ -1,36 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <group android:checkableBehavior="single">
+<!--
+        <item
+            android:id="@+id/nav_home"
+            android:checked="true"
+            android:icon="@drawable/location"
+            android:title="Map" /> -->
 
         <item
             android:id="@+id/nav_news_feed"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/home"
             android:title="News Feed" />
 
-        <item
-            android:id="@+id/nav_calendar"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Calendar" />
 
         <item
             android:id="@+id/nav_home"
             android:checked="true"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Home" />
+            android:icon="@drawable/location"
+            android:title="Map" />
+
+        <item
+            android:id="@+id/nav_calendar"
+            android:icon="@drawable/history"
+            android:title="History" />
 
         <item
             android:id="@+id/nav_friends"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/friends"
             android:title="Friends" />
 
         <item
             android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/settings"
             android:title="Settings" />
 
         <item
             android:id="@+id/nav_signout"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/logout"
             android:title="Sign out" />
 
 

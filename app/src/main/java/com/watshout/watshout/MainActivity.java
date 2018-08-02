@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setBackgroundColor(0xFF262523);
+        //navigationView.setItemIconTintList(null);
 
         final View navView = navigationView.inflateHeaderView(R.layout.nav_header);
         TextView mEmail = navView.findViewById(R.id.nav_head_email);

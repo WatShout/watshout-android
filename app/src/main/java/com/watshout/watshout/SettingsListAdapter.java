@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.HashMap;
@@ -100,9 +101,9 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
 
     static class GroupViewHolder {
         TextView mLabel;
+        TextView mDescription;
+        ImageView mIcon;
     }
-
-
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
@@ -113,8 +114,50 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
 
         viewHolder = new GroupViewHolder();
         viewHolder.mLabel = convertView.findViewById(R.id.setting_group_label);
+        viewHolder.mDescription = convertView.findViewById(R.id.description);
+        viewHolder.mIcon = convertView.findViewById(R.id.settingsIcon);
+
+        switch (groupPosition) {
+
+            case 0:
+                viewHolder.mIcon.setImageResource(R.drawable.running);
+                break;
+            case 1:
+                viewHolder.mIcon.setImageResource(R.drawable.wrench);
+                break;
+            case 2:
+                viewHolder.mIcon.setImageResource(R.drawable.person);
+                break;
+            case 3:
+                viewHolder.mIcon.setImageResource(R.drawable.watch);
+                break;
+            case 4:
+                viewHolder.mIcon.setImageResource(R.drawable.legal);
+                break;
+
+        }
 
         viewHolder.mLabel.setText(settingsGroupNames.get(groupPosition));
+
+        String description = "";
+
+        for (int i = 0; i < settingsLabels[groupPosition].length; i++) {
+
+            if (settingsLabels[groupPosition][i] != null){
+                description += settingsLabels[groupPosition][i] + ", ";
+            }
+
+        }
+
+        // Remove the ", " at the end of the string
+        description = description.toLowerCase();
+        description = description.substring(0, description.length() - 2);
+
+        // Make the first character capital
+        String firstLetter = description.substring(0, 1).toUpperCase();
+        description = firstLetter + description.substring(1);
+
+        viewHolder.mDescription.setText(description);
 
         Log.d("POSITION", groupPosition + "");
 

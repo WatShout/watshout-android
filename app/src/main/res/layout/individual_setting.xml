@@ -30,17 +30,23 @@
                 android:layout_gravity="right"
                 android:layout_marginStart="89dp"
                 android:layout_marginTop="19dp"
+                android:fontFamily="sans-serif-light"
                 android:text="Placeholder"
-                android:textColor="#ffd529" />
+                android:textColor="#ffffff"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="89dp" />
 
             <TextView
                 android:id="@+id/settingValue"
+                android:fontFamily="sans-serif-light"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="48dp"
-                android:textColor="#ffd529" />
+                android:textColor="#ffffff"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="48dp" />
 
 
         </RelativeLayout>
