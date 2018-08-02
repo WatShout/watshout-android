@@ -10,6 +10,12 @@
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:divider="@drawable/list_divider"
+        android:dividerHeight="1dp"
+        android:footerDividersEnabled="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:groupIndicator="@drawable/group_indicator"
         android:background="@color/colorPrimaryDark">
 
 

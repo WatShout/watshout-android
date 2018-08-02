@@ -1,14 +1,20 @@
 package com.watshout.watshout;
 
 
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +39,8 @@ public class SettingsFragment extends android.app.Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        final View newView = view;
 
         getActivity().setTitle("settings");
 
@@ -74,20 +82,21 @@ public class SettingsFragment extends android.app.Fragment {
         expandableListView.setIndicatorBounds(width - 200, width);
 
         expandableListView.setAdapter(adapter);
+        expandableListView.setOverscrollFooter(new ColorDrawable(Color.TRANSPARENT));
+        expandableListView.setGroupIndicator(null);
 
         expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
 
             @Override
             public void onGroupExpand(int groupPosition) {
+
                 if (lastPosition != -1 && groupPosition != lastPosition) {
                     expandableListView.collapseGroup(lastPosition);
                 }
                 lastPosition = groupPosition;
-
-
-
             }
         });
+
 
     }
 

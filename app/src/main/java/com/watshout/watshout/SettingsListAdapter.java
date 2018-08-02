@@ -9,7 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.HashMap;
@@ -103,6 +105,8 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
         TextView mLabel;
         TextView mDescription;
         ImageView mIcon;
+        ImageView mArrow;
+        LinearLayout mLinearLayout;
     }
 
     @Override
@@ -116,6 +120,14 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
         viewHolder.mLabel = convertView.findViewById(R.id.setting_group_label);
         viewHolder.mDescription = convertView.findViewById(R.id.description);
         viewHolder.mIcon = convertView.findViewById(R.id.settingsIcon);
+        viewHolder.mLinearLayout = convertView.findViewById(R.id.settingGroup);
+        viewHolder.mArrow = convertView.findViewById(R.id.help_group_indicator);
+
+        if (isExpanded){
+            viewHolder.mArrow.setImageResource(R.drawable.arrow_down);
+        } else {
+            viewHolder.mArrow.setImageResource(R.drawable.arrow_left);
+        }
 
         switch (groupPosition) {
 
