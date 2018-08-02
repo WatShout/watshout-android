@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements
 
         View headerView = navigationView.getHeaderView(0);
 
+        navigationView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
         TextView mInitials = headerView.findViewById(R.id.nav_header_initials);
         String initials = "";
         for (String s : name.split(" ")) {
