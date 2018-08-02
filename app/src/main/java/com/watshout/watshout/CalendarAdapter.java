@@ -35,7 +35,7 @@ public class CalendarAdapter  extends RecyclerView.Adapter<CalendarAdapter.ViewH
     public CalendarAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.news_feed_card, parent, false);
+                .inflate(R.layout.news_feed_card_copy, parent, false);
 
         return new CalendarAdapter.ViewHolder(view);
 
@@ -71,9 +71,9 @@ public class CalendarAdapter  extends RecyclerView.Adapter<CalendarAdapter.ViewH
         ViewHolder(View itemView) {
             super(itemView);
 
-            mName = itemView.findViewById(R.id.name);
-            mTime = itemView.findViewById(R.id.time);
-            mMap = itemView.findViewById(R.id.map);
+            mName = itemView.findViewById(R.id.news_feed_name);
+            mTime = itemView.findViewById(R.id.news_feed_time);
+            mMap = itemView.findViewById(R.id.news_feed_map);
             mLinearLayout = itemView.findViewById(R.id.card_linear_layout);
 
         }

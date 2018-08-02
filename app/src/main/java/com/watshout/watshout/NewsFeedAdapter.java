@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -39,7 +41,7 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.news_feed_card, parent, false);
+                .inflate(R.layout.news_feed_card_copy, parent, false);
 
         return new ViewHolder(view);
 
@@ -57,6 +59,12 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
 
         holder.mTime.setText(formattedTime);
 
+        String initials = "";
+        for (String s : newsFeedItem.getName().split(" ")) {
+            initials += s.charAt(0);
+        }
+        holder.mInitials.setText(initials);
+
         loadMapImage(newsFeedItem.getImageURL(), holder.mMap);
 
     }
@@ -70,15 +78,25 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
 
         TextView mName;
         TextView mTime;
+        TextView mActivityName;
+        TextView mActivityDistance;
+        TextView mActivityTime;
+        TextView mActivityPace;
+        TextView mInitials;
         ImageView mMap;
         LinearLayout mLinearLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
 
-            mName = itemView.findViewById(R.id.name);
-            mTime = itemView.findViewById(R.id.time);
-            mMap = itemView.findViewById(R.id.map);
+            mName = itemView.findViewById(R.id.news_feed_name);
+            mTime = itemView.findViewById(R.id.news_feed_time);
+            mMap = itemView.findViewById(R.id.news_feed_map);
+            mActivityName = itemView.findViewById(R.id.news_feed_activity_name);
+            mActivityDistance = itemView.findViewById(R.id.news_feed_activity_distance);
+            mActivityTime = itemView.findViewById(R.id.news_feed_activity_time);
+            mActivityPace = itemView.findViewById(R.id.news_feed_activity_pace);
+            mInitials = itemView.findViewById(R.id.news_feed_initials);
             mLinearLayout = itemView.findViewById(R.id.card_linear_layout);
 
         }
@@ -86,7 +104,7 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
 
     private String epochToIso8601(long time) {
         Date date = new Date(time);
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        DateFormat format = new SimpleDateFormat("MMM dd HH:mm");
         format.setTimeZone(TimeZone.getDefault());
         String formatted = format.format(date);
 

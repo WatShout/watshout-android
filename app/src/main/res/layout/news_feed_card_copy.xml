@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="300dp">
+    android:layout_height="350dp">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
@@ -16,13 +16,13 @@
             android:id="@+id/card_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#262523"
+            android:background="#494949"
             android:orientation="vertical">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#262523">
+                android:background="#494949">
 
                 <android.support.v7.widget.CardView
                     android:id="@+id/imageView2"
@@ -31,14 +31,14 @@
                     android:layout_alignParentTop="true"
                     android:layout_marginEnd="-75dp"
                     android:layout_marginTop="22dp"
-                    android:layout_toStartOf="@+id/textView"
+                    android:layout_toStartOf="@+id/news_feed_name"
                     android:shape="ring"
                     app:cardBackgroundColor="@color/defaultColor"
                     app:cardCornerRadius="24dp">
 
 
                     <TextView
-                        android:id="@+id/nav_header_initials"
+                        android:id="@+id/news_feed_initials"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
@@ -48,34 +48,41 @@
                 </android.support.v7.widget.CardView>
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/news_feed_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginStart="94dp"
                     android:layout_marginTop="13dp"
+                    android:fontFamily="sans-serif"
                     android:text="Elizabeth Bailey"
-                    android:textColor="#fff" />
+                    android:textColor="#fff"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/textView5"
+                    android:id="@+id/news_feed_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignStart="@+id/textView"
-                    android:layout_below="@+id/textView"
+                    android:layout_alignStart="@+id/news_feed_name"
+                    android:layout_below="@+id/news_feed_name"
+                    android:fontFamily="sans-serif"
                     android:text="JUN 03 at 8:31 AM"
                     android:textColor="#fff" />
 
                 <TextView
-                    android:id="@+id/textView8"
+                    android:id="@+id/news_feed_activity_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_alignStart="@+id/textView"
+                    android:layout_alignStart="@+id/news_feed_name"
                     android:layout_marginTop="64dp"
+                    android:fontFamily="sans-serif"
                     android:text="Golden gate park"
-                    android:textColor="#fff" />
+                    android:textColor="#fff"
+                    android:textSize="22dp"
+                    android:textStyle="bold" />
 
                 <ImageView
                     android:id="@+id/imageView3"
@@ -84,8 +91,85 @@
                     android:layout_alignParentTop="true"
                     android:layout_marginEnd="-75dp"
                     android:layout_marginTop="92dp"
-                    android:layout_toStartOf="@+id/textView"
+                    android:layout_toStartOf="@+id/news_feed_name"
                     app:srcCompat="@drawable/running" />
+
+                <ImageView
+                    android:id="@+id/news_feed_map"
+                    android:layout_width="match_parent"
+                    android:layout_height="202dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentStart="true"
+                    android:scaleType="fitXY"
+                    android:adjustViewBounds="true"
+                    app:srcCompat="@color/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/news_feed_name"
+                    android:layout_below="@+id/news_feed_activity_name"
+                    android:fontFamily="sans-serif"
+                    android:text="Distance"
+                    android:textColor="#fff"
+                    android:textSize="10dp" />
+
+                <TextView
+                    android:id="@+id/textView10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/news_feed_activity_name"
+                    android:layout_centerHorizontal="true"
+                    android:fontFamily="sans-serif"
+                    android:text="Time"
+                    android:textColor="#fff"
+                    android:textSize="10dp" />
+
+                <TextView
+                    android:id="@+id/textView11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/news_feed_activity_name"
+                    android:layout_marginEnd="110dp"
+                    android:fontFamily="sans-serif"
+                    android:text="Pace"
+                    android:textColor="#fff"
+                    android:textSize="10dp" />
+
+                <TextView
+                    android:id="@+id/news_feed_activity_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/news_feed_name"
+                    android:layout_below="@+id/textView9"
+                    android:fontFamily="sans-serif"
+                    android:text="4.6 mi"
+                    android:textColor="#fff"
+                    android:textSize="18dp" />
+
+                <TextView
+                    android:id="@+id/news_feed_activity_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/textView10"
+                    android:layout_below="@+id/textView9"
+                    android:fontFamily="sans-serif"
+                    android:text="34:24"
+                    android:textColor="#fff"
+                    android:textSize="18dp" />
+
+                <TextView
+                    android:id="@+id/news_feed_activity_pace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/textView11"
+                    android:layout_below="@+id/textView9"
+                    android:fontFamily="sans-serif"
+                    android:text="7:25 /mi"
+                    android:textColor="#fff"
+                    android:textSize="18dp" />
             </RelativeLayout>
 
 

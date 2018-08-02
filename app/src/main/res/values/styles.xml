@@ -35,6 +35,15 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="dividerBase">
+        <item name="android:background">#ffffff</item> //you can give your color here. that will change all divider color in your app.
+    </style>
+
+    <style name="dividerVertical" parent="dividerBase">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
     <style name="LoginTheme" parent="FirebaseUI">
         <item name="android:background">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>
