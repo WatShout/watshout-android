@@ -126,8 +126,10 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
 
         if (isExpanded){
             viewHolder.mArrow.setImageResource(R.drawable.arrow_down);
+            viewHolder.mLabel.setTextColor(Color.parseColor("#ffd529"));
         } else {
             viewHolder.mArrow.setImageResource(R.drawable.arrow_left);
+            viewHolder.mLabel.setTextColor(Color.parseColor("#ffffff"));
         }
 
         switch (groupPosition) {
