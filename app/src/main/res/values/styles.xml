@@ -36,6 +36,7 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="LoginTheme" parent="FirebaseUI">
+        <item name="android:background">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -64,5 +65,6 @@
 
     <color name="colorPrimaryLight">#EDE7F6</color>
     <color name="colorSecondary">#FFC107</color>
+
 
 </resources>
