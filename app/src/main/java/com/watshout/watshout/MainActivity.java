@@ -3,6 +3,7 @@ package com.watshout.watshout;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.internal.NavigationMenuView;
@@ -12,6 +13,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -105,6 +108,13 @@ public class MainActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
         //navigationView.setItemIconTintList(null);
         disableNavigationViewScrollbars(navigationView);
+
+        Menu m = navigationView.getMenu();
+        MenuItem menuItem = m.findItem(R.id.nav_activity);
+        SpannableString spannableString = new SpannableString(menuItem.getTitle());
+        spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#ffd529")),
+                0, spannableString.length(), 0);
+        menuItem.setTitle(spannableString);
 
         View headerView = navigationView.getHeaderView(0);
 
