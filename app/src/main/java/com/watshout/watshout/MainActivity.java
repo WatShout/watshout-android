@@ -106,6 +106,13 @@ public class MainActivity extends AppCompatActivity implements
 
         View headerView = navigationView.getHeaderView(0);
 
+        TextView mInitials = headerView.findViewById(R.id.nav_header_initials);
+        String initials = "";
+        for (String s : name.split(" ")) {
+            initials += s.charAt(0);
+        }
+        mInitials.setText(initials);
+
         TextView mName = headerView.findViewById(R.id.nav_header_name);
         mName.setText(name);
 
