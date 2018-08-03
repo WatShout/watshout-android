@@ -65,6 +65,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
         final FriendItem friendItem = listItems.get(position);
 
+        Log.d("FRIEND", "Bind view holder");
+
         holder.mName.setText(friendItem.getName());
         loadProfilePic(friendItem.getProfilePic(), holder.mProfilePic);
 
