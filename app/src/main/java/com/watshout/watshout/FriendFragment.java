@@ -6,12 +6,15 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +23,9 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.android.volley.Cache;
@@ -48,19 +54,26 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
+import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class FriendFragment extends android.app.Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
     RecyclerView mFriendRecyclerView;
-    RecyclerView mRequestRecyclerView;
+    //RecyclerView mRequestRecyclerView;
     RecyclerView.Adapter friendAdapter;
-    RecyclerView.Adapter requestAdapter;
+    //RecyclerView.Adapter requestAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
-    Button mSendRequest;
-    EditText mEmail;
+    //Button mSendRequest;
+    //EditText mEmail;
+    RelativeLayout mFriendRequestLayout;
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
     String email = thisUser.getEmail();
@@ -84,21 +97,29 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         getActivity().setTitle("friends");
 
+        //mFriendRequestLayout = view.findViewById(R.id.friend_request_layout);
+
         mFriendRecyclerView = view.findViewById(R.id.friendRecyclerView);
         mFriendRecyclerView.setHasFixedSize(true);
         mFriendRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        ArrayList<String> tempList = new ArrayList<>();
-        //tempList.add("one");
-        //tempList.add("two");
-        //tempList.add("three");
+        DividerItemDecoration itemDecorator = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL);
+        itemDecorator.setDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.friend_divider));
+
+        mFriendRecyclerView.addItemDecoration(itemDecorator);
+
+        //VerticalRecyclerViewFastScroller fastScroller = view.findViewById(R.id.fast_scroller);
+        //fastScroller.setRecyclerView(mFriendRecyclerView);
+        //mFriendRecyclerView.setOnScrollListener(fastScroller.getOnScrollListener());
+
 
         friendAdapter = new FriendLoadingAdapter(0);
         mFriendRecyclerView.setAdapter(friendAdapter);
 
-        mRequestRecyclerView = view.findViewById(R.id.friendRequestView);
-        mRequestRecyclerView.setHasFixedSize(true);
-        mRequestRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        //mRequestRecyclerView = view.findViewById(R.id.friendRequestView);
+        //mRequestRecyclerView.setHasFixedSize(true);
+        //mRequestRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         // SwipeRefreshLayout
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.friendSwipeLayout);
@@ -110,8 +131,25 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         mSwipeRefreshLayout.setEnabled(false);
 
-        mSendRequest = view.findViewById(R.id.sendRequest);
-        mEmail = view.findViewById(R.id.emailInput);
+        /*
+        mFriendRequestLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = inflater.inflate(R.layout.popup_friend_request, null);
+                // create the popup window
+                int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                int height = LinearLayout.LayoutParams.MATCH_PARENT;
+                boolean focusable = true; // lets taps outside the popup also dismiss it
+
+                PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+            }
+        }); */
+
+        //mSendRequest = view.findViewById(R.id.sendRequest);
+        //mEmail = view.findViewById(R.id.emailInput);
+        /*
 
         mSendRequest.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,6 +228,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
             }
         });
+
+        */
 
         mSwipeRefreshLayout.post(new Runnable() {
 
@@ -285,8 +325,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                             //params.height=50;
                             //mRequestRecyclerView.setLayoutParams(params);
 
-                            requestAdapter = new FriendRequestAdapter(friendRequests, getActivity());
-                            mRequestRecyclerView.setAdapter(requestAdapter);
+                            //requestAdapter = new FriendRequestAdapter(friendRequests, getActivity());
+                            //mRequestRecyclerView.setAdapter(requestAdapter);
 
                             mSwipeRefreshLayout.setRefreshing(false);
 
@@ -356,7 +396,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
                             }
 
-                            Log.d("FRIEND_DATA", listItems.toString());
+                            // Sort friends list in alphabetical order
+                            Collections.sort(listItems);
 
                             friendAdapter = new FriendAdapter(listItems, getActivity());
 
@@ -389,13 +430,13 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
     public void refreshData() {
         getFriendsList();
-        getFriendRequests();
+        //getFriendRequests();
     }
 
     @Override
     public void onRefresh() {
         getFriendsList();
-        getFriendRequests();
+        //getFriendRequests();
     }
 
     @Override
@@ -403,4 +444,5 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
         // Inflate the menu items for use in the action bar
         super.onCreateOptionsMenu(menu, inflater);
     }
+
 }

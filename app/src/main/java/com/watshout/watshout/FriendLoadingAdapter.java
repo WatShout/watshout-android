@@ -26,6 +26,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -59,6 +60,7 @@ public class FriendLoadingAdapter extends RecyclerView.Adapter<FriendLoadingAdap
     public int getItemCount() {
         return howMany;
     }
+
 
     class ViewHolder extends RecyclerView.ViewHolder {
 

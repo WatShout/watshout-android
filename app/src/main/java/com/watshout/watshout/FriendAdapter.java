@@ -26,6 +26,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -74,6 +75,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
         return listItems.size();
     }
 
+
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView mName;
@@ -94,9 +96,9 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
 
         Picasso.get()
                 .load(url)
-                .placeholder(R.drawable.loading)
                 .resize(256, 256)
-                .centerCrop()
+                .transform(new CircleTransform())
+                .placeholder(R.drawable.loading)
                 .into(mImageView);
 
     }
