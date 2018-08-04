@@ -1,9 +1,5 @@
 <resources>
 
-    <style name="popup_window_animation_phone">
-        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-    </style>
-
     <style name="ThemeOverlay.AppCompat.navTheme">
 
         <!-- Color of text and icon when SELECTED -->
@@ -15,33 +11,9 @@
     </style>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-    </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@drawable/background_splash</item>
-    </style>
-
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="dividerBase">
-        <item name="android:background">#ffffff</item> //you can give your color here. that will change all divider color in your app.
-    </style>
-
-    <style name="dividerVertical" parent="dividerBase">
-        <item name="android:layout_width">1dp</item>
-        <item name="android:layout_height">match_parent</item>
     </style>
 
     <style name="LoginTheme" parent="FirebaseUI">
@@ -69,11 +41,15 @@
     </style>
 
     <style name="FirebaseUI.Text.Link">
-        <item name="android:textColor">@color/colorSecondary</item>
+        <item name="android:textColor">@color/defaultColor</item>
     </style>
 
-    <color name="colorPrimaryLight">#EDE7F6</color>
-    <color name="colorSecondary">#FFC107</color>
+    <style name="ModifiedAppCompatLight" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorBackground">@android:color/background_light</item>
+    </style>
 
 
 </resources>

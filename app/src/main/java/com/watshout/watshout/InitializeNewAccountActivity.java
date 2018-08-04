@@ -65,7 +65,6 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
     public static final String TAG = "PfpRetrieval";
     public final Context context = this;
     ImageView mProfile;
-    EditText mAge;
 
     Button mBirthday;
     boolean uploadedOwnPicture;
@@ -90,7 +89,6 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
         uploadedOwnPicture = Carrier.getUploadedOwnProfilePicture();
 
         mProfile = findViewById(R.id.profilePictureDisplay);
-        mAge = findViewById(R.id.age);
         mBirthday = findViewById(R.id.birthdayButton);
 
         Calendar cal = Calendar.getInstance();

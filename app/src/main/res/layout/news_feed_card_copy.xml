@@ -85,7 +85,6 @@
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:id="@+id/imageView3"
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:layout_alignParentTop="true"
