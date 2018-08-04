@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -333,5 +334,16 @@ public class MainActivity extends AppCompatActivity implements
                 navigationMenuView.setVerticalScrollBarEnabled(false);
             }
         }
+    }
+
+    @Override
+    public void onBackPressed(){
+        Toast.makeText(this,"Returned to map.",Toast.LENGTH_LONG).show();
+
+        // set to MapFragment
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.screen_area, new MapFragment())
+                .commit();
     }
 }
