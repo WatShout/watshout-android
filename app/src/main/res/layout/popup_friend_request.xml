@@ -1,57 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/request_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark">
 
         <!-- TODO: Update blank fragment layout -->
 
-        <TextView
-            android:id="@+id/textView7"
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:text="Add Friend"
-            android:textColor="@color/colorPrimary" />
-
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="91dp"
-            android:text="Friend Requests"
-            android:textColor="@color/colorPrimary" />
-
-        <EditText
-            android:id="@+id/emailInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/textView7"
-            android:ems="10"
-            android:inputType="textEmailAddress"
-            android:textColor="@color/colorPrimary" />
-
-        <Button
-            android:id="@+id/sendRequest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/emailInput"
-            android:layout_toEndOf="@+id/emailInput"
-            android:text="SEND" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/friendRequestView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/textView4"
-            android:layout_marginTop="18dp"
+            android:layout_alignParentTop="true"
             android:background="@color/colorPrimaryDark"></android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

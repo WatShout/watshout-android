@@ -1,8 +1,9 @@
 package com.watshout.watshout;
 
 
-import android.app.ActionBar;
-import android.content.res.Resources;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,31 +13,25 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.InputType;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.volley.Cache;
-import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,25 +50,14 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
-import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
-
-import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class FriendFragment extends android.app.Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
     RecyclerView mFriendRecyclerView;
-    //RecyclerView mRequestRecyclerView;
     RecyclerView.Adapter friendAdapter;
-    //RecyclerView.Adapter requestAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
-    //Button mSendRequest;
-    //EditText mEmail;
-    RelativeLayout mFriendRequestLayout;
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
     String email = thisUser.getEmail();
@@ -97,8 +81,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         getActivity().setTitle("friends");
 
-        //mFriendRequestLayout = view.findViewById(R.id.friend_request_layout);
-
         mFriendRecyclerView = view.findViewById(R.id.friendRecyclerView);
         mFriendRecyclerView.setHasFixedSize(true);
         mFriendRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -108,18 +90,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         mFriendRecyclerView.addItemDecoration(itemDecorator);
 
-        //VerticalRecyclerViewFastScroller fastScroller = view.findViewById(R.id.fast_scroller);
-        //fastScroller.setRecyclerView(mFriendRecyclerView);
-        //mFriendRecyclerView.setOnScrollListener(fastScroller.getOnScrollListener());
-
-
         friendAdapter = new FriendLoadingAdapter(0);
         mFriendRecyclerView.setAdapter(friendAdapter);
-
-
-        //mRequestRecyclerView = view.findViewById(R.id.friendRequestView);
-        //mRequestRecyclerView.setHasFixedSize(true);
-        //mRequestRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         // SwipeRefreshLayout
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.friendSwipeLayout);
@@ -130,107 +102,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                 android.R.color.holo_blue_dark);
 
         mSwipeRefreshLayout.setEnabled(false);
-
-        /*
-        mFriendRequestLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popupView = inflater.inflate(R.layout.popup_friend_request, null);
-                // create the popup window
-                int width = LinearLayout.LayoutParams.MATCH_PARENT;
-                int height = LinearLayout.LayoutParams.MATCH_PARENT;
-                boolean focusable = true; // lets taps outside the popup also dismiss it
-
-                PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-            }
-        }); */
-
-        //mSendRequest = view.findViewById(R.id.sendRequest);
-        //mEmail = view.findViewById(R.id.emailInput);
-        /*
-
-        mSendRequest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
-
-                final String theirEmail = mEmail.getText().toString();
-                mEmail.setText("");
-
-                ref.child("users").orderByChild("email").equalTo(theirEmail)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                if (dataSnapshot.getValue() != null){
-
-                                    for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
-
-                                        final String theirUID = childSnapshot.getKey();
-
-                                        ref.child("friend_data").child(uid).child(theirUID)
-                                                .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                                        if (dataSnapshot.getValue() != null){
-
-                                                            Toast.makeText(getActivity(),
-                                                                    "You are already friends with this user",
-                                                                    Toast.LENGTH_SHORT).show();
-
-                                                        } else {
-
-                                                            Log.d("EMAIL", uid + ", " + theirUID);
-
-                                                            ref.child("friend_requests").child(uid).child(theirUID)
-                                                                    .child("request_type").setValue("sent");
-
-                                                            ref.child("friend_requests").child(theirUID).child(uid)
-                                                                    .child("request_type").setValue("received");
-
-                                                            Toast.makeText(getActivity(), "Request sent!", Toast.LENGTH_SHORT).show();
-
-                                                        }
-
-
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                    }
-                                                });
-
-                                    }
-
-
-
-                                } else {
-
-                                    Toast.makeText(getActivity(), "User not found",
-                                            Toast.LENGTH_SHORT).show();
-
-                                }
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                Log.d("EMAIL", databaseError.toString());
-                            }
-                        });
-
-
-            }
-        });
-
-        */
-
         mSwipeRefreshLayout.post(new Runnable() {
 
             @Override
@@ -285,7 +156,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
     }
 
-    public void getFriendRequests() {
+    public void getFriendRequests(final RecyclerView recyclerView) {
 
         mSwipeRefreshLayout.setRefreshing(true);
 
@@ -319,14 +190,9 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
                             }
 
-                            Log.d("REQUEST_DATA", friendRequests.toString());
-
-                            //ViewGroup.LayoutParams params= mRequestRecyclerView.getLayoutParams();
-                            //params.height=50;
-                            //mRequestRecyclerView.setLayoutParams(params);
-
-                            //requestAdapter = new FriendRequestAdapter(friendRequests, getActivity());
-                            //mRequestRecyclerView.setAdapter(requestAdapter);
+                            RecyclerView.Adapter adapter =
+                                    new FriendRequestAdapter(friendRequests, getActivity());
+                            recyclerView.setAdapter(adapter);
 
                             mSwipeRefreshLayout.setRefreshing(false);
 
@@ -353,20 +219,9 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         mSwipeRefreshLayout.setRefreshing(true);
 
-        try {
-            File cache = getActivity().getCacheDir();
-        } catch (NullPointerException e){
-            e.printStackTrace();
-        }
-
-
         // Instantiate the RequestQueue.
         RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
-        //RequestQueue requestQueue;
-        //Cache cache = new DiskBasedCache(getActivity().getCacheDir(), 10 * 1024 * 1024); // 10MB cap
-        //Network network = new BasicNetwork(new HurlStack());
-        //requestQueue = new RequestQueue(cache, network);
 
         String url ="https://watshout.herokuapp.com/friends/" + uid + "/";
 
@@ -441,8 +296,147 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu items for use in the action bar
-        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.friend_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+
+            case R.id.open_requests:
+
+                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = inflater.inflate(R.layout.popup_friend_request, null);
+                // create the popup window
+                int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                int height = LinearLayout.LayoutParams.MATCH_PARENT;
+                boolean focusable = true; // lets taps outside the popup also dismiss it
+
+                PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+
+                RelativeLayout relativeLayout = popupView.findViewById(R.id.request_relative_layout);
+
+                relativeLayout.setAlpha(0.8F);
+
+                RecyclerView mRequestRecyclerView = popupView.findViewById(R.id.friendRequestView);
+
+                getFriendRequests(mRequestRecyclerView);
+
+                break;
+
+            case R.id.send_request:
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Enter Friend Email");
+
+                // Set up the input
+                final EditText input = new EditText(getActivity());
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        // Spinning dialog when adding friend
+                        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+                        progressDialog.setMessage("Adding friend...");
+
+                        sendRequest(input.getText().toString(), progressDialog);
+
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void sendRequest(String theirEmail, final ProgressDialog progressDialog) {
+
+        progressDialog.show();
+
+        ref.child("users").orderByChild("email").equalTo(theirEmail)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if (dataSnapshot.getValue() != null){
+
+                            for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+
+                                final String theirUID = childSnapshot.getKey();
+
+                                ref.child("friend_data").child(uid).child(theirUID)
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                                if (dataSnapshot.getValue() != null){
+
+                                                    Toast.makeText(getActivity(),
+                                                            "You are already friends with this user",
+                                                            Toast.LENGTH_SHORT).show();
+
+                                                } else {
+
+                                                    Log.d("EMAIL", uid + ", " + theirUID);
+
+                                                    ref.child("friend_requests").child(uid).child(theirUID)
+                                                            .child("request_type").setValue("sent");
+
+                                                    ref.child("friend_requests").child(theirUID).child(uid)
+                                                            .child("request_type").setValue("received");
+
+                                                    Toast.makeText(getActivity(), "Request sent!", Toast.LENGTH_SHORT).show();
+
+                                                }
+                                                progressDialog.dismiss();
+
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                            }
+
+
+
+                        } else {
+
+                            Toast.makeText(getActivity(), "User not found",
+                                    Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d("EMAIL", databaseError.toString());
+                        progressDialog.dismiss();
+                    }
+                });
+
+
     }
 
 }

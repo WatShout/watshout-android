@@ -10,6 +10,8 @@
     android:background="@color/colorPrimaryDark"
     tools:context=".FriendFragment">
 
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/friendRecyclerView"
         android:layout_width="match_parent"
