@@ -5,5 +5,20 @@
     <color name="colorAccent">#ff0057</color>
     <color name="lightGrey">#494949</color>
     <color name="white">#ffffff</color>
-    <color name="colorBackground">#ffffff</color>
+
+    <color name="primaryColor">#ffd529</color>
+
+    <color name="primaryLightColor">#ffff63</color>
+
+    <color name="primaryDarkColor">#c8a400</color>
+
+    <color name="secondaryColor">#262523</color>
+
+    <color name="secondaryLightColor">#4e4d4b</color>
+
+    <color name="secondaryDarkColor">#000000</color>
+
+    <color name="primaryTextColor">#000000</color>
+
+    <color name="secondaryTextColor">#ffffff</color>
 </resources>
