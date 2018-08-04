@@ -1,20 +1,15 @@
 package com.watshout.watshout;
 
-
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +31,10 @@ public class SettingsFragment extends android.app.Fragment {
         return view;
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        final View newView = view;
 
         getActivity().setTitle("settings");
 
@@ -96,8 +90,22 @@ public class SettingsFragment extends android.app.Fragment {
                 lastPosition = groupPosition;
             }
         });
+    }
+}
 
+// Skeleton classes just used to populate the settings list
+class ChildItem {}
 
+class ParentItem {
+
+    private List<ChildItem> childItemList;
+
+    ParentItem() {
+        childItemList = new ArrayList<ChildItem>();
+    }
+
+    public List<ChildItem> getChildItemList() {
+        return childItemList;
     }
 
 }

@@ -60,7 +60,7 @@ public class CalendarFragment extends android.app.Fragment {
 
     private com.applandeo.materialcalendarview.CalendarView mCalendarView;
 
-    private ArrayList<CalendarItem> listItems;
+    private ArrayList<NewsFeedItem> listItems;
 
     private ArrayList<String> roundedDates;
     private HashMap<String, ArrayList> allEventInfo;
@@ -107,14 +107,14 @@ public class CalendarFragment extends android.app.Fragment {
 
                 ArrayList<HashMap> currentlySelected = allEventInfo.get(selectedDate);
 
-                ArrayList<CalendarItem> listItems = new ArrayList<>();
+                ArrayList<NewsFeedItem> listItems = new ArrayList<>();
 
                 for (HashMap hashMap : currentlySelected) {
 
                     String key = (String) hashMap.keySet().toArray()[0];
 
                     HashMap<String, String> individual = (HashMap) hashMap.get(key);
-                    CalendarItem current = new CalendarItem(individual.get("link"), individual.get("time"));
+                    NewsFeedItem current = new NewsFeedItem("self", individual.get("link"), individual.get("time"));
                     listItems.add(current);
 
                 }
@@ -130,7 +130,7 @@ public class CalendarFragment extends android.app.Fragment {
                 mRecycleView.setHasFixedSize(true);
                 mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-                adapter = new CalendarAdapter(listItems, getActivity());
+                adapter = new NewsFeedAdapter(listItems, getActivity());
                 mRecycleView.setAdapter(adapter);
 
                 PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
@@ -184,7 +184,8 @@ public class CalendarFragment extends android.app.Fragment {
                                 for (int i = 0; i < array.length(); i++) {
                                     JSONObject o = array.getJSONObject(i);
 
-                                    listItems.add(new CalendarItem(
+                                    listItems.add(new NewsFeedItem(
+                                            "self",
                                             o.getString("image"),
                                             o.getString("time")
                                     ));
@@ -192,7 +193,7 @@ public class CalendarFragment extends android.app.Fragment {
                                 }
                             }
 
-                            for (CalendarItem item : listItems){
+                            for (NewsFeedItem item : listItems){
 
                                 Timestamp t = new Timestamp(Long.valueOf(item.getTime())); // replace with existing timestamp
                                 Date d = new Date(t.getTime());

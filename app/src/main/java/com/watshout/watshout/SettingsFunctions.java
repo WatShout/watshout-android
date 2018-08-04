@@ -174,9 +174,6 @@ public class SettingsFunctions {
 
     public void email() {
 
-        //TODO: Open popup window that asks for new email
-        //thisUser.updateEmail("testtesttest@user.com");
-
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,10 +234,11 @@ public class SettingsFunctions {
     }
 
     private boolean containsGoogleProvider() {
+
         Boolean hasGoogleProvider = false;
 
         for (UserInfo user : FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
-            if (user.getProviderId().equals("google.com")){
+            if (user.getProviderId().equals("google.com")) {
                 hasGoogleProvider = true;
             }
         }
@@ -249,9 +247,6 @@ public class SettingsFunctions {
     }
 
     public void password() {
-
-        //TODO: Open popup asking for password
-        //thisUser.updatePassword();
 
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
             @Override
