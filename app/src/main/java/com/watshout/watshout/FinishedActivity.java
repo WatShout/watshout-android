@@ -1,5 +1,6 @@
 package com.watshout.watshout;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -76,6 +77,11 @@ public class FinishedActivity extends AppCompatActivity{
         uploadGpx.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                final ProgressDialog progressDialog = new ProgressDialog(FinishedActivity.this);
+                progressDialog.setMessage("Uploading run data...");
+                progressDialog.show();
+
                 try {
 
                     UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
@@ -88,6 +94,15 @@ public class FinishedActivity extends AppCompatActivity{
 
 
                 }catch (IOException e){e.printStackTrace();}
+
+                progressDialog.dismiss();
+
+                // Redirect to MapFragment
+                Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
+                openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getApplicationContext().startActivity(openMain);
+                finish();
+
             }
         });
 

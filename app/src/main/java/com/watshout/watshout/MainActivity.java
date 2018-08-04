@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         TextView mDistance = headerView.findViewById(R.id.nav_header_total_distance);
+        mDistance.setText("N/A");
 
 
         // Ideally we would want this to be the location one is at when they start the app

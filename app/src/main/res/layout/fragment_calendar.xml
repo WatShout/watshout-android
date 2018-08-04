@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="100"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorPrimaryDark"
     tools:context=".CalendarFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- TODO: Change background for this -->
 
     <com.applandeo.materialcalendarview.CalendarView
         android:id="@+id/calendarView"
@@ -19,7 +19,7 @@
         app:datePicker="false"
         app:headerColor="#262523"
         app:headerLabelColor="#ffd529"
-        app:todayLabelColor="@color/colorPrimary"
+        app:todayLabelColor="@color/defaultColor"
 
         />
 

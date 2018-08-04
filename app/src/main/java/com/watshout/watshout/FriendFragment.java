@@ -315,6 +315,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                 boolean focusable = true; // lets taps outside the popup also dismiss it
 
                 PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+                popupWindow.setAnimationStyle(R.style.popup_window_animation);
                 popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
 
                 RelativeLayout relativeLayout = popupView.findViewById(R.id.request_relative_layout);

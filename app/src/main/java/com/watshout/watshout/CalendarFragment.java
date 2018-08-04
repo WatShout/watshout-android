@@ -16,6 +16,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,6 +57,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 public class CalendarFragment extends android.app.Fragment {
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+    String name = thisUser.getDisplayName();
     String email = thisUser.getEmail();
     String uid = thisUser.getUid();
 
@@ -66,8 +69,9 @@ public class CalendarFragment extends android.app.Fragment {
     private HashMap<String, ArrayList> allEventInfo;
 
     private RecyclerView mRecycleView;
-
     private RecyclerView.Adapter adapter;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -114,7 +118,7 @@ public class CalendarFragment extends android.app.Fragment {
                     String key = (String) hashMap.keySet().toArray()[0];
 
                     HashMap<String, String> individual = (HashMap) hashMap.get(key);
-                    NewsFeedItem current = new NewsFeedItem("self", individual.get("link"), individual.get("time"));
+                    NewsFeedItem current = new NewsFeedItem(name, individual.get("link"), individual.get("time"));
                     listItems.add(current);
 
                 }
@@ -134,6 +138,7 @@ public class CalendarFragment extends android.app.Fragment {
                 mRecycleView.setAdapter(adapter);
 
                 PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+                popupWindow.setAnimationStyle(R.style.popup_window_animation);
                 popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
 
 
@@ -201,7 +206,7 @@ public class CalendarFragment extends android.app.Fragment {
                                 Calendar calendar = Calendar.getInstance();
                                 calendar.setTime(d);
 
-                                EventDay current = new EventDay(calendar, R.drawable.current);
+                                EventDay current = new EventDay(calendar, R.drawable.running_black);
                                 String roundedDate = current.getCalendar().getTime().toString();
 
                                 if(!roundedDates.contains(roundedDate)){
@@ -253,25 +258,6 @@ public class CalendarFragment extends android.app.Fragment {
 
     }
 
-    private void loadMapImage(final String url, final ImageView mImageView){
 
-        new Thread(new Runnable() {
-            public void run(){
-                try {
-                    //download the drawable
-                    final Drawable drawable = Drawable.createFromStream((InputStream) new URL(url).getContent(), "src");
-                    //edit the view in the UI thread
-                    mImageView.post(new Runnable() {
-                        public void run() {
-                            mImageView.setImageDrawable(drawable);
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-    }
 
 }
