@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,54 +27,59 @@ public class FinishedActivity extends AppCompatActivity{
     String uid = thisUser.getUid();
     String date;
 
+    Boolean hasStrava;
+
+    CheckBox stravaCheckBox;
+    Button returnToMap;
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finished);
 
-        // show finished path in an ImageView
-        // TODO fix issue where bitmap is null
-
-        // load bitmap directly
-        //Bitmap bitmap = (Bitmap) getIntent().getParcelableExtra("MAP_IMAGE");
-        //Log.i("Map_Display",bitmap.getWidth()+"x"+bitmap.getHeight());
+        stravaCheckBox = findViewById(R.id.stravaBox);
+        returnToMap = findViewById(R.id.returnToMap);
 
         // load bitmap as byte array
         byte[] bitmapdata = getIntent().getByteArrayExtra("MAP_IMAGE");
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
 
-        ImageView displayPath = (ImageView) findViewById(R.id.finishedRun);
+        ImageView displayPath = findViewById(R.id.finishedRun);
         displayPath.setImageBitmap(bitmap);
 
         // load time and distance data
         int min = getIntent().getIntExtra("MIN",0);
         int sec = getIntent().getIntExtra("SEC",0);
 
-        // retrieve pre-calculated distance from MapFragment
-        //double dist = getIntent().getDoubleExtra("DIST",0.0);
-
         // find distance data from GPX file on SD card
         double dist = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
 
         // display time data
-        TextView time = (TextView) findViewById(R.id.time);
+        TextView time = findViewById(R.id.time);
 
         time.setText("" + min + "m " + sec +"s");
 
         // display pace and distance data
-        TextView distance = (TextView) findViewById(R.id.distance);
-        TextView pace = (TextView) findViewById(R.id.pace);
+        TextView distance = findViewById(R.id.distance);
+        TextView pace = findViewById(R.id.pace);
         distance.setText(String.format("%5.2f",dist)+" miles");
         pace.setText(String.format("%5.2f",((3600*dist)/((min*60)+sec)))+" mph");
 
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
 
+        // Get GPX file name from Intent
         date = getIntent().getStringExtra("GPX_NAME");
         date = date.substring(0, date.length() - 4);
 
-        // TODO test GPX upload after Firebase Storage gets up again
-        Button uploadGpx = (Button) findViewById(R.id.uploadGpx);
+        // Get value to determine whether or nlt to show checkbox
+        hasStrava = Boolean.valueOf(getIntent().getStringExtra("STRAVA"));
+
+        if (!hasStrava) {
+            stravaCheckBox.setVisibility(View.INVISIBLE);
+        }
+
+        Button uploadGpx = findViewById(R.id.uploadGpx);
         uploadGpx.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,9 +94,9 @@ public class FinishedActivity extends AppCompatActivity{
                     uploadToDatabase.moveCurrentToPast(date);
 
                     // Upload GPX to Firebase Storage
-                    XMLCreator.uploadToFirebaseStorage(date);
+                    // TODO: False is a placeholder, should be gettng value from checkbox
+                    XMLCreator.uploadToFirebaseStorage(date, false);
                     XMLCreator.resetXML();
-
 
 
                 }catch (IOException e){e.printStackTrace();}
@@ -106,11 +112,11 @@ public class FinishedActivity extends AppCompatActivity{
             }
         });
 
-        Button returnToMap = (Button) findViewById(R.id.returnToMap);
         returnToMap.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
 
+                // Removes current from from 'current' entry
                 UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
                 uploadToDatabase.removeCurrentEntry();
 

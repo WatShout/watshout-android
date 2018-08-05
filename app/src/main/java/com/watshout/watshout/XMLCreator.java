@@ -192,7 +192,7 @@ class XMLCreator {
 
     }
 
-    public void uploadToFirebaseStorage(final String date) throws IOException {
+    public void uploadToFirebaseStorage(final String date, boolean hasStrava) throws IOException {
 
         byte[] bytes = fileToBytes(gpxFile);
 

@@ -141,6 +141,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     TextView stepsDialog;
     TextView distanceDialog;
 
+    Boolean hasStrava;
+
     ImageButton mCenter;
     LatLng myLastLocation;
 
@@ -246,6 +248,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
 
+        ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                hasStrava = dataSnapshot.exists();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
 
         //popUp = new PopupWindow()
@@ -270,7 +283,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mRecyclerView = view.findViewById(R.id.friendRecycleView);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        //AlertDialog.Builder alertDialog = new AlertDialog.Builder(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -279,22 +291,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         builder.setView(popUpView);
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
-       // popUp.setTouchable(true);
-        /*
-        Button cameraButton = (Button) popUpView.findViewById(R.id.cameraButton);
-        Log.d("Camera button ID", cameraButton.toString());
-        cameraButton.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Camera button", "Button clicked");
-                Intent intent = new Intent(getActivity(), CameraActivity.class);
-                intent.putExtra("uid", uid);
-                startActivity(intent);
-            }
-        });
-        */
+
         final AlertDialog dialog = builder.create();
-        //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 
 
 
@@ -321,15 +320,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                         popUp.dismiss();
                     };
                 });
-                /*try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }*/
 
-                //popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
-                //popUp.dismiss();
             }
         });
 
@@ -343,10 +334,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 hiddenPanel.startAnimation(bottomUp);
                 hiddenPanel.setVisibility(View.VISIBLE);
                 popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
-                //popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
 
-
-                //popUp.showAsDropDown(popUpView);
             }
         });
 
@@ -740,6 +728,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
 
         String date = uploadToDatabase.getFormattedDate();
+
+        openNext.putExtra("STRAVA", hasStrava);
 
         openNext.putExtra("GPX_NAME_ONLY", date);
 
