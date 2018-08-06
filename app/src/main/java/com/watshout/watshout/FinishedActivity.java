@@ -28,6 +28,7 @@ public class FinishedActivity extends AppCompatActivity{
     String date;
 
     Boolean hasStrava;
+    Boolean wantsToUploadStrava;
 
     CheckBox stravaCheckBox;
     Button returnToMap;
@@ -88,14 +89,16 @@ public class FinishedActivity extends AppCompatActivity{
                 progressDialog.setMessage("Uploading run data...");
                 progressDialog.show();
 
+                // If user checked box, then upload to Strava
+                wantsToUploadStrava = stravaCheckBox.isChecked();
+
                 try {
 
                     UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
                     uploadToDatabase.moveCurrentToPast(date);
 
                     // Upload GPX to Firebase Storage
-                    // TODO: False is a placeholder, should be gettng value from checkbox
-                    XMLCreator.uploadToFirebaseStorage(date, false);
+                    XMLCreator.uploadToFirebaseStorage(date, wantsToUploadStrava);
                     XMLCreator.resetXML();
 
 
