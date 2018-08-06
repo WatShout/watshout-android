@@ -192,7 +192,7 @@ class XMLCreator {
 
     }
 
-    public void uploadToFirebaseStorage(final String date, boolean hasStrava) throws IOException {
+    public void uploadToFirebaseStorage(final String date, final boolean hasStrava) throws IOException {
 
         byte[] bytes = fileToBytes(gpxFile);
 
@@ -256,7 +256,11 @@ class XMLCreator {
                 });
 
                 queue.add(createMapRequest);
-                queue.add(stravaRequest);
+
+                if (hasStrava) {
+                    queue.add(stravaRequest);
+                }
+
             }
         });
     }
