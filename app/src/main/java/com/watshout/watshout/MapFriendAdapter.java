@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 
 import java.util.List;
 
@@ -56,6 +57,9 @@ public class MapFriendAdapter extends RecyclerView.Adapter<MapFriendAdapter.View
             @Override
             public void onClick(View v) {
                 recenterMap(mapFriendItem.getCoords());
+                googleMap.setMapStyle(
+                        MapStyleOptions.loadRawResourceStyle(context, R.raw.google_map_color
+                        ));
             }
         });
 

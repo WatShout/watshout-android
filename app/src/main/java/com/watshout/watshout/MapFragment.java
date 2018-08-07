@@ -23,7 +23,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -33,7 +32,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -53,6 +51,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -173,6 +172,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // This ensures that we can make changes to the map outside of this function
         // which is why we defined it globally
         googleMapGlobal = googleMap;
+
+        googleMapGlobal.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_bw
+                ));
 
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
@@ -362,22 +365,11 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         mStart.setBackgroundResource(android.R.drawable.btn_default);
 
-
-
         isMapMoving = true;
         mv = view.findViewById(R.id.map);
         mv.onCreate(null);
         mv.onResume();
         mv.getMapAsync(this);
-
-        //DisplayMetrics displayMetrics = new DisplayMetrics();
-        //getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        //final int displayHeight = displayMetrics.heightPixels;
-        //final int displayWidth = displayMetrics.widthPixels;
-
-
-        // Ideally we would want this to be the location one is at when they start the app
-        home = new LatLng(37.4419, -122.1430);
 
         mCenter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -391,6 +383,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 LatLng current = new LatLng(latitude, longitude);
 
                 googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 16));
+
+                googleMapGlobal.setMapStyle(
+                        MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_color
+                        ));
 
             }
         });
