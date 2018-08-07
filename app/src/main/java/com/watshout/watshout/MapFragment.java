@@ -703,10 +703,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         openNext.putExtra("MIN", Minutes);
         openNext.putExtra("SEC", Seconds);
 
-        // TODO: Retrieve distance information
-        // TODO: Calculate pace from distance/time
-
-
         MillisecondTime = 0L ;
         StartTime = 0L ;
         TimeBuff = 0L ;
