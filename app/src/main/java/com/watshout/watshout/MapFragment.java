@@ -719,7 +719,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         String date = uploadToDatabase.getFormattedDate();
 
-        openNext.putExtra("STRAVA", hasStrava);
+        openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
 
         openNext.putExtra("GPX_NAME_ONLY", date);
 
