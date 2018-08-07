@@ -199,8 +199,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             XMLCreator = new XMLCreator(getActivity().getApplicationContext(), uid);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
         }
 
         FriendDataManager friendDataManager = new FriendDataManager(uid, googleMapGlobal, mRecyclerView, getActivity(),

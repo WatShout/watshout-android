@@ -222,8 +222,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
         // Instantiate the RequestQueue.
         RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
-
-        String url ="https://watshout.herokuapp.com/friends/" + uid + "/";
+        String url = EndpointURL.getInstance().getFriendURL(uid);
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

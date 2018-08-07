@@ -161,7 +161,7 @@ public class CalendarFragment extends android.app.Fragment {
     public void getCalendarData() {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url ="https://watshout.herokuapp.com/maps/calendar/download/" + uid + "/";
+        String url = EndpointURL.getInstance().getHistoryURL(uid);
 
         final ProgressDialog progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage("Loading data...");

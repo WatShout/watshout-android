@@ -108,7 +108,7 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url ="https://watshout.herokuapp.com/maps/download/" + uid + "/";
+        String url = EndpointURL.getInstance().getMapsURL(uid);
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
