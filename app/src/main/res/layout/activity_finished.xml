@@ -29,7 +29,8 @@
         android:layout_toStartOf="@+id/returnToMap"
         android:text="upload run"
         android:layout_marginRight="10dp"
-        android:textSize="20dp" />
+        android:textSize="20dp"
+        android:layout_toLeftOf="@+id/returnToMap" />
 
     <Button
         android:id="@+id/returnToMap"
@@ -40,7 +41,9 @@
         android:layout_marginBottom="54dp"
         android:layout_marginEnd="18dp"
         android:text="return to map"
-        android:textSize="20dp" />
+        android:textSize="20dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="18dp" />
 
     <TextView
         android:id="@+id/distance"
@@ -76,10 +79,11 @@
         android:id="@+id/stravaBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/uploadGpx"
+        android:layout_alignEnd="@+id/returnToMap"
         android:layout_below="@+id/time"
         android:layout_marginTop="-148dp"
-        android:text="Upload to Strava" />
+        android:text="Upload to Strava"
+        android:layout_alignRight="@+id/returnToMap" />
 
 
 </RelativeLayout>

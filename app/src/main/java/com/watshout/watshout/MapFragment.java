@@ -147,7 +147,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     long originalStartTime;
 
-    FloatingActionButton fab;
+    FloatingActionButton floatingActionButton;
 
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
@@ -325,8 +325,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         });
 
-        fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
@@ -339,7 +339,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         });
 
-        fab.hide();
+        floatingActionButton.hide();
 
        checkLocationPermissions();
 
@@ -549,7 +549,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                         != PackageManager.PERMISSION_GRANTED) {
 
             // No explanation needed, we can request the permission.
-
             ActivityCompat.requestPermissions(this.getActivity(),
                     permissions,
                     permCode);
@@ -562,14 +561,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 );
 
        if(currentlyTrackingLocation) {
-           /* try{
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("steps.txt")));
-            pw.print(event.values[0]);
-            }
-            catch(IOException e){}*/
+
            System.out.println("Total Steps: " + totalSteps);
-            stepsDialog.setText(String.valueOf((int) (event.values[0])) + " steps");
-            //totalSteps = (int)(event.values[0]);
+           stepsDialog.setText(String.valueOf((int) (event.values[0])) + " steps");
+
         }
 
     }
@@ -577,14 +572,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-
-  /*  @Override
-    public void onPause() {
-        super.onPause();
-        System.out.println("paused method");
-        //sensorManager.unregisterListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER));
-
-    }*/
 
     @Override
     public void onResume() {
@@ -624,12 +611,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     public void startClick() {
 
-        fab.show();
-
-        //BufferedReader br = new BufferedReader(new InputStreamReader("steps.txt"));
-        // StringTokenizer st = new StringTokenizer(br.readLine());
-        // totalSteps = Integer.parseInt(st.nextToken());
-        // System.out.println("The steps were read " + totalSteps);
+        floatingActionButton.show();
 
         mStop.setVisibility(View.VISIBLE);
 
@@ -677,7 +659,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             popUpStart.setText("Pause");
         } else {
             mStart.setBackgroundColor(Color.GREEN);
-            //mStart.setBackgroundResource(android.R.drawable.btn_default);
             mStart.setText("Resume");
 
             popUpStart.setBackgroundColor(Color.GREEN);
@@ -685,13 +666,11 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
 
 
-
-
     }
 
     public void stopClick() {
 
-        fab.show();
+        floatingActionButton.show();
 
         Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
         openNext.putExtra("MIN", Minutes);
@@ -737,13 +716,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         Carrier.setXMLCreator(XMLCreator);
 
-        // takes snapshot of user path on map
-        //I un commented this because it should be called when when "stop" is pressed, otherwise error
-        //captureMapScreen();
-
-        // send bitmap directly
-        //openNext.putExtra("MAP_IMAGE", pathScreen);
-
         // send bitmap as byte array
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -751,7 +723,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         pathScreen.recycle();
         openNext.putExtra("MAP_IMAGE",byteArray);
 
-        //Log.i("Map_Display",pathScreen.getWidth()+"x"+pathScreen.getHeight());
         openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getActivity().getApplicationContext().startActivity(openNext);
         getActivity().finish();
