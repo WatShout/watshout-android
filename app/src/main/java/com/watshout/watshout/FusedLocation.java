@@ -2,6 +2,8 @@ package com.watshout.watshout;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -20,6 +22,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -111,7 +114,6 @@ public class FusedLocation  {
                     theSpeed = (int) (newSpeed) + ":" + secondsSpeed;
                     speedTextDialog.setText(theSpeed + " min/mile");
                 }
-
 
                 Log.wtf("GPSGPSGPS", "Lat: " + lat + "\nLong" + lon + "\nTracking: " +"Speed: " + speed + MapFragment.currentlyTrackingLocation);
 

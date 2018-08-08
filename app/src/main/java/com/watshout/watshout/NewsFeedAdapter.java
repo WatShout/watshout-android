@@ -58,6 +58,7 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
         String formattedTime = epochToIso8601(time);
 
         holder.mTime.setText(formattedTime);
+        holder.mActivityTime.setText(newsFeedItem.getActivityName());
 
         String initials = "";
         for (String s : newsFeedItem.getName().split(" ")) {

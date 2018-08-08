@@ -118,7 +118,8 @@ public class CalendarFragment extends android.app.Fragment {
                     String key = (String) hashMap.keySet().toArray()[0];
 
                     HashMap<String, String> individual = (HashMap) hashMap.get(key);
-                    NewsFeedItem current = new NewsFeedItem(name, individual.get("link"), individual.get("time"));
+                    NewsFeedItem current = new NewsFeedItem(name, individual.get("link"), individual.get("time"),
+                            individual.get("event_name"));
                     listItems.add(current);
 
                 }
@@ -192,7 +193,8 @@ public class CalendarFragment extends android.app.Fragment {
                                     listItems.add(new NewsFeedItem(
                                             "self",
                                             o.getString("image"),
-                                            o.getString("time")
+                                            o.getString("time"),
+                                            o.getString("event_name")
                                     ));
 
                                 }
