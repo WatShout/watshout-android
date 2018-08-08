@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements
     final long TEN_MEGABYTE = 10 * 1024 * 1024;
 
     DrawerLayout mDrawerLayout;
-    MapFragment mapFragment = new MapFragment();
 
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
@@ -113,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         disableNavigationViewScrollbars(navigationView);
+        navigationView.setCheckedItem(R.id.nav_news_feed);
 
         // This code only runs if the user just authenticated with Strava in settings
         stravaToken = getIntent().getStringExtra("STRAVA_TOKEN");
@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements
         menuItem.setTitle(spannableString);
 
         View headerView = navigationView.getHeaderView(0);
-
         navigationView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         TextView mInitials = headerView.findViewById(R.id.nav_header_initials);
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements
 
         getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.screen_area, mapFragment)
+                .replace(R.id.screen_area, new NewsFeedFragment())
                 .commit();
 
         ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -272,19 +271,36 @@ public class MainActivity extends AppCompatActivity implements
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
-        // set item as selected to persist highlight
+
         int id = menuItem.getItemId();
 
-        if (id == R.id.nav_news_feed) {
+        if (id == R.id.nav_activity) {
 
-            Log.e("NEWS", "news feed");
+            MapFragment activityFragment = new MapFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("type", "Activity");
+            activityFragment.setArguments(bundle);
+
+            getFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.screen_area,activityFragment)
+                    .commit();
+        }
+
+        else if (id == R.id.nav_news_feed) {
 
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, new NewsFeedFragment())
                     .commit();
 
-        } else if (id == R.id.nav_home) {
+        } else if (id == R.id.nav_map) {
+
+            MapFragment mapFragment = new MapFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("type", "Map");
+            mapFragment.setArguments(bundle);
+
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.screen_area, mapFragment)
@@ -319,6 +335,7 @@ public class MainActivity extends AppCompatActivity implements
                     .commit();
         }
 
+
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -352,12 +369,19 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed(){
 
-        navigationView.setCheckedItem(R.id.nav_home);
+        navigationView.setCheckedItem(R.id.nav_news_feed);
+
+        MapFragment mapFragment = new MapFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putString("type", "Map");
+        mapFragment.setArguments(bundle);
+
 
         // set to MapFragment
         getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.screen_area, new MapFragment())
+                .replace(R.id.screen_area, mapFragment)
                 .commit();
     }
 }

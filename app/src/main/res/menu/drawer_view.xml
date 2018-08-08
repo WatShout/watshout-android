@@ -14,7 +14,7 @@
 
 
         <item
-            android:id="@+id/nav_home"
+            android:id="@+id/nav_map"
             android:checked="true"
             android:icon="@drawable/location"
             android:title="Map" />

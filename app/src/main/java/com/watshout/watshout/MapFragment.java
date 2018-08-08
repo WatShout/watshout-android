@@ -88,8 +88,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     PopupWindow popUp;
 
-    //LayoutParams params;
-
     // General database reference
     DatabaseReference ref = FirebaseDatabase
             .getInstance()
@@ -117,8 +115,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     Bitmap pathScreen;
 
     XMLCreator XMLCreator;
-
-    PopupWindow popupWindow;
     LayoutInflater layoutInflater;
 
     RelativeLayout mRelativeLayout;
@@ -130,11 +126,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     Button popUpStart;
     Button popUpStop;
 
-    Button mCurrent;
-    Button mSignOut;
-    Button mAddFriend;
-    Button mViewFriends;
-    TextView mGreeting;
     TextView timerText;
     TextView speedTextDialog;
     TextView stepsDialog;
@@ -143,7 +134,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     Boolean hasStrava;
 
     ImageButton mCenter;
-    LatLng myLastLocation;
 
     long originalStartTime;
 
@@ -159,6 +149,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     // For permissions
     int permCode = 200;
+
+    String type;
 
     public MapFragment() {
     }
@@ -223,11 +215,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mapPlotter.moveCamera(zoom);
     }
 
-
-    /*public void setSpeed(Double speed) {
-        distanceText.setText(speed + "");
-    }*/
-
     public void onPause(){
         super.onPause();
 
@@ -237,6 +224,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        Bundle bundle = getArguments();
+        type = String.valueOf(bundle.getString("type"));
+
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         return view;
     }
@@ -245,9 +235,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getActivity().setTitle("map");
-
-        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        checkLocationPermissions();
 
         ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -261,11 +249,21 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         });
 
+        getActivity().setTitle("map");
 
-        //popUp = new PopupWindow()
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+
+        mStart = view.findViewById(R.id.start);
+        mStop = view.findViewById(R.id.stop);
+        mStop.setVisibility(View.INVISIBLE);
+
 
         mRelativeLayout = view.findViewById(R.id.relative);
+        mCenter = view.findViewById(R.id.recenter);
+        mRecyclerView = view.findViewById(R.id.friendRecycleView);
 
+        floatingActionButton = view.findViewById(R.id.fab);
+        floatingActionButton.hide();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -273,65 +271,57 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         final int displayWidth = displayMetrics.widthPixels;
         layoutInflater = (LayoutInflater) getActivity()
                 .getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        assert layoutInflater != null;
-        //ViewGroup container1 = (ViewGroup) layoutInflater.inflate(R.layout.fragment_dialog, null);
-        //final DrawerLayout mRelativeLayout = view.findViewById(R.id.drawer_layout);
 
-
-
-        mCenter = view.findViewById(R.id.recenter);
-
-        mRecyclerView = view.findViewById(R.id.friendRecycleView);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
         LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        //final View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
         final View popUpView = inflater.inflate(R.layout.fragment_dialog, null);
         builder.setView(popUpView);
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
+        speedTextDialog = popUpView.findViewById(R.id.speedTextDialog);
+        stepsDialog = popUpView.findViewById(R.id.stepsDialog);
+        distanceDialog = popUpView.findViewById(R.id.distanceDialog);
+        timerText = popUpView.findViewById(R.id.timerText1);
+        popUpStop = popUpView.findViewById(R.id.stop);
+        popUpStart = popUpView.findViewById(R.id.popUpStart);
+        popUpStop.setVisibility(View.INVISIBLE);
 
-        final AlertDialog dialog = builder.create();
+        if (type.equals("Activity")){
+            startActivityFragment();
+        } else if (type.equals("Map")){
+            mStart.setVisibility(View.INVISIBLE);
+        }
 
-
-
-
-        FloatingActionButton fabDialog = (FloatingActionButton) popUpView.findViewById(R.id.fabDialog);
+        // Statistics dialog -> Map
+        FloatingActionButton fabDialog = popUpView.findViewById(R.id.fabDialog);
         fabDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                         R.anim.fui_slide_out_left);
-                final ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+                final ViewGroup hiddenPanel = popUpView.findViewById(R.id.dialogLayout);
 
                 hiddenPanel.startAnimation(bottomUp);
                 bottomUp.setAnimationListener(new Animation.AnimationListener() {
-                    public void onAnimationStart(Animation anim)
-                    {
-
-                    };
-                    public void onAnimationRepeat(Animation anim)
-                    {
-                    };
-                    public void onAnimationEnd(Animation anim)
-                    {
+                    public void onAnimationStart(Animation anim) {}
+                    public void onAnimationRepeat(Animation anim) {}
+                    public void onAnimationEnd(Animation anim) {
                         hiddenPanel.setVisibility(View.INVISIBLE);
                         popUp.dismiss();
-                    };
+                    }
                 });
 
             }
         });
 
-        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        // Map -> Statistics dialog
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                         R.anim.fui_slide_in_right);
-                ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+                ViewGroup hiddenPanel = popUpView.findViewById(R.id.dialogLayout);
                 hiddenPanel.startAnimation(bottomUp);
                 hiddenPanel.setVisibility(View.VISIBLE);
                 popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
@@ -339,25 +329,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         });
 
-        floatingActionButton.hide();
-
-       checkLocationPermissions();
-
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getActivity().getApplicationContext());
 
-        mStart = view.findViewById(R.id.start);
-        mStop = view.findViewById(R.id.stop);
-        popUpStop = popUpView.findViewById(R.id.stop);
-        popUpStart = popUpView.findViewById(R.id.popUpStart);
 
-        mStop.setVisibility(View.INVISIBLE);
-        popUpStop.setVisibility(View.INVISIBLE);
-
-        speedTextDialog = popUpView.findViewById(R.id.speedTextDialog);
-        stepsDialog = popUpView.findViewById(R.id.stepsDialog);
-        distanceDialog = popUpView.findViewById(R.id.distanceDialog);
-        timerText = popUpView.findViewById(R.id.timerText1);
 
         handler = new Handler() ;
 
@@ -393,9 +368,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
 
-                //ActionBar actionBar = getSupportActionBar();
                 ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-                //actionBar.hide();
                 actionBar.setDisplayHomeAsUpEnabled(false);
                 actionBar.setHomeButtonEnabled(false);
                 Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
@@ -405,7 +378,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 hiddenPanel.setVisibility(View.VISIBLE);
                 popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
                 startClick();
-
 
             }
         });
@@ -480,6 +452,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             }
         });
+    }
+
+    // This is for starting the 'Activity' fragment
+    public void startActivityFragment() {
+
+        popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+
     }
 
     public Runnable runnable = new Runnable() {
@@ -581,13 +560,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     }
 
+    // TODO: Look into memory leaks
     public void captureMapScreen()
     {
         SnapshotReadyCallback callback = new SnapshotReadyCallback() {
 
             @Override
             public void onSnapshotReady(Bitmap snapshot) {
-                // TODO Auto-generated method stub
                 pathScreen = snapshot;
                 //Log.i("Map_Image",(pathScreen == null) + "");
             }

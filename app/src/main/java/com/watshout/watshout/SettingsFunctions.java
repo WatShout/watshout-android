@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
@@ -47,6 +48,19 @@ public class SettingsFunctions {
         this.context = context;
         this.viewHolder = viewHolder;
         this.convertView = convertView;
+    }
+
+    // TODO: Better redirect to main app
+    public void permissions() {
+
+        viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID));
+                context.startActivity(i);
+            }
+        });
+
     }
 
     public void connectStrava() {

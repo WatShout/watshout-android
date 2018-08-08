@@ -243,6 +243,10 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 settingsFunctions.connectStrava();
                 break;
 
+            case "Permissions":
+                settingsFunctions.permissions();
+                break;
+
         }
 
         return convertView;
