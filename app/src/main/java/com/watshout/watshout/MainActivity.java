@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements
     String uid = thisUser.getUid();
     String name = thisUser.getDisplayName();
 
+    NavigationView navigationView;
+
     String CURRENT_DEVICE_ID;
 
     String stravaToken;
@@ -108,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_hamburger);
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         disableNavigationViewScrollbars(navigationView);
 
@@ -349,7 +351,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed(){
-        Toast.makeText(this,"Returned to map.",Toast.LENGTH_LONG).show();
+
+        navigationView.setCheckedItem(R.id.nav_home);
 
         // set to MapFragment
         getFragmentManager()
