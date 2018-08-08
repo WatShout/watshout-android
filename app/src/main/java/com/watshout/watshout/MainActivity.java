@@ -34,6 +34,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import com.samsandberg.stravaauthenticator.StravaAuthenticateActivity;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements
 
     String CURRENT_DEVICE_ID;
 
+    String stravaToken;
+
     private StorageReference mStorageRef;
     private DatabaseReference activityImagesRef;
 
@@ -94,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         CURRENT_DEVICE_ID = getDeviceID();
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -107,8 +110,15 @@ public class MainActivity extends AppCompatActivity implements
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        //navigationView.setItemIconTintList(null);
         disableNavigationViewScrollbars(navigationView);
+
+        // This code only runs if the user just authenticated with Strava in settings
+        stravaToken = getIntent().getStringExtra("STRAVA_TOKEN");
+        if (stravaToken != null){
+            ref.child("users").child(uid).child("strava_token").setValue(stravaToken);
+            Toast.makeText(this, "Successfully connected with Strava!",
+                    Toast.LENGTH_SHORT).show();
+        }
 
         Menu m = navigationView.getMenu();
         MenuItem menuItem = m.findItem(R.id.nav_activity);

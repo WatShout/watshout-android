@@ -3,6 +3,7 @@ package com.watshout.watshout;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.InputType;
@@ -16,8 +17,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import static android.app.Activity.RESULT_OK;
 
 public class SettingsFunctions {
 
@@ -42,6 +48,37 @@ public class SettingsFunctions {
         this.viewHolder = viewHolder;
         this.convertView = convertView;
     }
+
+    public void connectStrava() {
+
+
+        viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()){
+                            Toast.makeText(context, "You are already authenticated with Strava!",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+
+                            Intent intent = new Intent(context, StravaAuthenticate.class);
+                            context.startActivity(intent);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+        });
+    }
+
 
     public void messagePresets() {
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {

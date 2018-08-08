@@ -239,6 +239,10 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 settingsFunctions.messagePresets();
                 break;
 
+            case "Linked accounts":
+                settingsFunctions.connectStrava();
+                break;
+
         }
 
         return convertView;
