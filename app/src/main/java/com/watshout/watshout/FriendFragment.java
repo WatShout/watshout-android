@@ -321,6 +321,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.friend_menu, menu);
     }
 
