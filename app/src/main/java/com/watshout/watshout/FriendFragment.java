@@ -112,16 +112,28 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             }
         });
 
+        // This is a very hacky solution. Essentially this makes sure refreshData()
+        // only loads ONCE.
+        final boolean[] initialDataLoaded = new boolean[1];
+        initialDataLoaded[0] = false;
+
         ref.child("friend_data").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) { refreshData(); }
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                if (initialDataLoaded[0]){
+                    refreshData();
+                }
+            }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                refreshData();
+
+                if (initialDataLoaded[0]){
+                    refreshData();
+                }
             }
 
             @Override
@@ -134,7 +146,10 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
         ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                refreshData();
+
+                if (initialDataLoaded[0]){
+                    refreshData();
+                }
             }
 
             @Override
@@ -142,7 +157,10 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                refreshData();
+
+                if (initialDataLoaded[0]){
+                    refreshData();
+                }
             }
 
             @Override
@@ -150,6 +168,18 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
+        });
+
+        ref.child("friend_data").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                initialDataLoaded[0] = true;
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
         });
 
 
@@ -282,13 +312,11 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
     public void refreshData() {
         getFriendsList();
-        //getFriendRequests();
     }
 
     @Override
     public void onRefresh() {
         getFriendsList();
-        //getFriendRequests();
     }
 
     @Override
