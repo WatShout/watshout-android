@@ -16,26 +16,26 @@ public class EndpointURL {
     }
 
     public String getHistoryURL(String uid) {
-        return getBaseURL() + "/history/" + uid + "/";
+        return getBaseURL() + "/api/history/" + uid + "/";
     }
 
     public String getFriendURL(String uid) {
-        return getBaseURL() + "/friends/" + uid + "/";
+        return getBaseURL() + "/api/friends/" + uid + "/";
     }
 
     public String getFriendRequestURL(String uid) {
-        return getBaseURL() + "/friendrequests/" + uid + "/";
+        return getBaseURL() + "/api/friendrequests/" + uid + "/";
     }
 
     public String getNewsFeedURL(String uid) {
-        return getBaseURL() + "/newsfeed/" + uid + "/";
+        return getBaseURL() + "/api/newsfeed/" + uid + "/";
     }
 
     public String getStravaURL(String uid, String date){
-        return getBaseURL() + "/strava/upload/" + uid + "/" + date + "/";
+        return getBaseURL() + "/api/strava/upload/" + uid + "/" + date + "/";
     }
 
     public String createMapURL() {
-        return getBaseURL() + "/create-map/";
+        return getBaseURL() + "/api/createmap/";
     }
 }
