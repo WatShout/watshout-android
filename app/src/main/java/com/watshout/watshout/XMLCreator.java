@@ -221,6 +221,9 @@ class XMLCreator {
                     public void onErrorResponse(VolleyError error) {
 
                                 Log.d("GPX", "Map image creation failed");
+                                Log.e("GPX", error.toString());
+
+                                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
 
                             }
                         }){

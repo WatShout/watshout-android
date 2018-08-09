@@ -17,8 +17,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -140,6 +142,11 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
                                 }
                             }
 
+                            if (listItems.size() == 0){
+                                Toast.makeText(getActivity(), "No activities to show!",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+
                             mSwipeRefreshLayout.setRefreshing(false);
 
                             adapter = new NewsFeedAdapter(listItems, getActivity());
@@ -157,6 +164,12 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
             }
 
         });
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         queue.add(stringRequest);
 

@@ -182,7 +182,7 @@ public class MapPlotter {
             @Override
             public boolean onMarkerClick(Marker marker) {
 
-                moveCamera(16);
+                moveCamera(19);
                 isMapFollowing = true;
 
                 return false;
@@ -191,7 +191,7 @@ public class MapPlotter {
 
         if (isMapFollowing){
             googleMap.moveCamera(CameraUpdateFactory
-                    .newLatLngZoom(currentLocation, 16));
+                    .newLatLngZoom(currentLocation, 19));
         }
 
         if (markers.size() == 0) {
@@ -209,6 +209,7 @@ public class MapPlotter {
 
                 polylines.add(googleMap.addPolyline(new PolylineOptions()
                         .add(previousLocation, currentLocation)
+                        .color(Color.RED)
                         .width(10)));
 
             }

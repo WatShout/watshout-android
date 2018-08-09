@@ -25,6 +25,7 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -71,8 +72,6 @@ public class CalendarFragment extends android.app.Fragment {
     private RecyclerView mRecycleView;
     private RecyclerView.Adapter adapter;
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,9 +83,7 @@ public class CalendarFragment extends android.app.Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_calendar, container, false);
-
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -99,7 +96,6 @@ public class CalendarFragment extends android.app.Fragment {
         getCalendarData();
 
     }
-
 
     private com.applandeo.materialcalendarview.listeners.OnDayClickListener listener = new OnDayClickListener() {
         @Override
@@ -145,9 +141,7 @@ public class CalendarFragment extends android.app.Fragment {
 
             } catch (NullPointerException e){
 
-                Toast.makeText(getActivity(), "Error with retrieving events", Toast.LENGTH_SHORT).show();
-
-                //mRecycleView.setAdapter(null);
+                //Toast.makeText(getActivity(), "Error with retrieving events", Toast.LENGTH_SHORT).show();
 
             }
         }
@@ -220,6 +214,7 @@ public class CalendarFragment extends android.app.Fragment {
 
                                 individualItemInfo.put("time", item.getTime());
                                 individualItemInfo.put("link", item.getImageURL());
+                                individualItemInfo.put("event_name", item.getActivityName());
 
                                 individualItem.put(item.getTime(), individualItemInfo);
 
@@ -255,6 +250,12 @@ public class CalendarFragment extends android.app.Fragment {
             }
 
         });
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         queue.add(stringRequest);
 

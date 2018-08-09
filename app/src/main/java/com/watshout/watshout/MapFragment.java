@@ -380,7 +380,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                 LatLng current = new LatLng(latitude, longitude);
 
-                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 16));
+                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 19));
 
                 googleMapGlobal.setMapStyle(
                         MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_color
