@@ -18,10 +18,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,13 +31,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.alternativevision.gpx.beans.GPX;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -206,21 +201,22 @@ class XMLCreator {
 
                 RequestQueue queue = Volley.newRequestQueue(context);
                 String stravaURL = EndpointURL.getInstance().getStravaURL(uid, date);
-                String createMapURL = EndpointURL.getInstance().createMapURL();
+                String createMapURL = EndpointURL.getInstance().addActivityURL();
 
                 StringRequest createMapRequest = new StringRequest(Request.Method.POST,
                         createMapURL, new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
 
-                                    Log.d("GPX", "Map image created");
+                                    Log.d("GPX", "Activity uploaded successfully!");
+                                Toast.makeText(context, "Activity uploaded successfully!", Toast.LENGTH_SHORT).show();
 
                                 }
                             }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                                Log.d("GPX", "Map image creation failed");
+                                Log.d("GPX", "Activity upload failed");
                                 Log.e("GPX", error.toString());
 
                                 Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();

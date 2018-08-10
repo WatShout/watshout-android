@@ -35,7 +35,7 @@ public class EndpointURL {
         return getBaseURL() + "/api/strava/upload/" + uid + "/" + date + "/";
     }
 
-    public String createMapURL() {
-        return getBaseURL() + "/api/createmap/";
+    public String addActivityURL() {
+        return getBaseURL() + "/api/addactivity/";
     }
 }

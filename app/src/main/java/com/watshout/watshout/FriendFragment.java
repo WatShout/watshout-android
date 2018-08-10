@@ -318,6 +318,11 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         });
 
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         requestQueue.add(stringRequest);
 
     }
@@ -434,8 +439,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                                                             Toast.LENGTH_SHORT).show();
 
                                                 } else {
-
-                                                    Log.d("EMAIL", uid + ", " + theirUID);
 
                                                     ref.child("friend_requests").child(uid).child(theirUID)
                                                             .child("request_type").setValue("sent");
