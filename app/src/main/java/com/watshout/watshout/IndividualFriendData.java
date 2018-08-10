@@ -164,14 +164,19 @@ public class IndividualFriendData {
 
                     firstEntry = true;
 
-                    mapPlotterList.get(uid).removeFromMap();
-                    mapPlotterList.remove(uid);
-                    //stopTrackingLocation();
+                    try {
+                        mapPlotterList.get(uid).removeFromMap();
+                        mapPlotterList.remove(uid);
+                        mapFriendItems.remove(listSize);
+                        RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
+                        recyclerView.setAdapter(adapter);
+                    } catch (NullPointerException e){
+                        mapPlotterList.remove(uid);
+                        mapFriendItems.remove(listSize);
+                        RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
+                        recyclerView.setAdapter(adapter);
+                    }
 
-                    mapFriendItems.remove(listSize);
-
-                    RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
-                    recyclerView.setAdapter(adapter);
 
 
                 }

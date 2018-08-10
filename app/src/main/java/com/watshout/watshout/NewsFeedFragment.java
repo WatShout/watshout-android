@@ -134,7 +134,9 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
                                             o.getString("name"),
                                             o.getString("image"),
                                             o.getString("time"),
-                                            o.getString("event_name")
+                                            o.getString("event_name"),
+                                            o.getString("distance"),
+                                            o.getString("time_elapsed")
                                     );
 
                                     listItems.add(newsFeedItem);

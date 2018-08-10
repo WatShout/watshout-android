@@ -28,7 +28,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="left"
-                android:layout_marginStart="91dp"
+                android:layout_marginStart="73dp"
                 android:text="Ethan Houston"
                 android:textColor="#fff"
                 android:textSize="18dp" />
@@ -38,9 +38,32 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="20dp"
+                android:layout_alignParentTop="true"
+                android:paddingLeft="9dp"
                 app:srcCompat="@drawable/blank_profile" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:paddingTop="5dp"
+                android:paddingRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:text="Friends Since"
+                android:textColor="@color/lightGrey"
+                android:textSize="8dp" />
+
+            <TextView
+                android:id="@+id/since"
+                android:paddingRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="TextView"
+                android:textColor="@color/lightGrey"
+                android:textSize="12dp" />
 
 
         </RelativeLayout>

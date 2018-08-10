@@ -7,11 +7,13 @@ public class FriendItem implements Comparable<FriendItem>{
     private String name;
     private String profilePic;
     private String uid;
+    private long since;
 
-    FriendItem (String name, String uid, String profilePic) {
+    FriendItem (String name, String uid, String profilePic, long since) {
         this.name = name;
         this.profilePic = profilePic;
         this.uid = uid;
+        this.since = since;
 
     }
 
@@ -26,6 +28,8 @@ public class FriendItem implements Comparable<FriendItem>{
     public String getProfilePic() {
         return profilePic;
     }
+
+    public long getSince() {return since;}
 
     @Override
     public int compareTo(FriendItem otherFriend) {

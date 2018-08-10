@@ -115,7 +115,7 @@ public class CalendarFragment extends android.app.Fragment {
 
                     HashMap<String, String> individual = (HashMap) hashMap.get(key);
                     NewsFeedItem current = new NewsFeedItem(name, individual.get("link"), individual.get("time"),
-                            individual.get("event_name"));
+                            individual.get("event_name"), individual.get("distance"), individual.get("time_elapsed"));
                     listItems.add(current);
 
                 }
@@ -188,7 +188,9 @@ public class CalendarFragment extends android.app.Fragment {
                                             "self",
                                             o.getString("image"),
                                             o.getString("time"),
-                                            o.getString("event_name")
+                                            o.getString("event_name"),
+                                            o.getString("distance"),
+                                            o.getString("time_elapsed")
                                     ));
 
                                 }
@@ -215,6 +217,8 @@ public class CalendarFragment extends android.app.Fragment {
                                 individualItemInfo.put("time", item.getTime());
                                 individualItemInfo.put("link", item.getImageURL());
                                 individualItemInfo.put("event_name", item.getActivityName());
+                                individualItemInfo.put("distance", item.getDistance());
+                                individualItemInfo.put("time_elapsed", item.getTimeElapsed());
 
                                 individualItem.put(item.getTime(), individualItemInfo);
 

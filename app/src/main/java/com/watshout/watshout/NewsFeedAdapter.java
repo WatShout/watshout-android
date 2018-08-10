@@ -65,6 +65,8 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
             initials += s.charAt(0);
         }
         holder.mInitials.setText(initials);
+        holder.mActivityDistance.setText(newsFeedItem.getDistance());
+        holder.mActivityTime.setText(newsFeedItem.getTimeElapsed());
 
         loadMapImage(newsFeedItem.getImageURL(), holder.mMap);
 

@@ -65,6 +65,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     String email = thisUser.getEmail();
     String uid = thisUser.getUid();
 
+    private Menu menu;
+
     DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
@@ -215,7 +217,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                                 friendRequests.add(new FriendItem(
                                         o.getString("name"),
                                         o.getString("uid"),
-                                        o.getString("profile_pic")
+                                        o.getString("profile_pic"),
+                                        0
                                 ));
 
                             }
@@ -281,7 +284,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                                 listItems.add(new FriendItem(
                                         o.getString("name"),
                                         o.getString("uid"),
-                                        o.getString("profile_pic")
+                                        o.getString("profile_pic"),
+                                        Long.parseLong(o.getString("since"))
                                 ));
 
                             }
@@ -329,6 +333,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        this.menu = menu;
         menu.clear();
         inflater.inflate(R.menu.friend_menu, menu);
     }
@@ -354,7 +359,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
                 RelativeLayout relativeLayout = popupView.findViewById(R.id.request_relative_layout);
 
-                relativeLayout.setAlpha(0.95F);
+                relativeLayout.setAlpha(1F);
 
                 RecyclerView mRequestRecyclerView = popupView.findViewById(R.id.friendRequestView);
                 mRequestRecyclerView.setHasFixedSize(true);

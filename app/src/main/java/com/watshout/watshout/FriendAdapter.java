@@ -65,6 +65,8 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
             }
         });
 
+        holder.mSince.setText(epochToIso8601(friendItem.getSince()));
+
 
         loadProfilePic(friendItem.getProfilePic(), holder.mProfilePic);
 
@@ -79,6 +81,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView mName;
+        TextView mSince;
         ImageView mProfilePic;
         RelativeLayout mRelative;
 
@@ -88,8 +91,18 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
             mName = itemView.findViewById(R.id.name);
             mProfilePic = itemView.findViewById(R.id.profilePic);
             mRelative = itemView.findViewById(R.id.card_relative);
+            mSince = itemView.findViewById(R.id.since);
 
         }
+    }
+
+    private String epochToIso8601(long time) {
+        Date date = new Date(time);
+        DateFormat format = new SimpleDateFormat("MMM dd");
+        format.setTimeZone(TimeZone.getDefault());
+        String formatted = format.format(date);
+
+        return formatted;
     }
 
     private void loadProfilePic(final String url, final ImageView mImageView){

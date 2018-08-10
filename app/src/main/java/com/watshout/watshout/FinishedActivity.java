@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,6 +35,11 @@ public class FinishedActivity extends AppCompatActivity{
     CheckBox stravaCheckBox;
     Button returnToMap;
 
+    // General database reference
+    DatabaseReference ref = FirebaseDatabase
+            .getInstance()
+            .getReference();
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -49,11 +56,11 @@ public class FinishedActivity extends AppCompatActivity{
         displayPath.setImageBitmap(bitmap);
 
         // load time and distance data
-        int min = getIntent().getIntExtra("MIN",0);
-        int sec = getIntent().getIntExtra("SEC",0);
+        final int min = getIntent().getIntExtra("MIN",0);
+        final int sec = getIntent().getIntExtra("SEC",0);
 
         // find distance data from GPX file on SD card
-        double dist = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
+        final double dist = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
 
         // display time data
         TextView time = findViewById(R.id.time);
@@ -97,6 +104,14 @@ public class FinishedActivity extends AppCompatActivity{
                     UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
                     uploadToDatabase.moveCurrentToPast(date);
 
+                    // Upload metadata to Firebase
+                    ref.child("users").child(uid).child("device").child("past")
+                            .child(date).child("distance").setValue(dist);
+                    ref.child("users").child(uid).child("device").child("past")
+                            .child(date).child("time").setValue(min + ":" + sec);
+
+                    Log.d("DISTANCE", dist + "");
+
                     // Upload GPX to Firebase Storage
                     XMLCreator.uploadToFirebaseStorage(date, wantsToUploadStrava);
                     XMLCreator.resetXML();
@@ -133,6 +148,7 @@ public class FinishedActivity extends AppCompatActivity{
 
     }
 
+    // Returns distance in MILES
     public double findDistanceFromGpx(String fileName){
 
         File path = this.getExternalFilesDir(null);
