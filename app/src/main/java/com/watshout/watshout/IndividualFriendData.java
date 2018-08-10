@@ -73,38 +73,41 @@ public class IndividualFriendData {
 
             Log.d("FRIEND", "This works now");
 
-            final double lat = dataSnapshot.child("lat").getValue(Double.class);
-            final double lon = dataSnapshot.child("lon").getValue(Double.class);
+            try {
+                final double lat = dataSnapshot.child("lat").getValue(Double.class);
+                final double lon = dataSnapshot.child("lon").getValue(Double.class);
 
-            // User just started tracking location
-            if (firstEntry){
+                // User just started tracking location
+                if (firstEntry){
 
-                listSize = mapFriendItems.size();
+                    listSize = mapFriendItems.size();
 
-                mapFriendItems.add(new MapFriendItem(name, new LatLng(lat, lon)));
-                RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
-                recyclerView.setAdapter(adapter);
+                    mapFriendItems.add(new MapFriendItem(name, new LatLng(lat, lon)));
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
+                    recyclerView.setAdapter(adapter);
 
-                firstEntry = false;
+                    firstEntry = false;
 
-                Log.d("FIRST", "First time run");
+                    Log.d("FIRST", "First time run");
 
-                mapPlotterList.put(uid, new MapPlotter(new ArrayList<Marker>(), googleMap, false, uid,
-                        context));
-                mapPlotterList.get(uid).addFriendMarker(lat, lon);
+                    mapPlotterList.put(uid, new MapPlotter(new ArrayList<Marker>(), googleMap, false, uid,
+                            context));
+                    mapPlotterList.get(uid).addFriendMarker(lat, lon);
 
-            } else {
+                } else {
 
-                mapFriendItems.get(listSize).setCoords(new LatLng(lat, lon));
+                    mapFriendItems.get(listSize).setCoords(new LatLng(lat, lon));
 
-                Log.d("FIRST", "Not first");
-                mapPlotterList.get(uid).addFriendMarker(lat, lon);
+                    Log.d("FIRST", "Not first");
+                    mapPlotterList.get(uid).addFriendMarker(lat, lon);
 
-                RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
-                recyclerView.setAdapter(adapter);
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
+                    recyclerView.setAdapter(adapter);
 
+                }
+            } catch (NullPointerException e){
+                Log.e("ERROR", e.toString());
             }
-
 
         }
 

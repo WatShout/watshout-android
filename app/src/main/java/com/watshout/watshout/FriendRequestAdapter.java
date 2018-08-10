@@ -61,11 +61,9 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
 
         final FriendItem friendItem = listItems.get(position);
-
-        Log.d("FRIEND", "Bind view holder");
 
         holder.mName.setText(friendItem.getName());
         loadProfilePic(friendItem.getProfilePic(), holder.mProfilePic);
@@ -78,7 +76,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             @Override
             public void onClick(View v) {
 
-                Log.d("FRIEND", "Clicked accept");
+                removeItem(position);
 
                 ref.child("friend_data").child(uid).child(theirUID).setValue(millis);
                 ref.child("friend_data").child(theirUID).child(uid).setValue(millis);
@@ -93,6 +91,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
         holder.mReject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                removeItem(position);
 
                 ref.child("friend_requests").child(uid).child(theirUID).removeValue();
                 ref.child("friend_requests").child(theirUID).child(uid).removeValue();
@@ -132,9 +132,14 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                 .load(url)
                 .placeholder(R.drawable.loading)
                 .resize(256, 256)
-                .centerCrop()
+                .transform(new CircleTransform())
                 .into(mImageView);
 
+    }
+
+    private void removeItem(int position){
+        listItems.remove(position);
+        notifyItemRemoved(position);
     }
 
 }

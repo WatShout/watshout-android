@@ -4,6 +4,7 @@ package com.watshout.watshout;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -221,6 +222,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
                             RecyclerView.Adapter adapter =
                                     new FriendRequestAdapter(friendRequests, getActivity());
+
                             recyclerView.setAdapter(adapter);
 
                             mSwipeRefreshLayout.setRefreshing(false);
@@ -352,9 +354,11 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
                 RelativeLayout relativeLayout = popupView.findViewById(R.id.request_relative_layout);
 
-                relativeLayout.setAlpha(0.8F);
+                relativeLayout.setAlpha(0.95F);
 
                 RecyclerView mRequestRecyclerView = popupView.findViewById(R.id.friendRequestView);
+                mRequestRecyclerView.setHasFixedSize(true);
+                mRequestRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
                 getFriendRequests(mRequestRecyclerView);
 
