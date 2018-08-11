@@ -5,12 +5,12 @@
 
     <ImageView
         android:id="@+id/finishedRun"
-        android:layout_width="208dp"
-        android:layout_height="277dp"
-        android:adjustViewBounds="true"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="116dp" />
+        android:layout_marginTop="132dp"
+        android:adjustViewBounds="true" />
 
     <TextView
         android:layout_width="wrap_content"

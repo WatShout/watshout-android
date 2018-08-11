@@ -42,4 +42,8 @@ public class EndpointURL {
     public String addActivityURL() {
         return getBaseURL() + "/api/addactivity/";
     }
+
+    public String getCreateMapURL() {
+        return "https://maps.googleapis.com/maps/api/staticmap?&size=600x300&maptype=roadmap&key=AIzaSyAxkvxOLITaJbTjnNXxDzDAwRyZaWD0D4s&sensor=true&path=color:0xff0000ff|enc:";
+    }
 }

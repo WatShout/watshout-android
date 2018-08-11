@@ -60,7 +60,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     implementation 'com.samsandberg.stravaauthenticator:strava-authenticator-android:2.0.0'
-    //
+    implementation 'com.google.maps.android:android-maps-utils:0.5+'
 }
 
 

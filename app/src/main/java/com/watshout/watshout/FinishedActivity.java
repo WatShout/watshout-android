@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Picasso;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,12 +42,20 @@ public class FinishedActivity extends AppCompatActivity{
     TextView time;
     TextView distance;
     TextView pace;
+    String mapURL;
+    ImageView mFinishedRun;
 
     // General database reference
     DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
 
+
+    void loadMapImage() {
+        Picasso.get()
+                .load(mapURL)
+                .into(mFinishedRun);
+    }
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -59,23 +68,20 @@ public class FinishedActivity extends AppCompatActivity{
         time = findViewById(R.id.time);
         distance = findViewById(R.id.distance);
         pace = findViewById(R.id.pace);
+        mFinishedRun = findViewById(R.id.finishedRun);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         String units = settings.getString("Units", "Metric");
 
         // Get value to determine whether or nlt to show checkbox
         hasStrava = Boolean.valueOf(getIntent().getStringExtra("STRAVA"));
+        mapURL = getIntent().getStringExtra("MAP_URL");
+
+        loadMapImage();
 
         if (!hasStrava) {
             stravaCheckBox.setVisibility(View.INVISIBLE);
         }
-
-        // load bitmap as byte array
-        byte[] bitmapdata = getIntent().getByteArrayExtra("MAP_IMAGE");
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
-
-        ImageView displayPath = findViewById(R.id.finishedRun);
-        displayPath.setImageBitmap(bitmap);
 
         // load time and distance data
         final int min = getIntent().getIntExtra("MIN",0);
@@ -122,7 +128,8 @@ public class FinishedActivity extends AppCompatActivity{
 
                     UploadToDatabase uploadToDatabase = new UploadToDatabase(uid,
                             paceCalculator.getMetricDistance(),
-                            paceCalculator.getMetricPace());
+                            paceCalculator.getMetricPace(),
+                            mapURL);
 
                     uploadToDatabase.moveCurrentToPast(date);
 

@@ -47,6 +47,7 @@ public class FusedLocation  {
     TextView distanceDialog;
     SharedPreferences settings;
     SharedPreferences.Editor editor;
+    List<LatLng> latLngList;
 
     private final static String TAG = "FusedLocation";
 
@@ -66,6 +67,16 @@ public class FusedLocation  {
         this.settings = PreferenceManager.getDefaultSharedPreferences(context);
         this.editor = settings.edit();
 
+        this.latLngList = new ArrayList<>();
+
+    }
+
+    public void resetLatLng() {
+        this.latLngList = new ArrayList<>();
+    }
+
+    public List getLatLng() {
+        return latLngList;
     }
 
     private void updateSharedPreferenceValues(double lat, double lon){
@@ -100,7 +111,7 @@ public class FusedLocation  {
                 float accuracy = location.getAccuracy();
 
                 mapPlotter.addMarker(lat, lon);
-                double newSpeed = 1609.34/speed;
+                double newSpeed = 1609.34 / speed;
                 int secondsSpeed = (int)(newSpeed%60);
                 String theSpeed;
                 newSpeed = (int)(newSpeed/60);
@@ -122,6 +133,7 @@ public class FusedLocation  {
                 if (MapFragment.currentlyTrackingLocation){
                     Log.d("TRACKING", "Currently uploading a location object");
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+                    latLngList.add(new LatLng(lat, lon));
 
                     TrackPoint temp = new TrackPoint();
                     //if(accuracy<16)
@@ -176,6 +188,7 @@ public class FusedLocation  {
     public double getTheSpeed() {
         return speed;
     }
+
     public double calculationByDistance(double initialLat, double initialLong, double finalLat, double finalLong){
         /*PRE: All the input values are in radians!*/
 

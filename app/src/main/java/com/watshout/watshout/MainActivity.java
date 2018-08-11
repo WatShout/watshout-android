@@ -254,6 +254,8 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 } catch (NullPointerException e){
                     mDistance.setText("N/A");
+                } catch (DatabaseException e){
+                    mDistance.setText("N/A");
                 }
 
             }

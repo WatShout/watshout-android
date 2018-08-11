@@ -64,6 +64,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.PolyUtil;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 
 import java.io.ByteArrayOutputStream;
@@ -90,6 +91,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
     MapView mv;
+
+    ArrayList<LatLng> latLngList;
 
     RetrofitInterface retrofitInterface = RetrofitClient
             .getRetrofitInstance().create(RetrofitInterface.class);
@@ -140,11 +143,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     Button popUpStart;
     Button popUpStop;
 
-    Button mCurrent;
-    Button mSignOut;
-    Button mAddFriend;
-    Button mViewFriends;
-    TextView mGreeting;
     TextView timerText;
     TextView speedTextDialog;
     TextView stepsDialog;
@@ -153,7 +151,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     Boolean hasStrava;
 
     ImageButton mCenter;
-    LatLng myLastLocation;
 
     long originalStartTime;
 
@@ -288,9 +285,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         layoutInflater = (LayoutInflater) getActivity()
                 .getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         assert layoutInflater != null;
-        //ViewGroup container1 = (ViewGroup) layoutInflater.inflate(R.layout.fragment_dialog, null);
-        //final DrawerLayout mRelativeLayout = view.findViewById(R.id.drawer_layout);
-
 
 
         mCenter = view.findViewById(R.id.recenter);
@@ -307,7 +301,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
 
-        final AlertDialog dialog = builder.create();
+
 
 
 
@@ -355,7 +349,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         floatingActionButton.hide();
 
-       checkLocationPermissions();
+        checkLocationPermissions();
 
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -406,6 +400,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                fusedLocation.resetLatLng();
 
                 sendActivityNotification();
                 //ActionBar actionBar = getSupportActionBar();
@@ -639,6 +635,11 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         floatingActionButton.show();
 
+        currentlyTrackingLocation = false;
+
+        String encodedPath = PolyUtil.encode(fusedLocation.getLatLng());
+        String mapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
+
         Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
 
         // Generates a current date
@@ -657,6 +658,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         byte[] bitmapdata = stream.toByteArray();
 
         openNext.putExtra("MAP_IMAGE", bitmapdata);
+        openNext.putExtra("MAP_URL", mapURL);
         openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
         openNext.putExtra("GPX_NAME_ONLY", date);
         openNext.putExtra("GPX_NAME",date+".gpx");

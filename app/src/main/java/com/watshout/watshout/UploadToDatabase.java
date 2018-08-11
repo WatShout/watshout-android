@@ -15,6 +15,7 @@ public class UploadToDatabase {
     private String distance;
     private String pace;
     private String currentDate;
+    private String mapUrl;
 
     private DatabaseReference ref = FirebaseDatabase
             .getInstance()
@@ -29,10 +30,11 @@ public class UploadToDatabase {
         this.currentDate = createFormattedDate();
     }
 
-    UploadToDatabase(String uid, String distance, String pace){
+    UploadToDatabase(String uid, String distance, String pace, String mapUrl){
         this.uid = uid;
         this.distance = distance;
         this.pace = pace;
+        this.mapUrl = mapUrl;
         this.currentDate = createFormattedDate();
     }
 
@@ -55,7 +57,7 @@ public class UploadToDatabase {
     // Creates data to be put into activity entry
     private EventInfo createMetadata(String type) {
         long time = System.currentTimeMillis();
-        return new EventInfo(type, time, distance, pace);
+        return new EventInfo(type, time, distance, pace, mapUrl);
 
     }
 
