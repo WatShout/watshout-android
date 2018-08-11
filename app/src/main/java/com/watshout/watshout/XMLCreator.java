@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -52,6 +53,8 @@ class XMLCreator {
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageReference = storage.getReference();
     private String date;
+
+    private final String TAG = "XMLCreator";
 
 
     XMLCreator(Context context, String uid) throws ParserConfigurationException {
@@ -153,7 +156,6 @@ class XMLCreator {
 
         trkseg.appendChild(trkpt);
 
-        Log.d("GPX", "Added point to GPX file");
     }
 
     public void saveFile(String date) throws TransformerException, IOException {
@@ -177,7 +179,7 @@ class XMLCreator {
 
         transformer.transform(source, result);
 
-        Log.d("GPX", "Saved GPX locally");
+        Log.d(TAG, "Saved GPX locally");
 
     }
 
@@ -197,7 +199,7 @@ class XMLCreator {
                 .putBytes(bytes).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                Log.d("GPX", "Uploaded GPX to Firebase Storage correctly");
+                Log.d(TAG, "Uploaded GPX to Firebase Storage correctly");
 
                 RequestQueue queue = Volley.newRequestQueue(context);
                 String stravaURL = EndpointURL.getInstance().getStravaURL(uid, date);
@@ -208,7 +210,7 @@ class XMLCreator {
                         @Override
                         public void onResponse(String response) {
 
-                                    Log.d("GPX", "Activity uploaded successfully!");
+                                    Log.d(TAG, "Activity uploaded successfully!");
                                 Toast.makeText(context, "Activity uploaded successfully!", Toast.LENGTH_SHORT).show();
 
                                 }
@@ -216,10 +218,9 @@ class XMLCreator {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                                Log.d("GPX", "Activity upload failed");
-                                Log.e("GPX", error.toString());
+                                Log.d(TAG, "Activity upload failed");
+                                Log.e(TAG, error.toString());
 
-                                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
 
                             }
                         }){
@@ -231,6 +232,11 @@ class XMLCreator {
                         return params;
                     }
                 };
+
+                createMapRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        5000,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                 queue.add(createMapRequest);
 
@@ -244,7 +250,7 @@ class XMLCreator {
                                     Toast.makeText(context,
                                             "Uploaded to Strava!",
                                             Toast.LENGTH_SHORT).show();
-                                    Log.d("GPX", "Uploaded GPX to Strava correctly");
+                                    Log.d(TAG, "Uploaded GPX to Strava correctly");
 
                                 }
                             }, new Response.ErrorListener() {
@@ -253,9 +259,14 @@ class XMLCreator {
                             Toast.makeText(context,
                                     "Strava upload failed",
                                     Toast.LENGTH_SHORT).show();
-                            Log.d("GPX", "Uploading GPX to Strava failed: " + error);
+                            Log.d(TAG, "Uploading GPX to Strava failed: " + error);
                         }
                     });
+
+                    stravaRequest.setRetryPolicy(new DefaultRetryPolicy(
+                            5000,
+                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                     queue.add(stravaRequest);
                 }
@@ -267,7 +278,6 @@ class XMLCreator {
     public void resetXML() {
         this.doc = docBuilder.newDocument();
         initializeNewFile();
-        Log.d("GPX", "Reset GPX file locally");
     }
 
 

@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -171,19 +172,23 @@ public class MainActivity extends AppCompatActivity implements
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                            Long time = ds.child("time").getValue(Long.class);
-
-                            String date;
-
                             try {
-                                date = new java.text.SimpleDateFormat("MMM dd")
-                                        .format(new java.util.Date (time));
+                                Long time = ds.child("time").getValue(Long.class);
 
-                            } catch (NullPointerException e){
-                                date = "Never";
+                                String date;
+
+                                try {
+                                    date = new java.text.SimpleDateFormat("MMM dd")
+                                            .format(new java.util.Date (time));
+
+                                } catch (NullPointerException e){
+                                    date = "Never";
+                                }
+
+                                mLastActive.setText(date);
+                            } catch (DatabaseException e){
+                                mLastActive.setText("Never");
                             }
-
-                            mLastActive.setText(date);
 
                         }
                     }
@@ -222,9 +227,42 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        TextView mDistance = headerView.findViewById(R.id.nav_header_total_distance);
+        final TextView mDistance = headerView.findViewById(R.id.nav_header_total_distance);
         mDistance.setText("N/A");
+        final double KM_TO_MILE = 0.621371;
 
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        final String units = settings.getString("Units", "Imperial");
+
+        ref.child("users").child(uid).child("device").child("past").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                double total = 0;
+
+                try {
+                    for (DataSnapshot snapshotChild : dataSnapshot.getChildren()) {
+                        double distance = snapshotChild.child("distance").getValue(Double.class);
+                        total += distance;
+                    }
+
+                    if (units.equals("Imperial")){
+                        total = total * KM_TO_MILE;
+                        mDistance.setText(total + " mi");
+                    } else {
+                        mDistance.setText(total + " km");
+                    }
+                } catch (NullPointerException e){
+                    mDistance.setText("N/A");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
