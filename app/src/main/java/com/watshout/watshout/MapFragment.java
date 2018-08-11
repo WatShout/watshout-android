@@ -8,7 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -180,9 +183,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // which is why we defined it globally
         googleMapGlobal = googleMap;
 
-        googleMapGlobal.setMapStyle(
-                MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_bw
-                ));
+        try {
+            googleMapGlobal.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_bw
+                    ));
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
 
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
@@ -441,53 +448,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         });
 
-        // TODO: Turn this into push notification
-        ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                String theirID = dataSnapshot.getKey();
-                String requestType = "";
-
-                requestIDs.add(theirID);
-
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    requestType = (String) child.getValue();
-                }
-
-                assert requestType != null;
-                if (requestType.equals("received")) {
-
-                    // Toast.makeText(getActivity().getApplicationContext(), theirID + " wants to be your friend", Toast.LENGTH_SHORT).show();
-
-                } else if (requestType.equals("sent")) {
-
-                    // Do nothing
-
-                }
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     public Runnable runnable = new Runnable() {
@@ -513,11 +473,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             handler.postDelayed(this, 0);
 
-            if(!currentlyTrackingLocation)
-            captureMapScreen();
+            if(!currentlyTrackingLocation){
+                //captureMapScreen();
+            }
+
 
             if (counter % 20000 == 0) {
-                captureMapScreen();
+                //captureMapScreen();
             }
 
             counter++;
@@ -597,9 +559,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onSnapshotReady(Bitmap snapshot) {
                 // TODO Auto-generated method stub
                 pathScreen = snapshot;
-                //Log.i("Map_Image",(pathScreen == null) + "");
+
             }
         };
+
         googleMapGlobal.snapshot(callback);
     }
 
@@ -647,11 +610,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-
-                }
-
+                public void onCancelled(DatabaseError databaseError) { }
             });
 
             activityRunning = true;
@@ -681,36 +640,28 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         floatingActionButton.show();
 
         Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
-        openNext.putExtra("MIN", Minutes);
-        openNext.putExtra("SEC", Seconds);
 
-        MillisecondTime = 0L ;
-        StartTime = 0L ;
-        TimeBuff = 0L ;
-        UpdateTime = 0L ;
-        Seconds = 0 ;
-        Minutes = 0 ;
-        MilliSeconds = 0 ;
-        handler.removeCallbacks(runnable);
-        timeRunning = false;
-
-        timerText.setText("0:00");
-
-        mStart.setBackgroundResource(android.R.drawable.btn_default);
-        currentlyTrackingLocation = false;
-        mapPlotter.clearPolyLines();
-        activityRunning  = false;
-
-        // Performs Firebase realtime database operations
+        // Generates a current date
         UploadToDatabase uploadToDatabase = new UploadToDatabase();
         String date = uploadToDatabase.getFormattedDate();
 
+        // send bitmap as byte array
+        //ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        //pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        //byte[] byteArray = stream.toByteArray();
+        //pathScreen.recycle();
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] bitmapdata = stream.toByteArray();
+
+        openNext.putExtra("MAP_IMAGE", bitmapdata);
         openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
-
         openNext.putExtra("GPX_NAME_ONLY", date);
-
-        //uploadToDatabase.moveCurrentToPast(date);
         openNext.putExtra("GPX_NAME",date+".gpx");
+        openNext.putExtra("MIN", Minutes);
+        openNext.putExtra("SEC", Seconds);
 
         // Writes an XML file
         try {
@@ -722,13 +673,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
 
         Carrier.setXMLCreator(XMLCreator);
-
-        // send bitmap as byte array
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-        pathScreen.recycle();
-        openNext.putExtra("MAP_IMAGE",byteArray);
 
         openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getActivity().getApplicationContext().startActivity(openNext);

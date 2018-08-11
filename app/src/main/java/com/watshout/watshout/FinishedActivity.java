@@ -1,5 +1,6 @@
 package com.watshout.watshout;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 public class FinishedActivity extends AppCompatActivity{
 
@@ -36,12 +38,17 @@ public class FinishedActivity extends AppCompatActivity{
 
     CheckBox stravaCheckBox;
     Button returnToMap;
+    TextView time;
+    TextView distance;
+    TextView pace;
 
     // General database reference
     DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
 
+
+    @SuppressLint("SetTextI18n")
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -49,6 +56,19 @@ public class FinishedActivity extends AppCompatActivity{
 
         stravaCheckBox = findViewById(R.id.stravaBox);
         returnToMap = findViewById(R.id.returnToMap);
+        time = findViewById(R.id.time);
+        distance = findViewById(R.id.distance);
+        pace = findViewById(R.id.pace);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        String units = settings.getString("Units", "Metric");
+
+        // Get value to determine whether or nlt to show checkbox
+        hasStrava = Boolean.valueOf(getIntent().getStringExtra("STRAVA"));
+
+        if (!hasStrava) {
+            stravaCheckBox.setVisibility(View.INVISIBLE);
+        }
 
         // load bitmap as byte array
         byte[] bitmapdata = getIntent().getByteArrayExtra("MAP_IMAGE");
@@ -61,63 +81,22 @@ public class FinishedActivity extends AppCompatActivity{
         final int min = getIntent().getIntExtra("MIN",0);
         final int sec = getIntent().getIntExtra("SEC",0);
 
-        // find distance data from GPX file on SD card
-        final double dist = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
-        final double KM_TO_MILE = 0.621371;
+        DecimalFormat formatter = new DecimalFormat("00");
+        String formattedMin = formatter.format(min);
+        String formattedSec = formatter.format(sec);
 
-        // display time data
-        TextView time = findViewById(R.id.time);
+        time.setText("Time: " + formattedMin + ":" + formattedSec);
 
-        time.setText(min + ":" + sec);
+        final double rawMetricDistance = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        String units = settings.getString("Units", "Imperial");
+        final PaceCalculator paceCalculator = new PaceCalculator(rawMetricDistance, min, sec);
 
-        // display pace and distance data
-        TextView distance = findViewById(R.id.distance);
-        TextView pace = findViewById(R.id.pace);
-
-        int totalSeconds = (min * 60) + sec;
-        double displayDist;
-        final String standardPace;
-
-        if (units.equals("Imperial")) {
-            displayDist = dist * KM_TO_MILE;
-
-            double rawPace = totalSeconds / displayDist;
-            int paceMinute = (int) (rawPace / 60);
-            int paceSecond = (int) rawPace - paceMinute * 60;
-
-            String minuteString = String.format("%02d", paceMinute);
-            String secondString = String.format("%02d", paceSecond);
-
-            if (displayDist == 0){
-                minuteString = "00";
-                secondString = "00";
-            }
-
-            standardPace = minuteString + ":" + secondString;
-
-            distance.setText(String.format("%.1f", displayDist) + " miles");
-            pace.setText(minuteString + ":" + secondString + " minute/mile");
+        if (units.equals("Metric")){
+            distance.setText("Distance: " + paceCalculator.getMetricDistance());
+            pace.setText("Pace: " + paceCalculator.getMetricPace());
         } else {
-            displayDist = dist;
-            double rawPace = totalSeconds / displayDist;
-            int paceMinute = (int) (rawPace / 60);
-            int paceSecond = (int) rawPace - paceMinute * 60;
-
-            String minuteString = String.format("%02d", paceMinute);
-            String secondString = String.format("%02d", paceSecond);
-
-            if (displayDist == 0){
-                minuteString = "00";
-                secondString = "00";
-            }
-
-            standardPace = minuteString + ":" + secondString;
-
-            distance.setText(String.format("%.1f", displayDist) + " kilometers");
-            pace.setText(minuteString + ":" + secondString + " minute/kilometer");
+            distance.setText("Distance: " + paceCalculator.getImperialDistance());
+            pace.setText("Pace: " + paceCalculator.getImperialPace());
         }
 
         // load GPX from carrier class
@@ -126,13 +105,6 @@ public class FinishedActivity extends AppCompatActivity{
         // Get GPX file name from Intent
         date = getIntent().getStringExtra("GPX_NAME");
         date = date.substring(0, date.length() - 4);
-
-        // Get value to determine whether or nlt to show checkbox
-        hasStrava = Boolean.valueOf(getIntent().getStringExtra("STRAVA"));
-
-        if (!hasStrava) {
-            stravaCheckBox.setVisibility(View.INVISIBLE);
-        }
 
         Button uploadGpx = findViewById(R.id.uploadGpx);
         uploadGpx.setOnClickListener(new View.OnClickListener() {
@@ -148,11 +120,10 @@ public class FinishedActivity extends AppCompatActivity{
 
                 try {
 
-                    String distance = String.format("%.1f", dist);
-                    double uploadDistance = Double.valueOf(distance);
-                    String pace = standardPace;
+                    UploadToDatabase uploadToDatabase = new UploadToDatabase(uid,
+                            paceCalculator.getMetricDistance(),
+                            paceCalculator.getMetricPace());
 
-                    UploadToDatabase uploadToDatabase = new UploadToDatabase(uid, distance, pace);
                     uploadToDatabase.moveCurrentToPast(date);
 
                     // Upload GPX to Firebase Storage
