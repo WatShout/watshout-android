@@ -44,6 +44,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.watshout.watshout.pojo.Friend;
+import com.watshout.watshout.pojo.FriendRequest;
+import com.watshout.watshout.pojo.FriendRequestList;
+import com.watshout.watshout.pojo.FriendsList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,6 +56,12 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
@@ -64,6 +74,9 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
     String email = thisUser.getEmail();
     String uid = thisUser.getUid();
+
+    RetrofitInterface retrofitInterface = RetrofitClient
+            .getRetrofitInstance().create(RetrofitInterface.class);
 
     private Menu menu;
 
@@ -116,6 +129,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             }
         });
 
+
         // This is a very hacky solution. Essentially this makes sure refreshData()
         // only loads ONCE.
         final boolean[] initialDataLoaded = new boolean[1];
@@ -163,7 +177,14 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             public void onChildRemoved(DataSnapshot dataSnapshot) {
 
                 if (initialDataLoaded[0]){
-                    refreshData();
+
+                    try {
+                        refreshData();
+                    } catch (NullPointerException e){
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(), "Error retrieving friends", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             }
 
@@ -186,144 +207,67 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             }
         });
 
-
-
     }
 
-    public void getFriendRequests(final RecyclerView recyclerView) {
+    public void getFriendRequests(final RecyclerView popUpRecyclerView){
 
         mSwipeRefreshLayout.setRefreshing(true);
 
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = EndpointURL.getInstance().getFriendRequestURL(uid);
+        Call<FriendRequestList> call = retrofitInterface.getFriendRequestList(uid);
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        ArrayList<FriendItem> friendRequests = new ArrayList<>();
-
-                        try {
-
-                            JSONObject jsonObject = new JSONObject(response);
-                            JSONArray array = jsonObject.getJSONArray("friend_requests");
-
-                            for (int i = 0; i < array.length(); i++) {
-                                JSONObject o = array.getJSONObject(i);
-
-                                friendRequests.add(new FriendItem(
-                                        o.getString("name"),
-                                        o.getString("uid"),
-                                        o.getString("profile_pic"),
-                                        0
-                                ));
-
-                            }
-
-                            RecyclerView.Adapter adapter =
-                                    new FriendRequestAdapter(friendRequests, getActivity());
-
-                            recyclerView.setAdapter(adapter);
-
-                            mSwipeRefreshLayout.setRefreshing(false);
-
-                        } catch (JSONException e) {
-
-                            Log.d("REQUEST_DATA", "ERROR!!!");
-                            e.printStackTrace();
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
+        call.enqueue(new Callback<FriendRequestList>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("REQUEST_DATA", error.toString());
+            public void onResponse(Call<FriendRequestList> call, retrofit2.Response<FriendRequestList> response) {
+
+                List<FriendRequest> friendRequestList = response.body().getFriendRequests();
+                RecyclerView.Adapter adapter =
+                        new FriendRequestAdapter(friendRequestList, getActivity());
+
+                popUpRecyclerView.setAdapter(adapter);
+                mSwipeRefreshLayout.setRefreshing(false);
+
             }
 
+            @Override
+            public void onFailure(Call<FriendRequestList> call, Throwable t) {
+
+            }
         });
-
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        queue.add(stringRequest);
-
     }
 
     public void getFriendsList() {
 
         mSwipeRefreshLayout.setRefreshing(true);
 
-        // Instantiate the RequestQueue.
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        Call<FriendsList> call = retrofitInterface.getFriendsList(uid);
 
-        String url = EndpointURL.getInstance().getFriendURL(uid);
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        mSwipeRefreshLayout.setRefreshing(false);
-
-                        ArrayList<FriendItem> listItems = new ArrayList<>();
-
-                        try {
-
-                            JSONObject jsonObject = new JSONObject(response);
-                            JSONArray array = jsonObject.getJSONArray("friends");
-
-                            for (int i = 0; i < array.length(); i++) {
-                                JSONObject o = array.getJSONObject(i);
-
-                                listItems.add(new FriendItem(
-                                        o.getString("name"),
-                                        o.getString("uid"),
-                                        o.getString("profile_pic"),
-                                        Long.parseLong(o.getString("since"))
-                                ));
-
-                            }
-
-                            // Sort friends list in alphabetical order
-                            Collections.sort(listItems);
-
-                            friendAdapter = new FriendAdapter(listItems, getActivity());
-
-                            SwipeController swipeController = new SwipeController(listItems,
-                                    uid, getActivity(), friendAdapter, mFriendRecyclerView);
-
-                            mFriendRecyclerView.setAdapter(friendAdapter);
-
-                            ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
-                            itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
-
-                            mSwipeRefreshLayout.setRefreshing(false);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
+        call.enqueue(new Callback<FriendsList>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("ERROR", error.toString());
+            public void onResponse(Call<FriendsList> call, retrofit2.Response<FriendsList> response) {
+
+                List<Friend> friendList = response.body().getFriends();
+
+                Collections.sort(friendList);
+                friendAdapter = new FriendAdapter(friendList, getActivity());
+
+                SwipeController swipeController = new SwipeController((ArrayList<Friend>) friendList,
+                        uid, getActivity(), friendAdapter, mFriendRecyclerView);
+
+                mFriendRecyclerView.setAdapter(friendAdapter);
+
+                ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+                itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
+
+                mSwipeRefreshLayout.setRefreshing(false);
+
             }
 
+            @Override
+            public void onFailure(Call<FriendsList> call, Throwable t) {
+                Log.d("RETRO", t.toString());
+            }
         });
 
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        requestQueue.add(stringRequest);
 
     }
 
@@ -446,7 +390,36 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                                                     ref.child("friend_requests").child(theirUID).child(uid)
                                                             .child("request_type").setValue("received");
 
-                                                    Toast.makeText(getActivity(), "Request sent!", Toast.LENGTH_SHORT).show();
+                                                    RequestQueue queue = Volley.newRequestQueue(getActivity());
+                                                    String friendRequestNotifyURL = EndpointURL.getInstance().getFriendRequestNotifyURL();
+
+                                                    StringRequest createFriendRequest = new StringRequest(Request.Method.POST,
+                                                            friendRequestNotifyURL, new Response.Listener<String>() {
+                                                        @Override
+                                                        public void onResponse(String response) {
+
+                                                            Toast.makeText(getActivity(), "Request sent!", Toast.LENGTH_SHORT).show();
+
+                                                        }
+                                                    }, new Response.ErrorListener() {
+                                                        @Override
+                                                        public void onErrorResponse(VolleyError error) {
+
+                                                            Toast.makeText(getActivity(), "Request failed!", Toast.LENGTH_SHORT).show();
+
+                                                        }
+                                                    }){
+                                                        @Override
+                                                        protected Map<String,String> getParams(){
+                                                            Map<String,String> params = new HashMap<String, String>();
+                                                            params.put("my_uid", uid);
+                                                            params.put("their_uid", theirUID);
+                                                            return params;
+                                                        }
+                                                    };
+
+                                                    queue.add(createFriendRequest);
+
 
                                                 }
                                                 progressDialog.dismiss();

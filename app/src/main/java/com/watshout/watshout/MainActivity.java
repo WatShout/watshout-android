@@ -3,8 +3,10 @@ package com.watshout.watshout;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.design.internal.NavigationMenuView;
 import android.support.design.widget.NavigationView;
@@ -31,6 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -120,6 +123,21 @@ public class MainActivity extends AppCompatActivity implements
             ref.child("users").child(uid).child("strava_token").setValue(stravaToken);
             Toast.makeText(this, "Successfully connected with Strava!",
                     Toast.LENGTH_SHORT).show();
+        }
+
+        try {
+            ref.child("users").child(uid).child("fcm_token").setValue(FirebaseInstanceId.getInstance().getToken());
+        } catch (NullPointerException e){
+            e.printStackTrace();
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String token = prefs.getString("fcm_token", null);
+
+            if (token != null){
+
+                ref.child("users").child(uid).child("fcm_token").setValue(token);
+
+            }
         }
 
         Menu m = navigationView.getMenu();

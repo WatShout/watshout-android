@@ -60,6 +60,10 @@ dependencies {
     implementation 'com.takisoft.fix:preference-v7:25.3.0.0'
     implementation 'xyz.danoz:recyclerviewfastscroller:0.1.3'
 
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
+
     implementation 'com.samsandberg.stravaauthenticator:strava-authenticator-android:2.0.0'
 
 }

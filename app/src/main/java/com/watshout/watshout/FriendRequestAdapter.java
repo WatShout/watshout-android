@@ -19,6 +19,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
+import com.watshout.watshout.pojo.Friend;
+import com.watshout.watshout.pojo.FriendRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +34,7 @@ import java.util.TimeZone;
 
 public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.ViewHolder> {
 
-    private List<FriendItem> listItems;
+    private List<FriendRequest> listItems;
     private Context context;
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -44,7 +46,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             .getReference();
 
 
-    FriendRequestAdapter(List<FriendItem> listItems, Context context) {
+    FriendRequestAdapter(List<FriendRequest> listItems, Context context) {
         this.listItems = listItems;
         this.context = context;
     }
@@ -63,12 +65,12 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
 
-        final FriendItem friendItem = listItems.get(position);
+        final FriendRequest friendItem = listItems.get(position);
 
         holder.mName.setText(friendItem.getName());
         loadProfilePic(friendItem.getProfilePic(), holder.mProfilePic);
 
-        final String theirUID = friendItem.getUID();
+        final String theirUID = friendItem.getUid();
 
         final String millis = Long.toString(System.currentTimeMillis());
 

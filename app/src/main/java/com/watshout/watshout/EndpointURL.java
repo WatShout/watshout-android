@@ -11,7 +11,7 @@ public class EndpointURL {
     private EndpointURL() {
     }
 
-    private String getBaseURL() {
+    public String getBaseURL() {
         return "https://watshout-test.appspot.com";
     }
 
@@ -33,6 +33,10 @@ public class EndpointURL {
 
     public String getStravaURL(String uid, String date){
         return getBaseURL() + "/api/strava/upload/" + uid + "/" + date + "/";
+    }
+
+    public String getFriendRequestNotifyURL(){
+        return getBaseURL() + "/api/sendfriendnotification/";
     }
 
     public String addActivityURL() {

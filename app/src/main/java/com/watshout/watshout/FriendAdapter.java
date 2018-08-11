@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.watshout.watshout.pojo.Friend;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -33,10 +34,10 @@ import java.util.TimeZone;
 
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder> {
 
-    private List<FriendItem> listItems;
+    private List<Friend> listItems;
     private Context context;
 
-    FriendAdapter(List<FriendItem> listItems, Context context) {
+    FriendAdapter(List<Friend> listItems, Context context) {
         this.listItems = listItems;
         this.context = context;
     }
@@ -55,13 +56,13 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        final FriendItem friendItem = listItems.get(position);
+        final Friend friendItem = listItems.get(position);
         holder.mName.setText(friendItem.getName());
 
         holder.mRelative.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("FRIEND ", "Clicked on " + friendItem.getUID());
+                Log.d("FRIEND ", "Clicked on " + friendItem.getUid());
             }
         });
 

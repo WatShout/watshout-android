@@ -19,6 +19,7 @@ import android.view.View;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.watshout.watshout.pojo.Friend;
 
 import java.util.ArrayList;
 
@@ -30,7 +31,7 @@ class SwipeController extends Callback {
             .getInstance()
             .getReference();
 
-    ArrayList<FriendItem> listItems;
+    ArrayList<Friend> listItems;
     String myUID;
 
     private Paint p = new Paint();
@@ -42,7 +43,7 @@ class SwipeController extends Callback {
     RecyclerView recyclerView;
 
 
-    SwipeController(ArrayList<FriendItem> listItems, String myUID, Context context,
+    SwipeController(ArrayList<Friend> listItems, String myUID, Context context,
                     RecyclerView.Adapter adapter, RecyclerView recyclerView) {
 
         this.listItems = listItems;
@@ -70,8 +71,8 @@ class SwipeController extends Callback {
 
         int index = viewHolder.getAdapterPosition();
 
-        FriendItem current = listItems.get(index);
-        String theirUID = current.getUID();
+        Friend current = listItems.get(index);
+        String theirUID = current.getUid();
         String theirName = current.getName();
 
         removeFriend(theirName, theirUID, index, adapter);
