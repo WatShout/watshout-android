@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.watshout.watshout.pojo.Activity;
 
 import org.w3c.dom.Text;
 
@@ -28,10 +29,10 @@ import java.util.TimeZone;
 
 public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHolder> {
 
-    private List<NewsFeedItem> listItems;
+    private List<Activity> listItems;
     private Context context;
 
-    NewsFeedAdapter(List<NewsFeedItem> listItems, Context context) {
+    NewsFeedAdapter(List<Activity> listItems, Context context) {
         this.listItems = listItems;
         this.context = context;
     }
@@ -50,15 +51,15 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        NewsFeedItem newsFeedItem = listItems.get(position);
+        Activity newsFeedItem = listItems.get(position);
         holder.mName.setText(newsFeedItem.getName());
 
-        Long time = Long.parseLong(newsFeedItem.getTime());
+        Long time = newsFeedItem.getTime();
 
         String formattedTime = epochToIso8601(time);
 
         holder.mTime.setText(formattedTime);
-        holder.mActivityName.setText(newsFeedItem.getActivityName());
+        holder.mActivityName.setText(newsFeedItem.getEventName());
 
         String initials = "";
         for (String s : newsFeedItem.getName().split(" ")) {
@@ -67,8 +68,9 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
         holder.mInitials.setText(initials);
         holder.mActivityDistance.setText(newsFeedItem.getDistance());
         holder.mActivityTime.setText(newsFeedItem.getTimeElapsed());
+        holder.mActivityPace.setText(newsFeedItem.getPace());
 
-        loadMapImage(newsFeedItem.getImageURL(), holder.mMap);
+        loadMapImage(newsFeedItem.getMapLink(), holder.mMap);
 
     }
 

@@ -31,6 +31,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.watshout.watshout.pojo.Activity;
+import com.watshout.watshout.pojo.NewsFeedList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +42,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 
 public class NewsFeedFragment extends android.app.Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -51,6 +56,9 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
 
     FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
     String uid = thisUser.getUid();
+
+    RetrofitInterface retrofitInterface = RetrofitClient
+            .getRetrofitInstance().create(RetrofitInterface.class);
 
     @Nullable
     @Override
@@ -94,93 +102,43 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
                 mSwipeRefreshLayout.setRefreshing(true);
 
                 // Fetching data from server
-                loadRecyclerViewData();
+                loadNewsFeed();
             }
         });
 
 
     }
 
-    private void loadRecyclerViewData() {
-        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Loading data...");
-        //progressDialog.show();
+    private void loadNewsFeed() {
 
         mSwipeRefreshLayout.setRefreshing(true);
 
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = EndpointURL.getInstance().getNewsFeedURL(uid);
+        Call<NewsFeedList> call = retrofitInterface.getNewsFeed(uid);
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        progressDialog.dismiss();
-
-                        listItems = new ArrayList<>();
-
-                        try {
-
-                            JSONObject jsonObject = new JSONObject(response);
-                            JSONArray array = jsonObject.getJSONArray("activities");
-
-                            if (!response.equals("{\"activities\": []}")) {
-                                for (int i = 0; i < array.length(); i++) {
-                                    JSONObject o = array.getJSONObject(i);
-                                    NewsFeedItem newsFeedItem = new NewsFeedItem(
-                                            o.getString("name"),
-                                            o.getString("image"),
-                                            o.getString("time"),
-                                            o.getString("event_name"),
-                                            o.getString("distance"),
-                                            o.getString("time_elapsed")
-                                    );
-
-                                    listItems.add(newsFeedItem);
-
-                                }
-                            }
-
-                            if (listItems.size() == 0){
-                                Toast.makeText(getActivity(), "No activities to show!",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-
-                            mSwipeRefreshLayout.setRefreshing(false);
-
-                            adapter = new NewsFeedAdapter(listItems, getActivity());
-                            recyclerView.setAdapter(adapter);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (NullPointerException e){
-                            e.printStackTrace();
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
+        call.enqueue(new Callback<NewsFeedList>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("ERROR", error.toString());
+            public void onResponse(Call<NewsFeedList> call, retrofit2.Response<NewsFeedList> response) {
+
+                List<Activity> newsFeedList = response.body().getActivities();
+
+                adapter = new NewsFeedAdapter(newsFeedList, getActivity());
+                recyclerView.setAdapter(adapter);
+
+                mSwipeRefreshLayout.setRefreshing(false);
+
             }
 
+            @Override
+            public void onFailure(Call<NewsFeedList> call, Throwable t) {
+                Log.e("RETRO", t.toString());
+            }
         });
 
-
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        queue.add(stringRequest);
 
     }
 
     @Override
     public void onRefresh() {
-        loadRecyclerViewData();
+        loadNewsFeed();
     }
 }

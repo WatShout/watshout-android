@@ -3,6 +3,7 @@ package com.watshout.watshout;
 import com.watshout.watshout.pojo.FriendRequestList;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.FriendsList;
+import com.watshout.watshout.pojo.NewsFeedList;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -20,6 +21,11 @@ public interface RetrofitInterface {
 
     @GET("/api/friendrequests/{uid}/")
     Call<FriendRequestList> getFriendRequestList(
+            @Path("uid") String token
+    );
+
+    @GET("/api/newsfeed/{uid}/")
+    Call<NewsFeedList> getNewsFeed(
             @Path("uid") String token
     );
 

@@ -17,7 +17,7 @@ public class Activity {
     private String mapLink;
     @SerializedName("time")
     @Expose
-    private Integer time;
+    private Long time;
     @SerializedName("event_name")
     @Expose
     private String eventName;
@@ -26,7 +26,10 @@ public class Activity {
     private String distance;
     @SerializedName("time_elapsed")
     @Expose
-    private Integer timeElapsed;
+    private String timeElapsed;
+    @SerializedName("pace")
+    @Expose
+    private String pace;
 
     public String getUid() {
         return uid;
@@ -52,11 +55,11 @@ public class Activity {
         this.mapLink = mapLink;
     }
 
-    public Integer getTime() {
+    public Long getTime() {
         return time;
     }
 
-    public void setTime(Integer time) {
+    public void setTime(Long time) {
         this.time = time;
     }
 
@@ -76,12 +79,16 @@ public class Activity {
         this.distance = distance;
     }
 
-    public Integer getTimeElapsed() {
+    public String getTimeElapsed() {
         return timeElapsed;
     }
 
-    public void setTimeElapsed(Integer timeElapsed) {
+    public void setTimeElapsed(String timeElapsed) {
         this.timeElapsed = timeElapsed;
     }
+
+    public String getPace() { return pace; }
+
+    public void setPace(String pace) { this.pace = pace; }
 
 }

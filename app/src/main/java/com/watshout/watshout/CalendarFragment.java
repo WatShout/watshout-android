@@ -36,6 +36,8 @@ import com.applandeo.materialcalendarview.EventDay;
 import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.watshout.watshout.pojo.Activity;
+import com.watshout.watshout.pojo.NewsFeedList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,6 +54,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 
@@ -64,13 +69,16 @@ public class CalendarFragment extends android.app.Fragment {
 
     private com.applandeo.materialcalendarview.CalendarView mCalendarView;
 
-    private ArrayList<NewsFeedItem> listItems;
+    private List<Activity> listItems;
 
     private ArrayList<String> roundedDates;
     private HashMap<String, ArrayList> allEventInfo;
 
     private RecyclerView mRecycleView;
     private RecyclerView.Adapter adapter;
+
+    RetrofitInterface retrofitInterface = RetrofitClient
+            .getRetrofitInstance().create(RetrofitInterface.class);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,7 +101,7 @@ public class CalendarFragment extends android.app.Fragment {
         mCalendarView = view.findViewById(R.id.calendarView);
         mCalendarView.setOnDayClickListener(listener);
 
-        getCalendarData();
+        getData();
 
     }
 
@@ -107,15 +115,23 @@ public class CalendarFragment extends android.app.Fragment {
 
                 ArrayList<HashMap> currentlySelected = allEventInfo.get(selectedDate);
 
-                ArrayList<NewsFeedItem> listItems = new ArrayList<>();
+                ArrayList<Activity> listItems = new ArrayList<>();
 
                 for (HashMap hashMap : currentlySelected) {
 
                     String key = (String) hashMap.keySet().toArray()[0];
 
                     HashMap<String, String> individual = (HashMap) hashMap.get(key);
-                    NewsFeedItem current = new NewsFeedItem(name, individual.get("link"), individual.get("time"),
-                            individual.get("event_name"), individual.get("distance"), individual.get("time_elapsed"));
+
+                    Activity current = new Activity();
+                    current.setName(name);
+                    current.setMapLink(individual.get("link"));
+                    current.setTime(Long.valueOf(individual.get("time")));
+                    current.setEventName(individual.get("event_name"));
+                    current.setDistance(individual.get("distance"));
+                    current.setTimeElapsed(individual.get("time_elapsed"));
+                    current.setPace(individual.get("pace"));
+
                     listItems.add(current);
 
                 }
@@ -153,118 +169,74 @@ public class CalendarFragment extends android.app.Fragment {
 
     }
 
-    public void getCalendarData() {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = EndpointURL.getInstance().getHistoryURL(uid);
+    public void getData() {
 
         final ProgressDialog progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage("Loading data...");
         progressDialog.show();
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
+        Call<NewsFeedList> call = retrofitInterface.getNewsFeed(uid);
 
-                        listItems = new ArrayList<>();
-                        allEventInfo = new HashMap<>();
-                        roundedDates = new ArrayList<>();
-                        List<EventDay> events = new ArrayList<>();
+        call.enqueue(new Callback<NewsFeedList>() {
+            @Override
+            public void onResponse(Call<NewsFeedList> call, retrofit2.Response<NewsFeedList> response) {
 
-                        try {
+                listItems = response.body().getActivities();
+                allEventInfo = new HashMap<>();
+                roundedDates = new ArrayList<>();
+                List<EventDay> events = new ArrayList<>();
 
-                            JSONObject jsonObject = new JSONObject(response);
-                            JSONArray array = jsonObject.getJSONArray("activities");
+                for (Activity currentActivity : listItems){
 
-                            Log.d("CALENDAR", array.toString());
+                    Timestamp t = new Timestamp(Long.valueOf(currentActivity.getTime())); // replace with existing timestamp
+                    Date d = new Date(t.getTime());
 
-                            if (!response.equals("{\"activities\": []}")) {
-                                for (int i = 0; i < array.length(); i++) {
-                                    JSONObject o = array.getJSONObject(i);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(d);
 
-                                    listItems.add(new NewsFeedItem(
-                                            "self",
-                                            o.getString("image"),
-                                            o.getString("time"),
-                                            o.getString("event_name"),
-                                            o.getString("distance"),
-                                            o.getString("time_elapsed")
-                                    ));
+                    EventDay current = new EventDay(calendar, R.drawable.running_black);
+                    String roundedDate = current.getCalendar().getTime().toString();
 
-                                }
-                            }
+                    if(!roundedDates.contains(roundedDate)){
+                        roundedDates.add(roundedDate);
+                    }
 
-                            for (NewsFeedItem item : listItems){
+                    HashMap<String, HashMap> individualItem = new HashMap<>();
+                    HashMap<String, String> individualItemInfo = new HashMap<>();
 
-                                Timestamp t = new Timestamp(Long.valueOf(item.getTime())); // replace with existing timestamp
-                                Date d = new Date(t.getTime());
+                    individualItemInfo.put("time", currentActivity.getTime() + "");
+                    individualItemInfo.put("link", currentActivity.getMapLink());
+                    individualItemInfo.put("event_name", currentActivity.getEventName());
+                    individualItemInfo.put("distance", currentActivity.getDistance());
+                    individualItemInfo.put("time_elapsed", currentActivity.getTimeElapsed());
+                    individualItemInfo.put("pace", currentActivity.getPace());
 
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTime(d);
+                    individualItem.put(currentActivity.getTime() + "", individualItemInfo);
 
-                                EventDay current = new EventDay(calendar, R.drawable.running_black);
-                                String roundedDate = current.getCalendar().getTime().toString();
+                    if (allEventInfo.get(roundedDate) == null) {
 
-                                if(!roundedDates.contains(roundedDate)){
-                                    roundedDates.add(roundedDate);
-                                }
+                        ArrayList<HashMap> activityList = new ArrayList<>();
+                        activityList.add(individualItem);
 
-                                HashMap<String, HashMap> individualItem = new HashMap<>();
-                                HashMap<String, String> individualItemInfo = new HashMap<>();
+                        allEventInfo.put(roundedDate, activityList);
 
-                                individualItemInfo.put("time", item.getTime());
-                                individualItemInfo.put("link", item.getImageURL());
-                                individualItemInfo.put("event_name", item.getActivityName());
-                                individualItemInfo.put("distance", item.getDistance());
-                                individualItemInfo.put("time_elapsed", item.getTimeElapsed());
+                    } else {
 
-                                individualItem.put(item.getTime(), individualItemInfo);
-
-                                if (allEventInfo.get(roundedDate) == null) {
-
-                                    ArrayList<HashMap> activityList = new ArrayList<>();
-                                    activityList.add(individualItem);
-
-                                    allEventInfo.put(roundedDate, activityList);
-
-                                } else {
-
-                                    allEventInfo.get(roundedDate).add(individualItem);
-
-                                }
-
-                                events.add(current);
-
-                            }
-
-                            mCalendarView.setEvents(events);
-                            progressDialog.dismiss();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        allEventInfo.get(roundedDate).add(individualItem);
 
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("ERROR", error.toString());
+
+                    events.add(current);
+                }
+
+                mCalendarView.setEvents(events);
+                progressDialog.dismiss();
             }
 
+            @Override
+            public void onFailure(Call<NewsFeedList> call, Throwable t) {
+
+            }
         });
-
-
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        queue.add(stringRequest);
-
     }
-
-
-
 }

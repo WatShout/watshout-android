@@ -79,11 +79,11 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
     RetrofitInterface retrofitInterface = RetrofitClient
             .getRetrofitInstance().create(RetrofitInterface.class);
 
-    private Menu menu;
-
     DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
+
+    Menu menu;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
