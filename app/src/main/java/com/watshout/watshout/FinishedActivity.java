@@ -129,6 +129,7 @@ public class FinishedActivity extends AppCompatActivity{
                     UploadToDatabase uploadToDatabase = new UploadToDatabase(uid,
                             paceCalculator.getMetricDistance(),
                             paceCalculator.getMetricPace(),
+                            paceCalculator.getTotalSeconds(),
                             mapURL);
 
                     uploadToDatabase.moveCurrentToPast(date);

@@ -22,6 +22,8 @@ public class PaceCalculator {
         calculateValues();
     }
 
+    public int getTotalSeconds() {return (min * 60) + sec;}
+
     public String getMetricPace(){
         return metricPace;
     }
