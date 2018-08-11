@@ -4,13 +4,12 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class MapFriendItem {
+public class FriendCurrentLocation {
 
     private String initials;
     private LatLng coords;
 
-    MapFriendItem(String initials, LatLng coords) {
-        Log.d("FRIENDS", "Initializing Map Friend Item");
+    FriendCurrentLocation(String initials, LatLng coords) {
         this.initials = initials;
         this.coords = coords;
     }

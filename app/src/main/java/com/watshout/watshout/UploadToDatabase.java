@@ -12,14 +12,27 @@ import java.util.Date;
 public class UploadToDatabase {
 
     private String uid;
+    private String distance;
+    private String pace;
     private String currentDate;
 
     private DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
 
+    UploadToDatabase(){
+        this.currentDate = createFormattedDate();
+    }
+
     UploadToDatabase(String uid){
         this.uid = uid;
+        this.currentDate = createFormattedDate();
+    }
+
+    UploadToDatabase(String uid, String distance, String pace){
+        this.uid = uid;
+        this.distance = distance;
+        this.pace = pace;
         this.currentDate = createFormattedDate();
     }
 
@@ -42,7 +55,7 @@ public class UploadToDatabase {
     // Creates data to be put into activity entry
     private EventInfo createMetadata(String type) {
         long time = System.currentTimeMillis();
-        return new EventInfo(type, time);
+        return new EventInfo(type, time, distance, pace);
 
     }
 

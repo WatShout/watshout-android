@@ -118,6 +118,7 @@ public class FusedLocation  {
                 Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
                         + "\nAccuracy: " + accuracy);
 
+                Log.d("LAT", lat + ", " + lon);
                 if (MapFragment.currentlyTrackingLocation){
                     Log.d("TRACKING", "Currently uploading a location object");
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();

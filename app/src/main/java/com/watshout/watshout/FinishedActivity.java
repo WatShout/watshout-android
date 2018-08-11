@@ -79,6 +79,7 @@ public class FinishedActivity extends AppCompatActivity{
 
         int totalSeconds = (min * 60) + sec;
         double displayDist;
+        final String standardPace;
 
         if (units.equals("Imperial")) {
             displayDist = dist * KM_TO_MILE;
@@ -95,22 +96,27 @@ public class FinishedActivity extends AppCompatActivity{
                 secondString = "00";
             }
 
+            standardPace = minuteString + ":" + secondString;
+
             distance.setText(String.format("%.1f", displayDist) + " miles");
             pace.setText(minuteString + ":" + secondString + " minute/mile");
         } else {
-            double rawPace = totalSeconds / dist;
+            displayDist = dist;
+            double rawPace = totalSeconds / displayDist;
             int paceMinute = (int) (rawPace / 60);
             int paceSecond = (int) rawPace - paceMinute * 60;
 
             String minuteString = String.format("%02d", paceMinute);
             String secondString = String.format("%02d", paceSecond);
 
-            if (dist == 0){
+            if (displayDist == 0){
                 minuteString = "00";
                 secondString = "00";
             }
 
-            distance.setText(String.format("%.1f", dist) + " kilometers");
+            standardPace = minuteString + ":" + secondString;
+
+            distance.setText(String.format("%.1f", displayDist) + " kilometers");
             pace.setText(minuteString + ":" + secondString + " minute/kilometer");
         }
 
@@ -142,14 +148,12 @@ public class FinishedActivity extends AppCompatActivity{
 
                 try {
 
-                    UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
-                    uploadToDatabase.moveCurrentToPast(date);
+                    String distance = String.format("%.1f", dist);
+                    double uploadDistance = Double.valueOf(distance);
+                    String pace = standardPace;
 
-                    // Upload metadata to Firebase
-                    ref.child("users").child(uid).child("device").child("past")
-                            .child(date).child("distance").setValue(dist);
-                    ref.child("users").child(uid).child("device").child("past")
-                            .child(date).child("time").setValue(min + ":" + sec);
+                    UploadToDatabase uploadToDatabase = new UploadToDatabase(uid, distance, pace);
+                    uploadToDatabase.moveCurrentToPast(date);
 
                     // Upload GPX to Firebase Storage
                     XMLCreator.uploadToFirebaseStorage(date, wantsToUploadStrava);

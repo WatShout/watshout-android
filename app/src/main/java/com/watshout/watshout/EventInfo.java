@@ -4,11 +4,15 @@ public class EventInfo {
 
     public String type;
     public long time;
+    public String distance;
+    public String pace;
 
-    public EventInfo(String type, long time){
+    EventInfo(String type, long time, String distance, String pace){
 
         this.type = type;
         this.time = time;
+        this.distance = distance;
+        this.pace = pace;
 
     }
 }

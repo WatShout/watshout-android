@@ -12,7 +12,7 @@ import com.google.firebase.database.FirebaseDatabase;
 class LocationObject {
 
     public String uid;
-    private double lat;
+    public double lat;
     public double lon;
     public double speed;
     public double bearing;

@@ -702,8 +702,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         activityRunning  = false;
 
         // Performs Firebase realtime database operations
-        UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
-
+        UploadToDatabase uploadToDatabase = new UploadToDatabase();
         String date = uploadToDatabase.getFormattedDate();
 
         openNext.putExtra("STRAVA", Boolean.toString(hasStrava));

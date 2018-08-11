@@ -18,11 +18,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //Log data to Log Cat
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
+
+        String title = remoteMessage.getNotification().getTitle();
+        String body = remoteMessage.getNotification().getBody();
+
         //create notification
-        createNotification(remoteMessage.getNotification().getBody());
+        createNotification(title, body);
     }
 
-    private void createNotification( String messageBody) {
+    private void createNotification(String title, String body) {
         Intent intent = new Intent( this , MainActivity. class );
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent resultIntent = PendingIntent.getActivity( this , 0, intent,
@@ -31,8 +35,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Uri notificationSoundURI = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder( this)
                 .setSmallIcon(R.drawable.running)
-                .setContentTitle("watshout")
-                .setContentText(messageBody)
+                .setContentTitle(title)
+                .setContentText(body)
                 .setAutoCancel( true )
                 .setSound(notificationSoundURI)
                 .setContentIntent(resultIntent);

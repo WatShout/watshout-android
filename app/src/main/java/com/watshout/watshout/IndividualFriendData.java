@@ -2,28 +2,22 @@ package com.watshout.watshout;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class IndividualFriendData {
 
@@ -47,13 +41,12 @@ public class IndividualFriendData {
 
     private Bitmap profilePic;
 
-    private List<MapFriendItem> mapFriendItems;
+    private HashMap<String, FriendCurrentLocation> friendsCurrentlyOnMap;
 
-    private int listSize;
 
     IndividualFriendData(String name, String uid, HashMap mapPlotterList, GoogleMap googleMap,
                          RecyclerView recyclerView, Context context,
-                         List mapFriendItems){
+                         HashMap<String, FriendCurrentLocation> friendsCurrentlyOnMap){
 
         this.name = getInitials(name);
         this.uid = uid;
@@ -61,7 +54,7 @@ public class IndividualFriendData {
         this.googleMap = googleMap;
         this.recyclerView = recyclerView;
         this.context = context;
-        this.mapFriendItems = mapFriendItems;
+        this.friendsCurrentlyOnMap = friendsCurrentlyOnMap;
 
         firstEntry = true;
 
@@ -71,37 +64,39 @@ public class IndividualFriendData {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-            Log.d("FRIEND", "This works now");
-
             try {
                 final double lat = dataSnapshot.child("lat").getValue(Double.class);
                 final double lon = dataSnapshot.child("lon").getValue(Double.class);
 
                 // User just started tracking location
                 if (firstEntry){
-
-                    listSize = mapFriendItems.size();
-
-                    mapFriendItems.add(new MapFriendItem(name, new LatLng(lat, lon)));
-                    RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
-                    recyclerView.setAdapter(adapter);
-
+                    Log.d("FIRST", "First time run");
                     firstEntry = false;
 
-                    Log.d("FIRST", "First time run");
+                    // Add new FriendCurrentLocation with the user's latest lat/lng
+                    friendsCurrentlyOnMap.put(uid, (new FriendCurrentLocation(name, new LatLng(lat, lon))));
 
+                    // Create a new adapter using the newly-updated HashMap. Set the adapter on the
+                    // 'bubble sidebar'
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(friendsCurrentlyOnMap, context, googleMap);
+                    recyclerView.setAdapter(adapter);
+
+                    // Create a new entry in mapPlotterList with a new MapPlotter object that is specific
+                    // to this user
                     mapPlotterList.put(uid, new MapPlotter(new ArrayList<Marker>(), googleMap, false, uid,
                             context));
+
+                    // This actually plots the marker/polyline on the Google map object
                     mapPlotterList.get(uid).addFriendMarker(lat, lon);
 
                 } else {
 
-                    mapFriendItems.get(listSize).setCoords(new LatLng(lat, lon));
-
-                    Log.d("FIRST", "Not first");
+                    // Simply update the latest lat/lng values and plot them on the map
+                    friendsCurrentlyOnMap.get(uid).setCoords(new LatLng(lat, lon));
                     mapPlotterList.get(uid).addFriendMarker(lat, lon);
 
-                    RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
+                    // Set the adapter with new values
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(friendsCurrentlyOnMap, context, googleMap);
                     recyclerView.setAdapter(adapter);
 
                 }
@@ -112,24 +107,16 @@ public class IndividualFriendData {
         }
 
         @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-        }
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
 
         @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-        }
+        public void onChildRemoved(DataSnapshot dataSnapshot) { }
 
         @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-        }
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
 
         @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
+        public void onCancelled(DatabaseError databaseError) { }
     };
 
     public void startTrackingLocation() {
@@ -147,14 +134,10 @@ public class IndividualFriendData {
     public void listenForStop() {
         ref.child("users").child(uid).child("device").addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) { }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
@@ -164,37 +147,28 @@ public class IndividualFriendData {
 
                     firstEntry = true;
 
-                    try {
+                    if (mapPlotterList.get(uid) != null){
+                        // Remove entry from map
                         mapPlotterList.get(uid).removeFromMap();
                         mapPlotterList.remove(uid);
-                        mapFriendItems.remove(listSize);
-                        RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
-                        recyclerView.setAdapter(adapter);
-                    } catch (NullPointerException e){
-                        mapPlotterList.remove(uid);
-                        mapFriendItems.remove(listSize);
-                        RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
-                        recyclerView.setAdapter(adapter);
-                    } catch (IndexOutOfBoundsException e){
-                        mapPlotterList.remove(uid);
-                        RecyclerView.Adapter adapter = new MapFriendAdapter(new ArrayList<MapFriendItem>(), context, googleMap);
-                        recyclerView.setAdapter(adapter);
                     }
 
+                    // Remove entry from map friend items
+                    if (friendsCurrentlyOnMap.get(uid) != null){
+                        friendsCurrentlyOnMap.remove(uid);
+                    }
 
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(friendsCurrentlyOnMap, context, googleMap);
+                    recyclerView.setAdapter(adapter);
 
                 }
             }
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) { }
         });
     }
 
@@ -212,7 +186,7 @@ public class IndividualFriendData {
         return resizedBitmap;
     }
 
-    public String getInitials(String text) {
+    private String getInitials(String text) {
         String firstLetters = "";
         text = text.replaceAll("[.,]", ""); // Replace dots, etc (optional)
         for(String s : text.split(" "))
