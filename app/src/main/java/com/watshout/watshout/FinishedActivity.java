@@ -151,8 +151,6 @@ public class FinishedActivity extends AppCompatActivity{
                     ref.child("users").child(uid).child("device").child("past")
                             .child(date).child("time").setValue(min + ":" + sec);
 
-                    Log.d("DISTANCE", dist + "");
-
                     // Upload GPX to Firebase Storage
                     XMLCreator.uploadToFirebaseStorage(date, wantsToUploadStrava);
                     XMLCreator.resetXML();

@@ -48,6 +48,8 @@ public class FusedLocation  {
     SharedPreferences settings;
     SharedPreferences.Editor editor;
 
+    private final static String TAG = "FusedLocation";
+
     FusedLocation(Context context, MapPlotter mapPlotter, String uid,
                   XMLCreator XMLCreator, TextView speedTextDialog,
                   TextView stepsDialog, TextView distanceDialog)
@@ -97,8 +99,6 @@ public class FusedLocation  {
 
                 float accuracy = location.getAccuracy();
 
-                Log.wtf("GPSACCURACY", accuracy + "");
-
                 mapPlotter.addMarker(lat, lon);
                 double newSpeed = 1609.34/speed;
                 int secondsSpeed = (int)(newSpeed%60);
@@ -115,7 +115,8 @@ public class FusedLocation  {
                     speedTextDialog.setText(theSpeed + " min/mile");
                 }
 
-                Log.wtf("GPSGPSGPS", "Lat: " + lat + "\nLong" + lon + "\nTracking: " +"Speed: " + speed + MapFragment.currentlyTrackingLocation);
+                Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
+                        + "\nAccuracy: " + accuracy);
 
                 if (MapFragment.currentlyTrackingLocation){
                     Log.d("TRACKING", "Currently uploading a location object");
@@ -161,7 +162,7 @@ public class FusedLocation  {
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(1000)
                 .setFastestInterval(1000)
-                .setSmallestDisplacement(5);
+                .setSmallestDisplacement(0);
 
         return locationRequest;
 
