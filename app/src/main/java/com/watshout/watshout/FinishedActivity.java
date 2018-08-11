@@ -2,9 +2,11 @@ package com.watshout.watshout;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -61,17 +63,56 @@ public class FinishedActivity extends AppCompatActivity{
 
         // find distance data from GPX file on SD card
         final double dist = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
+        final double KM_TO_MILE = 0.621371;
 
         // display time data
         TextView time = findViewById(R.id.time);
 
-        time.setText("" + min + "m " + sec +"s");
+        time.setText(min + ":" + sec);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        String units = settings.getString("Units", "Imperial");
 
         // display pace and distance data
         TextView distance = findViewById(R.id.distance);
         TextView pace = findViewById(R.id.pace);
-        distance.setText(String.format("%5.2f",dist)+" miles");
-        pace.setText(String.format("%5.2f",((3600*dist)/((min*60)+sec)))+" mph");
+
+        int totalSeconds = (min * 60) + sec;
+        double displayDist;
+
+        if (units.equals("Imperial")) {
+            displayDist = dist * KM_TO_MILE;
+
+            double rawPace = totalSeconds / displayDist;
+            int paceMinute = (int) (rawPace / 60);
+            int paceSecond = (int) rawPace - paceMinute * 60;
+
+            String minuteString = String.format("%02d", paceMinute);
+            String secondString = String.format("%02d", paceSecond);
+
+            if (displayDist == 0){
+                minuteString = "00";
+                secondString = "00";
+            }
+
+            distance.setText(String.format("%.1f", displayDist) + " miles");
+            pace.setText(minuteString + ":" + secondString + " minute/mile");
+        } else {
+            double rawPace = totalSeconds / dist;
+            int paceMinute = (int) (rawPace / 60);
+            int paceSecond = (int) rawPace - paceMinute * 60;
+
+            String minuteString = String.format("%02d", paceMinute);
+            String secondString = String.format("%02d", paceSecond);
+
+            if (dist == 0){
+                minuteString = "00";
+                secondString = "00";
+            }
+
+            distance.setText(String.format("%.1f", dist) + " kilometers");
+            pace.setText(minuteString + ":" + secondString + " minute/kilometer");
+        }
 
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
@@ -157,6 +198,7 @@ public class FinishedActivity extends AppCompatActivity{
         BufferedReader reader;
 
         final double COORD_TO_MILE = 69.172;
+        final double MILE_TO_KM = 1.60934;
         double dist = 0;
 
         try{
@@ -194,7 +236,8 @@ public class FinishedActivity extends AppCompatActivity{
             Log.wtf("GPX_READER","Failed to read GPX from SD card.");
         }
 
-        return dist;
+        // Converts miles to km before returning
+        return dist * MILE_TO_KM;
 
     }
 

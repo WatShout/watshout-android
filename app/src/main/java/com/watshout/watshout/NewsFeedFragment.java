@@ -156,6 +156,8 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        } catch (NullPointerException e){
+                            e.printStackTrace();
                         }
 
                     }
