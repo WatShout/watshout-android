@@ -61,6 +61,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.watshout.watshout.pojo.FriendRequestResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,6 +69,9 @@ import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class MapFragment extends android.app.Fragment implements OnMapReadyCallback, SensorEventListener {
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -83,6 +87,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
     MapView mv;
+
+    RetrofitInterface retrofitInterface = RetrofitClient
+            .getRetrofitInstance().create(RetrofitInterface.class);
 
     int totalSteps;
 
@@ -393,6 +400,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
 
+                sendActivityNotification();
                 //ActionBar actionBar = getSupportActionBar();
                 ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
                 //actionBar.hide();
@@ -726,6 +734,24 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getActivity().getApplicationContext().startActivity(openNext);
         getActivity().finish();
+    }
+
+    public void sendActivityNotification() {
+
+        Call<FriendRequestResponse> call =
+                retrofitInterface.sendActivityNotification(uid);
+
+        call.enqueue(new Callback<FriendRequestResponse>() {
+            @Override
+            public void onResponse(Call<FriendRequestResponse> call, retrofit2.Response<FriendRequestResponse> response) {
+                Log.d("RETRO", "Running notification works");
+            }
+
+            @Override
+            public void onFailure(Call<FriendRequestResponse> call, Throwable t) {
+                Log.d("RETRO", t.toString());
+            }
+        });
     }
 
 }

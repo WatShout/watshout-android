@@ -1,10 +1,14 @@
 package com.watshout.watshout;
 
 import com.watshout.watshout.pojo.FriendRequestList;
+import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.FriendsList;
 
 import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface RetrofitInterface {
@@ -19,5 +23,17 @@ public interface RetrofitInterface {
             @Path("uid") String token
     );
 
+    @FormUrlEncoded
+    @POST("/api/sendfriendnotification/")
+    Call<FriendRequestResponse> sendFriendNotification(
+            @Field("my_uid") String myUID,
+            @Field("their_uid") String theirUID
+    );
+
+    @FormUrlEncoded
+    @POST("/api/activitystartnotification/")
+    Call<FriendRequestResponse> sendActivityNotification(
+            @Field("my_uid") String myUID
+    );
 
 }

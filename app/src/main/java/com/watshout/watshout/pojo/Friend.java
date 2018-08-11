@@ -3,7 +3,6 @@ package com.watshout.watshout.pojo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.watshout.watshout.FriendItem;
 
 public class Friend implements Comparable<Friend>{
 

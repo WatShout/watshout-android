@@ -175,6 +175,10 @@ public class IndividualFriendData {
                         mapFriendItems.remove(listSize);
                         RecyclerView.Adapter adapter = new MapFriendAdapter(mapFriendItems, context, googleMap);
                         recyclerView.setAdapter(adapter);
+                    } catch (IndexOutOfBoundsException e){
+                        mapPlotterList.remove(uid);
+                        RecyclerView.Adapter adapter = new MapFriendAdapter(new ArrayList<MapFriendItem>(), context, googleMap);
+                        recyclerView.setAdapter(adapter);
                     }
 
 

@@ -47,6 +47,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.watshout.watshout.pojo.Friend;
 import com.watshout.watshout.pojo.FriendRequest;
 import com.watshout.watshout.pojo.FriendRequestList;
+import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.FriendsList;
 
 import org.json.JSONArray;
@@ -384,41 +385,22 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
                                                 } else {
 
-                                                    ref.child("friend_requests").child(uid).child(theirUID)
-                                                            .child("request_type").setValue("sent");
+                                                    firebaseFriendRequest(theirUID);
 
-                                                    ref.child("friend_requests").child(theirUID).child(uid)
-                                                            .child("request_type").setValue("received");
+                                                    Call<FriendRequestResponse> call =
+                                                            retrofitInterface.sendFriendNotification(uid, theirUID);
 
-                                                    RequestQueue queue = Volley.newRequestQueue(getActivity());
-                                                    String friendRequestNotifyURL = EndpointURL.getInstance().getFriendRequestNotifyURL();
-
-                                                    StringRequest createFriendRequest = new StringRequest(Request.Method.POST,
-                                                            friendRequestNotifyURL, new Response.Listener<String>() {
+                                                    call.enqueue(new Callback<FriendRequestResponse>() {
                                                         @Override
-                                                        public void onResponse(String response) {
-
-                                                            Toast.makeText(getActivity(), "Request sent!", Toast.LENGTH_SHORT).show();
+                                                        public void onResponse(Call<FriendRequestResponse> call, retrofit2.Response<FriendRequestResponse> response) {
 
                                                         }
-                                                    }, new Response.ErrorListener() {
-                                                        @Override
-                                                        public void onErrorResponse(VolleyError error) {
 
-                                                            Toast.makeText(getActivity(), "Request failed!", Toast.LENGTH_SHORT).show();
+                                                        @Override
+                                                        public void onFailure(Call<FriendRequestResponse> call, Throwable t) {
 
                                                         }
-                                                    }){
-                                                        @Override
-                                                        protected Map<String,String> getParams(){
-                                                            Map<String,String> params = new HashMap<String, String>();
-                                                            params.put("my_uid", uid);
-                                                            params.put("their_uid", theirUID);
-                                                            return params;
-                                                        }
-                                                    };
-
-                                                    queue.add(createFriendRequest);
+                                                    });
 
 
                                                 }
@@ -455,6 +437,14 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                 });
 
 
+    }
+
+    public void firebaseFriendRequest(String theirUID){
+        ref.child("friend_requests").child(uid).child(theirUID)
+                .child("request_type").setValue("sent");
+
+        ref.child("friend_requests").child(theirUID).child(uid)
+                .child("request_type").setValue("received");
     }
 
 }
