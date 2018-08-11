@@ -138,7 +138,9 @@ public class FinishedActivity extends AppCompatActivity{
                     XMLCreator.resetXML();
 
 
-                }catch (IOException e){e.printStackTrace();}
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
 
                 progressDialog.dismiss();
 
