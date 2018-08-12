@@ -5,11 +5,11 @@
 
     <ImageView
         android:id="@+id/finishedRun"
-        android:layout_width="300dp"
-        android:layout_height="200dp"
+        android:layout_width="275dp"
+        android:layout_height="275dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="132dp"
+        android:layout_marginTop="76dp"
         android:adjustViewBounds="true" />
 
     <TextView
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="63dp"
+        android:layout_marginTop="23dp"
         android:text="Run Complete"
         android:textSize="30dp" />
 
@@ -79,11 +79,10 @@
         android:id="@+id/stravaBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/returnToMap"
-        android:layout_below="@+id/time"
-        android:layout_marginTop="-148dp"
-        android:text="Upload to Strava"
-        android:layout_alignRight="@+id/returnToMap" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/uploadGpx"
+        android:layout_marginBottom="12dp"
+        android:text="Upload to Strava" />
 
 
 </RelativeLayout>

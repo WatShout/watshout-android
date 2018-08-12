@@ -187,7 +187,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         try {
             googleMapGlobal.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_bw
+                    MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_color
                     ));
         } catch (NullPointerException e){
             e.printStackTrace();

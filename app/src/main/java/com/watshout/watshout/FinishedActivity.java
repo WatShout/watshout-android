@@ -54,6 +54,7 @@ public class FinishedActivity extends AppCompatActivity{
     void loadMapImage() {
         Picasso.get()
                 .load(mapURL)
+                .resize(600, 300)
                 .into(mFinishedRun);
     }
 
@@ -95,15 +96,10 @@ public class FinishedActivity extends AppCompatActivity{
 
         final double rawMetricDistance = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
 
-        final PaceCalculator paceCalculator = new PaceCalculator(rawMetricDistance, min, sec);
+        final PaceCalculator pc = new PaceCalculator(rawMetricDistance, min, sec, this);
 
-        if (units.equals("Metric")){
-            distance.setText("Distance: " + paceCalculator.getMetricDistance());
-            pace.setText("Pace: " + paceCalculator.getMetricPace());
-        } else {
-            distance.setText("Distance: " + paceCalculator.getImperialDistance());
-            pace.setText("Pace: " + paceCalculator.getImperialPace());
-        }
+        distance.setText("Distance: " + pc.getDistance() + pc.getDistanceUnits());
+        pace.setText("Pace: " + pc.getPace() + pc.getPaceUnits());
 
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
@@ -127,9 +123,9 @@ public class FinishedActivity extends AppCompatActivity{
                 try {
 
                     UploadToDatabase uploadToDatabase = new UploadToDatabase(uid,
-                            paceCalculator.getMetricDistance(),
-                            paceCalculator.getMetricPace(),
-                            paceCalculator.getTotalSeconds(),
+                            pc.getMetricDistance(),
+                            pc.getMetricPace(),
+                            pc.getTotalSeconds(),
                             mapURL);
 
                     uploadToDatabase.moveCurrentToPast(date);
