@@ -30,6 +30,9 @@ public class Activity {
     @SerializedName("pace")
     @Expose
     private String pace;
+    @SerializedName("activity_id")
+    @Expose
+    private String activityID;
 
     public String getUid() {
         return uid;
@@ -90,5 +93,9 @@ public class Activity {
     public String getPace() { return pace; }
 
     public void setPace(String pace) { this.pace = pace; }
+
+    public String getActivityID() { return activityID; }
+
+    public void setActivityID(String activityID) { this.activityID = activityID; }
 
 }

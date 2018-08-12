@@ -333,52 +333,59 @@ public class MainActivity extends AppCompatActivity implements
         // set item as selected to persist highlight
         int id = menuItem.getItemId();
 
-        if (id == R.id.nav_news_feed) {
+        switch (id) {
 
-            Log.e("NEWS", "news feed");
+            case R.id.nav_news_feed:
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, new NewsFeedFragment())
+                        .commit();
+                break;
 
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new NewsFeedFragment())
-                    .commit();
+            case R.id.nav_home:
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, mapFragment)
+                        .commit();
+                break;
 
-        } else if (id == R.id.nav_home) {
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, mapFragment)
-                    .commit();
+            case R.id.nav_calendar:
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, new CalendarFragment())
+                        .commit();
+                break;
 
-        }
-        else if (id == R.id.nav_calendar) {
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new CalendarFragment())
-                    .commit();
+            case R.id.nav_settings:
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, new SettingsFragment())
+                        .commit();
+                break;
 
-        }
-        else if (id == R.id.nav_settings) {
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new SettingsFragment())
-                    .commit();
+            case R.id.nav_friends:
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, new FriendFragment())
+                        .commit();
+                break;
 
-        } else if (id == R.id.nav_signout) {
+            case R.id.nav_signout:
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, new SignOutFragment())
+                        .commit();
+                break;
 
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new SignOutFragment())
-                    .commit();
-
-        } else if (id == R.id.nav_friends) {
-
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.screen_area, new FriendFragment())
-                    .commit();
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
     }
 
     @Override

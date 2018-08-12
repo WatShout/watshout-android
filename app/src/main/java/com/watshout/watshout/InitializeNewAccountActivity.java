@@ -123,26 +123,6 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                                 }
                             });
 
-                    /*
-                    storageReference.child("users").child(uid).child(fileName).getBytes(TEN_MEGABYTE)
-                            .addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                        @Override
-                        public void onSuccess(byte[] bytes) {
-
-                            Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                            mProfile.setImageBitmap(bmp);
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-
-                            // Handle any errors
-
-                        }
-                    });
-                    */
-
                 }
             }
 

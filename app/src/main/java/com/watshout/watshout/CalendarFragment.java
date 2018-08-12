@@ -131,6 +131,7 @@ public class CalendarFragment extends android.app.Fragment {
                     current.setDistance(individual.get("distance"));
                     current.setTimeElapsed(individual.get("time_elapsed"));
                     current.setPace(individual.get("pace"));
+                    current.setActivityID(individual.get("activity_id"));
 
                     listItems.add(current);
 
@@ -147,19 +148,14 @@ public class CalendarFragment extends android.app.Fragment {
                 mRecycleView.setHasFixedSize(true);
                 mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-                adapter = new NewsFeedAdapter(listItems, getActivity());
+                adapter = new NewsFeedAdapter(listItems, getActivity(), true);
                 mRecycleView.setAdapter(adapter);
 
                 PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
                 popupWindow.setAnimationStyle(R.style.popup_window_animation);
                 popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
 
-
-            } catch (NullPointerException e){
-
-                //Toast.makeText(getActivity(), "Error with retrieving events", Toast.LENGTH_SHORT).show();
-
-            }
+            } catch (NullPointerException e){ }
         }
     };
 
@@ -172,10 +168,10 @@ public class CalendarFragment extends android.app.Fragment {
     public void getData() {
 
         final ProgressDialog progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Loading data...");
+        progressDialog.setMessage("Loading activities...");
         progressDialog.show();
 
-        Call<NewsFeedList> call = retrofitInterface.getNewsFeed(uid);
+        Call<NewsFeedList> call = retrofitInterface.getHistory(uid);
 
         call.enqueue(new Callback<NewsFeedList>() {
             @Override
@@ -210,6 +206,7 @@ public class CalendarFragment extends android.app.Fragment {
                     individualItemInfo.put("distance", currentActivity.getDistance());
                     individualItemInfo.put("time_elapsed", currentActivity.getTimeElapsed());
                     individualItemInfo.put("pace", currentActivity.getPace());
+                    individualItemInfo.put("activity_id", currentActivity.getActivityID());
 
                     individualItem.put(currentActivity.getTime() + "", individualItemInfo);
 

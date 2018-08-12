@@ -53,16 +53,16 @@ public class PaceCalculator {
         int metricSecondPace = (int) (rawMetricPace - metricMinutePace * 60);
 
         if (rawMetricDistance == 0.0){
-            metricMinutePace = 0;
-            metricSecondPace = 0;
-            metricDistanceString = "0.0";
+            this.metricDistance = "0.0";
+            this.metricPace = "0:00";
+        } else {
+            String metricMinuteString = String.format("%02d", metricMinutePace);
+            String metricSecondString = String.format("%02d", metricSecondPace);
+
+            this.metricPace = metricMinuteString + ":" + metricSecondString;
+            this.metricDistance = metricDistanceString;
         }
 
-        String metricMinuteString = String.format("%02d", metricMinutePace);
-        String metricSecondString = String.format("%02d", metricSecondPace);
-
-        this.metricPace = metricMinuteString + ":" + metricSecondString;
-        this.metricDistance = metricDistanceString;
     }
 
     private void calculateImperialValues() {
@@ -81,16 +81,15 @@ public class PaceCalculator {
         int imperialSecondPace = (int) (rawMetricPace - imperialMinutePace * 60);
 
         if (rawImperialDistance == 0.0){
-            imperialMinutePace = 0;
-            imperialSecondPace = 0;
-            imperialDistanceString = "0.0";
+            this.imperialDistance = "0.0";
+            this.imperialPace = "0:00";
+        } else {
+            String metricMinuteString = String.format("%02d", imperialMinutePace);
+            String metricSecondString = String.format("%02d", imperialSecondPace);
+
+            this.metricPace = metricMinuteString + ":" + metricSecondString;
+            this.metricDistance = imperialDistanceString;
         }
-
-        String imperialMinuteString = String.format("%02d", imperialMinutePace);
-        String imperialSecondString = String.format("%02d", imperialSecondPace);
-
-        this.imperialPace = imperialMinuteString + ":" + imperialSecondString;
-        this.imperialDistance = imperialDistanceString;
     }
 
     private void calculateValues() {

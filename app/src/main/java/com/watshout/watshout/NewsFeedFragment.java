@@ -84,8 +84,6 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
 
         listItems = new ArrayList<>();
 
-        Log.d("UID", uid);
-
         // SwipeRefreshLayout
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -121,7 +119,7 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
 
                 List<Activity> newsFeedList = response.body().getActivities();
 
-                adapter = new NewsFeedAdapter(newsFeedList, getActivity());
+                adapter = new NewsFeedAdapter(newsFeedList, getActivity(), false);
                 recyclerView.setAdapter(adapter);
 
                 mSwipeRefreshLayout.setRefreshing(false);

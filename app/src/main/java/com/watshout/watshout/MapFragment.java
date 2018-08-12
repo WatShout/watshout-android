@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -140,6 +141,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     Button mStart;
     Button mStop;
 
+    Button mCamera;
+
     Button popUpStart;
     Button popUpStop;
 
@@ -166,6 +169,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     // For permissions
     int permCode = 200;
+
+    private final static int CAMERA = 350;
 
     public MapFragment() {
     }
@@ -253,6 +258,11 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        Log.d("MAP", "hello");
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -286,9 +296,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 .getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         assert layoutInflater != null;
 
-
         mCenter = view.findViewById(R.id.recenter);
-
         mRecyclerView = view.findViewById(R.id.friendRecycleView);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -300,11 +308,20 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         builder.setView(popUpView);
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
+        mCamera = popUpView.findViewById(R.id.cameraButton);
+        mCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                //startActivityForResult(cameraIntent, CAMERA);
+
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, CAMERA);
 
 
-
-
-
+            }
+        });
 
         FloatingActionButton fabDialog = (FloatingActionButton) popUpView.findViewById(R.id.fabDialog);
         fabDialog.setOnClickListener(new View.OnClickListener() {
@@ -636,6 +653,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         floatingActionButton.show();
 
         currentlyTrackingLocation = false;
+        activityRunning = false;
 
         String encodedPath = PolyUtil.encode(fusedLocation.getLatLng());
         String mapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;

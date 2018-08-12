@@ -29,6 +29,11 @@ public interface RetrofitInterface {
             @Path("uid") String token
     );
 
+    @GET("/api/history/{uid}/")
+    Call<NewsFeedList> getHistory(
+            @Path("uid") String token
+    );
+
     @FormUrlEncoded
     @POST("/api/sendfriendnotification/")
     Call<FriendRequestResponse> sendFriendNotification(

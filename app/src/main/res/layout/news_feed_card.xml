@@ -169,6 +169,15 @@
                     android:text="7:25 /mi"
                     android:textColor="#fff"
                     android:textSize="18dp" />
+
+                <ImageView
+                    android:id="@+id/deleteActivity"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignTop="@+id/imageView2"
+                    android:layout_marginRight="25dp"
+                    app:srcCompat="@drawable/decline" />
             </RelativeLayout>
 
 
