@@ -69,6 +69,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
 import com.watshout.watshout.pojo.FriendRequestResponse;
+import com.watshout.watshout.pojo.NewsFeedList;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -77,14 +78,11 @@ import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import mad.location.manager.lib.Commons.Utils;
-import mad.location.manager.lib.Services.KalmanLocationService;
-import mad.location.manager.lib.Services.ServicesHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 
-public class MapFragment extends android.app.Fragment implements OnMapReadyCallback, SensorEventListener,
-        mad.location.manager.lib.Interfaces.LocationServiceInterface, mad.location.manager.lib.Interfaces.SimpleTempCallback {
+public class MapFragment extends android.app.Fragment implements OnMapReadyCallback, SensorEventListener {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
@@ -245,11 +243,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mapPlotter.moveCamera(zoom);
     }
 
-
-    /*public void setSpeed(Double speed) {
-        distanceText.setText(speed + "");
-    }*/
-
     public void onPause(){
         super.onPause();
 
@@ -291,29 +284,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
 
         mRelativeLayout = view.findViewById(R.id.relative);
-
-        ServicesHelper.getLocationService(getActivity(), value -> {
-
-            if (value.IsRunning()){
-                return;
-            }
-            value.stop();
-            KalmanLocationService.Settings settings =
-                    new KalmanLocationService.Settings(Utils.ACCELEROMETER_DEFAULT_DEVIATION,
-                            Utils.GPS_MIN_DISTANCE,
-                            Utils.GPS_MIN_TIME,
-                            Utils.GEOHASH_DEFAULT_PREC,
-                            Utils.GEOHASH_DEFAULT_MIN_POINT_COUNT,
-                            Utils.SENSOR_DEFAULT_FREQ_HZ,
-                            null, false);
-
-            value.reset(settings);
-            value.start();
-
-            Log.d("MAD", Boolean.toString(value.IsRunning()));
-        });
-
-
 
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -690,48 +660,75 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         currentlyTrackingLocation = false;
         activityRunning = false;
 
-        String encodedPath = PolyUtil.encode(fusedLocation.getLatLng());
-        String mapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
+        String coordinateList = "";
 
-        Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
+        for (LatLng current : (ArrayList<LatLng>) fusedLocation.getLatLng()){
 
-        // Generates a current date
-        UploadToDatabase uploadToDatabase = new UploadToDatabase();
-        String date = uploadToDatabase.getFormattedDate();
+            coordinateList += current.latitude + "," + current.longitude;
 
-        // send bitmap as byte array
-        //ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        //pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        //byte[] byteArray = stream.toByteArray();
-        //pathScreen.recycle();
-
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] bitmapdata = stream.toByteArray();
-
-        openNext.putExtra("MAP_IMAGE", bitmapdata);
-        openNext.putExtra("MAP_URL", mapURL);
-        openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
-        openNext.putExtra("GPX_NAME_ONLY", date);
-        openNext.putExtra("GPX_NAME",date+".gpx");
-        openNext.putExtra("MIN", Minutes);
-        openNext.putExtra("SEC", Seconds);
-
-        // Writes an XML file
-        try {
-            XMLCreator.saveFile(date);
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
-        Carrier.setXMLCreator(XMLCreator);
+        //String encodedPath = PolyUtil.encode(fusedLocation.getLatLng());
+        //String mapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
 
-        openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getActivity().getApplicationContext().startActivity(openNext);
-        getActivity().finish();
+        Call<String> call = retrofitInterface.createRoadSnap(coordinateList);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+
+                String mapURL = response.body();
+
+
+                Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
+
+                // Generates a current date
+                UploadToDatabase uploadToDatabase = new UploadToDatabase();
+                String date = uploadToDatabase.getFormattedDate();
+
+                // send bitmap as byte array
+                //ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                //pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                //byte[] byteArray = stream.toByteArray();
+                //pathScreen.recycle();
+
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byte[] bitmapdata = stream.toByteArray();
+
+                openNext.putExtra("MAP_IMAGE", bitmapdata);
+                openNext.putExtra("MAP_URL", mapURL);
+                openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
+                openNext.putExtra("GPX_NAME_ONLY", date);
+                openNext.putExtra("GPX_NAME",date+".gpx");
+                openNext.putExtra("MIN", Minutes);
+                openNext.putExtra("SEC", Seconds);
+
+                // Writes an XML file
+                try {
+                    XMLCreator.saveFile(date);
+                } catch (TransformerException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Carrier.setXMLCreator(XMLCreator);
+
+                openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getActivity().getApplicationContext().startActivity(openNext);
+                getActivity().finish();
+
+
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+
+
     }
 
     public void sendActivityNotification() {
@@ -752,15 +749,4 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         });
     }
 
-    @Override
-    public void locationChanged(Location location) {
-        Log.d("MAD", "This is running");
-        Log.d("MAD", location.getLatitude() + "");
-        Toast.makeText(getActivity(), "Lat: " + location.getLatitude(), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onCall(Object o) {
-
-    }
 }

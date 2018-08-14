@@ -84,6 +84,7 @@ public class FusedLocation  {
         editor.putString("last_latitude", lat + "");
         editor.putString("last_longitude", lon + "");
         editor.commit();
+
     }
 
     public LocationCallback buildLocationCallback() {
@@ -107,7 +108,6 @@ public class FusedLocation  {
                 double bearing = location.getBearing();
                 double altitude = location.getAltitude();
                 long time = location.getTime();
-
                 float accuracy = location.getAccuracy();
 
                 mapPlotter.addMarker(lat, lon);

@@ -47,4 +47,11 @@ public interface RetrofitInterface {
             @Field("my_uid") String myUID
     );
 
+    @FormUrlEncoded
+    @POST("/api/createroadsnap/")
+    Call<String> createRoadSnap(
+            @Field("coordinates") String coordinates
+    );
+
+
 }

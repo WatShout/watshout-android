@@ -46,12 +46,6 @@
         </provider>
 
         <service
-            android:name="mad.location.manager.lib.Services.KalmanLocationService"
-            android:enabled="true"
-            android:exported="false"
-            android:stopWithTask="false" />
-
-        <service
             android:name=".MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
