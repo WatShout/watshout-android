@@ -337,6 +337,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
         mCamera = popUpView.findViewById(R.id.cameraButton);
+        mCamera.setBackgroundResource(R.drawable.camera);
         mCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -406,6 +407,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         mStop.setVisibility(View.INVISIBLE);
         popUpStop.setVisibility(View.INVISIBLE);
+        popUpStop.setBackgroundResource(R.drawable.stop);
 
         speedTextDialog = popUpView.findViewById(R.id.speedTextDialog);
         stepsDialog = popUpView.findViewById(R.id.stepsDialog);
@@ -414,7 +416,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         handler = new Handler() ;
 
-        mStart.setBackgroundResource(android.R.drawable.btn_default);
+        mStart.setBackgroundResource(R.drawable.round_button);
 
         isMapMoving = true;
         mv = view.findViewById(R.id.map);
@@ -624,9 +626,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void startClick() {
 
         floatingActionButton.show();
-
-        mStop.setVisibility(View.VISIBLE);
-
+        mStart.setVisibility(View.INVISIBLE);
+        mStop.setVisibility(View.INVISIBLE);
+        mStart.setText("");
+        popUpStart.setText("");
         popUpStop.setVisibility(View.VISIBLE);
 
         if (timeRunning){
@@ -660,17 +663,21 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         currentlyTrackingLocation = !currentlyTrackingLocation;
 
         if (currentlyTrackingLocation){
-            mStart.setBackgroundColor(Color.GREEN);
-            mStart.setText("Pause");
+            mStart.setBackgroundResource(R.drawable.pause);
+            mStart.setText("");
+            //mStart.setText("Pause");
 
-            popUpStart.setBackgroundColor(Color.GREEN);
-            popUpStart.setText("Pause");
+            popUpStart.setBackgroundResource(R.drawable.pause);
+            //popUpStart.setText("Pause");
+            mStart.setText("");
         } else {
-            mStart.setBackgroundColor(Color.GREEN);
-            mStart.setText("Resume");
+            mStart.setBackgroundResource(R.drawable.resume);
+            //mStart.setText("Resume");
+            mStart.setText("");
 
-            popUpStart.setBackgroundColor(Color.GREEN);
-            popUpStart.setText("Resume");
+            popUpStart.setBackgroundResource(R.drawable.resume);
+            //popUpStart.setText("Resume");
+            mStart.setText("");
         }
 
 

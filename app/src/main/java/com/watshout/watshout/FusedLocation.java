@@ -116,14 +116,14 @@ public class FusedLocation  {
                 String theSpeed;
                 newSpeed = (int)(newSpeed/60);
                 if(newSpeed > 60)
-                    speedTextDialog.setText("too slow");
+                    speedTextDialog.setText("---");
                 else if((secondsSpeed + "").length() == 1) {
                     theSpeed = (int) (newSpeed) + ":0" + secondsSpeed;
-                    speedTextDialog.setText(theSpeed + " min/mile");
+                    speedTextDialog.setText(theSpeed + " m/mi");
                 }
                 else {
                     theSpeed = (int) (newSpeed) + ":" + secondsSpeed;
-                    speedTextDialog.setText(theSpeed + " min/mile");
+                    speedTextDialog.setText(theSpeed + " m/mi");
                 }
 
                 Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
