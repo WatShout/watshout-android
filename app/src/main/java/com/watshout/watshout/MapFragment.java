@@ -676,7 +676,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
 
-                String mapURL = response.body();
+                String mapURL = EndpointURL.getInstance().getCreateMapURL() + response.body();
 
 
                 Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
