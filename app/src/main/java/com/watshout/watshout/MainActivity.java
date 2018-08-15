@@ -2,9 +2,12 @@ package com.watshout.watshout;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -88,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements
             .getInstance()
             .getReference();
 
-
     LatLng home;
 
     // Gets a unique hardware ID for a device
@@ -117,6 +119,11 @@ public class MainActivity extends AppCompatActivity implements
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         disableNavigationViewScrollbars(navigationView);
+
+        if (!isNetworkAvailable()){
+            Toast.makeText(this, "No network detected. App may not work as intended",
+                    Toast.LENGTH_LONG).show();
+        }
 
         // This code only runs if the user just authenticated with Strava in settings
         stravaToken = getIntent().getStringExtra("STRAVA_TOKEN");
@@ -424,5 +431,12 @@ public class MainActivity extends AppCompatActivity implements
                 .beginTransaction()
                 .replace(R.id.screen_area, new MapFragment())
                 .commit();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
