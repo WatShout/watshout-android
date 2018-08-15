@@ -1,13 +1,19 @@
 package com.watshout.watshout;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
@@ -38,6 +44,7 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sign_in);
 
         String[] dangerousPermissions = {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -71,10 +78,22 @@ public class SignInActivity extends AppCompatActivity {
                     0);
         }
 
-        setContentView(R.layout.activity_sign_in);
 
-        // Removes the top bar on top of the map
-        //getSupportActionBar().hide();
+        if (!isNetworkAvailable()){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setTitle("No Network Connection Detected");
+            builder.setMessage("The app will now close. Please re-open the app once you have a network connection");
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    finishAffinity();
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -155,6 +174,13 @@ public class SignInActivity extends AppCompatActivity {
                 Log.wtf(TAG, "idk what happened here");
             }
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 }
