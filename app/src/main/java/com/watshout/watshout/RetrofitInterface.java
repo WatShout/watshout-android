@@ -5,6 +5,7 @@ import com.watshout.watshout.pojo.FriendRequestList;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.FriendsList;
 import com.watshout.watshout.pojo.NewsFeedList;
+import com.watshout.watshout.pojo.SuccessCheck;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -40,6 +41,12 @@ public interface RetrofitInterface {
     Call<FriendRequestResponse> sendFriendNotification(
             @Field("my_uid") String myUID,
             @Field("their_uid") String theirUID
+    );
+
+    @FormUrlEncoded
+    @POST("/api/authorized/")
+    Call<SuccessCheck> getEmailAuthorized(
+            @Field("email") String email
     );
 
     @FormUrlEncoded

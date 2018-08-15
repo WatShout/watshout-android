@@ -25,10 +25,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.watshout.watshout.pojo.SuccessCheck;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -36,10 +42,15 @@ public class SignInActivity extends AppCompatActivity {
 
     // Choose an arbitrary request code value
     private static final int RC_SIGN_IN = 123;
+    FirebaseUser thisUser;
+    FirebaseAuth mAuth;
 
     private DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
+
+    RetrofitInterface retrofitInterface = RetrofitClient
+            .getRetrofitInstance().create(RetrofitInterface.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +75,6 @@ public class SignInActivity extends AppCompatActivity {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(SignInActivity.this,
                         permission)) {
                     // TODO Asynchronously show the rationale for needing permission
-
                 }
 
                 request.add(permission);
@@ -128,50 +138,84 @@ public class SignInActivity extends AppCompatActivity {
             // Successfully signed in
             if (resultCode == RESULT_OK) {
 
-                FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+                thisUser = FirebaseAuth.getInstance().getCurrentUser();
                 String uid = thisUser.getUid();
+                String email = thisUser.getEmail();
+                mAuth = FirebaseAuth.getInstance();
 
-                // if Firebase user doesn't have profile_pic_format, open InitializeNewAccountActivity
-                ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                Call<SuccessCheck> call = retrofitInterface.getEmailAuthorized(email);
+                call.enqueue(new Callback<SuccessCheck>() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChild("profile_pic_format")) {
-                            Carrier.setUploadedOwnProfilePicture(true);
-                            Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
-                            openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            getApplicationContext().startActivity(openMain);
-                            finish();
+                    public void onResponse(Call<SuccessCheck> call, Response<SuccessCheck> response) {
+
+                        boolean authorized = response.body().getSuccess();
+
+                        if (authorized){
+
+                            // if Firebase user doesn't have profile_pic_format, open InitializeNewAccountActivity
+                            ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                    if (dataSnapshot.hasChild("profile_pic_format")) {
+                                        Carrier.setUploadedOwnProfilePicture(true);
+                                        Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
+                                        openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        getApplicationContext().startActivity(openMain);
+                                        finish();
+                                    } else {
+                                        Carrier.setUploadedOwnProfilePicture(false);
+                                        Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
+                                        openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        getApplicationContext().startActivity(openPfp);
+                                        finish();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
                         } else {
-                            Carrier.setUploadedOwnProfilePicture(false);
-                            Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
-                            openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            getApplicationContext().startActivity(openPfp);
-                            finish();
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
+
+                            builder.setTitle("Not an approved user");
+                            builder.setMessage("We are currently only open to .edu email users. " +
+                                            "If you would like to request access to the app please " +
+                                            "email accounts@watshout.com");
+
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    thisUser.delete();
+                                    mAuth.signOut();
+                                    Intent reopenSignIn = new Intent(getApplicationContext(), SignInActivity.class);
+                                    getApplicationContext().startActivity(reopenSignIn);
+                                }
+                            });
+
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+
                         }
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
+                    public void onFailure(Call<SuccessCheck> call, Throwable t) {
+                        Log.e(TAG, t.toString());
                     }
                 });
 
-                Log.wtf(TAG, "It worked");
             } else {
                 // Sign in failed
                 if (response == null) {
-                    Log.wtf(TAG, "User pressed back button");
-
                     return;
                 }
 
                 if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    Log.wtf(TAG, "No network brahs");
                     return;
                 }
-
-
-                Log.wtf(TAG, "idk what happened here");
             }
         }
     }
@@ -182,5 +226,5 @@ public class SignInActivity extends AppCompatActivity {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
 }
+
