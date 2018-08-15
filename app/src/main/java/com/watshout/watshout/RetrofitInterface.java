@@ -1,5 +1,6 @@
 package com.watshout.watshout;
 
+import com.watshout.watshout.pojo.CreateRoadMap;
 import com.watshout.watshout.pojo.FriendRequestList;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.FriendsList;
@@ -49,7 +50,7 @@ public interface RetrofitInterface {
 
     @FormUrlEncoded
     @POST("/api/createroadsnap/")
-    Call<String> createRoadSnap(
+    Call<CreateRoadMap> createRoadSnap(
             @Field("coordinates") String coordinates
     );
 

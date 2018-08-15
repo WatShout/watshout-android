@@ -68,6 +68,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
+import com.watshout.watshout.pojo.CreateRoadMap;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.NewsFeedList;
 
@@ -668,65 +669,42 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         }
 
-        //String encodedPath = PolyUtil.encode(fusedLocation.getLatLng());
-        //String mapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
+        String encodedPath = PolyUtil.encode(fusedLocation.getLatLng());
+        String mapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
 
-        Call<String> call = retrofitInterface.createRoadSnap(coordinateList);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
 
-                String mapURL = response.body();
+            // Generates a current date
+            UploadToDatabase uploadToDatabase = new UploadToDatabase();
+            String date = uploadToDatabase.getFormattedDate();
 
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            byte[] bitmapdata = stream.toByteArray();
 
-                Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
+            openNext.putExtra("MAP_IMAGE", bitmapdata);
+            openNext.putExtra("MAP_URL", mapURL);
+            openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
+            openNext.putExtra("GPX_NAME_ONLY", date);
+            openNext.putExtra("GPX_NAME",date+".gpx");
+            openNext.putExtra("MIN", Minutes);
+            openNext.putExtra("SEC", Seconds);
 
-                // Generates a current date
-                UploadToDatabase uploadToDatabase = new UploadToDatabase();
-                String date = uploadToDatabase.getFormattedDate();
-
-                // send bitmap as byte array
-                //ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                //pathScreen.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                //byte[] byteArray = stream.toByteArray();
-                //pathScreen.recycle();
-
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] bitmapdata = stream.toByteArray();
-
-                openNext.putExtra("MAP_IMAGE", bitmapdata);
-                openNext.putExtra("MAP_URL", mapURL);
-                openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
-                openNext.putExtra("GPX_NAME_ONLY", date);
-                openNext.putExtra("GPX_NAME",date+".gpx");
-                openNext.putExtra("MIN", Minutes);
-                openNext.putExtra("SEC", Seconds);
-
-                // Writes an XML file
-                try {
-                    XMLCreator.saveFile(date);
-                } catch (TransformerException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Carrier.setXMLCreator(XMLCreator);
-
-                openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getActivity().getApplicationContext().startActivity(openNext);
-                getActivity().finish();
-
-
+            // Writes an XML file
+            try {
+                XMLCreator.saveFile(date);
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            Carrier.setXMLCreator(XMLCreator);
 
-            }
-        });
+            openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getActivity().getApplicationContext().startActivity(openNext);
+            getActivity().finish();
 
 
     }
