@@ -667,6 +667,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         currentlyTrackingLocation = false;
         activityRunning = false;
 
+        mapPlotter.removeFromMap();
+
         String coordinateList = "";
 
         for (LatLng current : (ArrayList<LatLng>) fusedLocation.getLatLng()){
