@@ -28,6 +28,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -71,6 +72,8 @@ import com.google.maps.android.PolyUtil;
 import com.watshout.watshout.pojo.CreateRoadMap;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.NewsFeedList;
+
+import org.apache.log4j.chainsaw.Main;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -158,6 +161,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     Boolean hasStrava;
 
+    DrawerLayout mDrawerLayout;
     ImageButton mCenter;
 
     long originalStartTime;
@@ -285,7 +289,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
 
         mRelativeLayout = view.findViewById(R.id.relative);
-
+        mDrawerLayout = MainActivity.getDrawerLayout();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -420,6 +424,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onClick(View v) {
 
                 fusedLocation.resetLatLng();
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
                 sendActivityNotification();
                 //ActionBar actionBar = getSupportActionBar();
@@ -657,6 +662,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void stopClick() {
 
         floatingActionButton.show();
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
         currentlyTrackingLocation = false;
         activityRunning = false;

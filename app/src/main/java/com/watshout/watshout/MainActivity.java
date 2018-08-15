@@ -67,8 +67,7 @@ public class MainActivity extends AppCompatActivity implements
 
     final long TEN_MEGABYTE = 10 * 1024 * 1024;
 
-    DrawerLayout mDrawerLayout;
-    MapFragment mapFragment = new MapFragment();
+    static DrawerLayout mDrawerLayout;
 
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
@@ -278,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements
 
         getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.screen_area, mapFragment)
+                .replace(R.id.screen_area, new MapFragment())
                 .commit();
 
         ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -350,9 +349,10 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.nav_home:
+
                 getFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.screen_area, mapFragment)
+                        .replace(R.id.screen_area, new MapFragment())
                         .commit();
                 break;
 
@@ -438,5 +438,9 @@ public class MainActivity extends AppCompatActivity implements
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public static DrawerLayout getDrawerLayout(){
+        return mDrawerLayout;
     }
 }
