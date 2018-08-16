@@ -46,7 +46,7 @@ public class EndpointURL {
     public String getCreateMapURL() {
         return "https://maps.googleapis.com/maps/api/staticmap?&size=600x300&" +
                 "&style=feature:poi|element:labels.text|visibility:off&style=feature:poi.business|visibility:off&style=feature:road|element:labels.icon|visibility:off&style=feature:transit|visibility:off" +
-                "maptype=roadmap&key=AIzaSyAxkvxOLITaJbTjnNXxDzDAwRyZaWD0D4s&sensor=true&path=color:0xff0000ff|enc:";
+                "maptype=roadmap&key=AIzaSyDKp7_O42MIn7fMuI2Fbzxo9hslYIWHCIM&sensor=true&path=color:0xff0000ff|enc:";
 
     }
 }
