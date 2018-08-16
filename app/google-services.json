@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "644503016905",
-    "firebase_url": "https://watshout-test.firebaseio.com",
-    "project_id": "watshout-test",
-    "storage_bucket": "watshout-test.appspot.com"
+    "project_number": "107414838661",
+    "firebase_url": "https://watshout-cloud.firebaseio.com",
+    "project_id": "watshout-cloud",
+    "storage_bucket": "watshout-cloud.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:644503016905:android:550ecdea4692c1ac",
+        "mobilesdk_app_id": "1:107414838661:android:550ecdea4692c1ac",
         "android_client_info": {
           "package_name": "com.watshout.watshout"
         }
       },
       "oauth_client": [
         {
-          "client_id": "644503016905-0o7t1mj7kav3j62qrh540qbtd6spvrvl.apps.googleusercontent.com",
+          "client_id": "107414838661-7cuun40sqv8125g9lla55unjc9183hq7.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBvBm2zQiS_1Qvorpd_fRU7z6NkbQJXkLE"
+          "current_key": "AIzaSyDKp7_O42MIn7fMuI2Fbzxo9hslYIWHCIM"
         }
       ],
       "services": {
