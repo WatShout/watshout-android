@@ -90,7 +90,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyANpjYeY5BZIGF5KGbY-GfResC0CK0K0gk" />
+            android:value="AIzaSyDKp7_O42MIn7fMuI2Fbzxo9hslYIWHCIM" />
         <meta-data
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
