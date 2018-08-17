@@ -149,7 +149,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     Button mStart;
     Button mStop;
 
-    Button mCamera;
+    //Button mCamera;
 
     Button popUpStart;
     Button popUpStop;
@@ -311,8 +311,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         builder.setView(popUpView);
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
-        mCamera = popUpView.findViewById(R.id.cameraButton);
-        mCamera.setBackgroundResource(R.drawable.camera);
+        //mCamera = popUpView.findViewById(R.id.cameraButton);
+        /*mCamera.setBackgroundResource(R.drawable.camera);
         mCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -325,7 +325,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
 
             }
-        });
+        }); */
 
         FloatingActionButton fabDialog = (FloatingActionButton) popUpView.findViewById(R.id.fabDialog);
         fabDialog.setOnClickListener(new View.OnClickListener() {
@@ -485,21 +485,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             MilliSeconds = (int) (UpdateTime % 1000);
 
-            int milliFirstDigit = Integer.parseInt(Integer.toString(MilliSeconds).substring(0, 1));
+            int totalSeconds = (Minutes * 60) + Seconds;
+            fusedLocation.setCurrentRunningTime(totalSeconds);
 
-            timerText.setText("" + Minutes + ":"
+            timerText.setText("00:" + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds));
 
             handler.postDelayed(this, 0);
-
-            if(!currentlyTrackingLocation){
-                //captureMapScreen();
-            }
-
-
-            if (counter % 20000 == 0) {
-                //captureMapScreen();
-            }
 
             counter++;
         }

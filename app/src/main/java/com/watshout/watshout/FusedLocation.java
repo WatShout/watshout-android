@@ -48,6 +48,7 @@ public class FusedLocation  {
     SharedPreferences settings;
     SharedPreferences.Editor editor;
     List<LatLng> latLngList;
+    int time;
 
     private final static String TAG = "FusedLocation";
 
@@ -129,9 +130,8 @@ public class FusedLocation  {
                 Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
                         + "\nAccuracy: " + accuracy);
 
-                Log.d("LAT", lat + ", " + lon);
                 if (MapFragment.currentlyTrackingLocation){
-                    Log.d("TRACKING", "Currently uploading a location object");
+
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
                     latLngList.add(new LatLng(lat, lon));
 
@@ -149,9 +149,21 @@ public class FusedLocation  {
                     else {
                         distance += calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
                                 lat*Math.PI/180, lon*Math.PI/180 );
-                        System.out.println("distance is " + distance);
                         int tempDistance = (int) distance;
-                        distanceDialog.setText(tempDistance + " meters");
+                        distanceDialog.setText(tempDistance + "");
+
+                        // Calculate pace
+                        if (tempDistance > 0){
+                            double rawMetricPace = time / tempDistance;
+
+                            int metricMinutePace = (int) (rawMetricPace / 60);
+                            int metricSecondPace = (int) (rawMetricPace - metricMinutePace * 60);
+
+                            String metricMinuteString = String.format("%02d", metricMinutePace);
+                            String metricSecondString = String.format("%02d", metricSecondPace);
+
+                            speedTextDialog.setText(metricMinuteString + ":" + metricSecondString);
+                        }
                     }
                     counter ++;
                     prevLat = lat;
@@ -181,8 +193,8 @@ public class FusedLocation  {
 
     }
 
-    public ArrayList<Waypoint> getTrackPoints() {
-        return trackPoints;
+    public void setCurrentRunningTime(int time){
+        this.time = time;
     }
 
     public double getTheSpeed() {
