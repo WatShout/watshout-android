@@ -12,7 +12,7 @@ public class EndpointURL {
     }
 
     public String getBaseURL() {
-        return "https://watshout-test.appspot.com";
+        return "https://watshout-cloud.appspot.com";
     }
 
     public String getHistoryURL(String uid) {
