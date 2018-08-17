@@ -71,12 +71,15 @@ class SwipeController extends Callback {
 
         int index = viewHolder.getAdapterPosition();
 
-        Friend current = listItems.get(index);
-        String theirUID = current.getUid();
-        String theirName = current.getName();
+        try {
+            Friend current = listItems.get(index);
+            String theirUID = current.getUid();
+            String theirName = current.getName();
 
-        removeFriend(theirName, theirUID, index, adapter);
-
+            removeFriend(theirName, theirUID, index, adapter);
+        } catch (IndexOutOfBoundsException e){
+            Log.e("SWIPE", e.toString());
+        }
     }
 
 

@@ -119,6 +119,29 @@ public class MainActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
         disableNavigationViewScrollbars(navigationView);
 
+        ref.child("users").child(uid).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if (!dataSnapshot.exists()){
+                            Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
+                            openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            getApplicationContext().startActivity(openPfp);
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+
+        ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
+        ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
+
         if (!isNetworkAvailable()){
             Toast.makeText(this, "No network detected. App may not work as intended",
                     Toast.LENGTH_LONG).show();
@@ -279,35 +302,6 @@ public class MainActivity extends AppCompatActivity implements
                 .beginTransaction()
                 .replace(R.id.screen_area, new MapFragment())
                 .commit();
-
-        ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // If data snapshot doesn't exist
-                if (!dataSnapshot.exists()) {
-
-                    // Open activity
-
-                    Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
-                    openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    getApplicationContext().startActivity(openPfp);
-
-                } else {
-
-                    // Just set values
-
-                    ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
-                    ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
