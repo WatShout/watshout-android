@@ -6,13 +6,14 @@
 
     <android.support.v7.widget.CardView
         android:id="@+id/initialsBubble"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
         android:shape="ring"
         app:cardBackgroundColor="@color/primaryColor"
-        app:cardCornerRadius="35dp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginTop="20dp">
+        app:cardCornerRadius="25dp">
 
 
         <TextView
@@ -22,7 +23,7 @@
             android:gravity="center"
             android:text="EH"
             android:textColor="#FFFFFF"
-            android:textSize="36sp" />
+            android:textSize="30dp" />
     </android.support.v7.widget.CardView>
 
 </LinearLayout>

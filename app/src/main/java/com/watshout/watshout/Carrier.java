@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class Carrier {
 
     private static XMLCreator XMLCreator;
-    private static boolean uploadedOwnProfilePicture = true;
+    private static boolean uploadedOwnProfilePicture = false;
     private static String[] colorNames = {"red","yellow","green","blue","magenta"};
     private static int[] colors = {Color.RED,Color.YELLOW,Color.GREEN,Color.BLUE, Color.MAGENTA};
 

@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -17,6 +19,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -25,10 +28,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -42,6 +47,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import com.samsandberg.stravaauthenticator.StravaAuthenticateActivity;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -80,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements
     NavigationView navigationView;
 
     String CURRENT_DEVICE_ID;
-
     String stravaToken;
 
     private StorageReference mStorageRef;
@@ -119,23 +124,22 @@ public class MainActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
         disableNavigationViewScrollbars(navigationView);
 
-        ref.child("users").child(uid).addListenerForSingleValueEvent(
+        // Checks if a user has an account entry. If not they get redirected
+        ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         if (!dataSnapshot.exists()){
-                            Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
-                            openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            getApplicationContext().startActivity(openPfp);
+                            Intent initialize = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
+                            finish();
+                            startActivity(initialize);
                         }
 
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
+                    public void onCancelled(DatabaseError databaseError) { }
                 }
         );
 
@@ -181,12 +185,15 @@ public class MainActivity extends AppCompatActivity implements
 
         navigationView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
+        // This sets the user's initials but it looks like we're just using profile pics now
+        /*
         TextView mInitials = headerView.findViewById(R.id.nav_header_initials);
         String initials = "";
         for (String s : name.split(" ")) {
             initials += s.charAt(0);
         }
         mInitials.setText(initials);
+        */
 
         TextView mName = headerView.findViewById(R.id.nav_header_name);
         mName.setText(name);
@@ -194,21 +201,60 @@ public class MainActivity extends AppCompatActivity implements
         TextView mEmail = headerView.findViewById(R.id.nav_header_email);
         mEmail.setText(email);
 
+        ImageView mCircleProfilePic = headerView.findViewById(R.id.profilePic);
+        ref.child("users").child(uid).child("profile_pic_format")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        try {
+                            String extension = (String) dataSnapshot.getValue();
+
+                            storageReference.child("users").child(uid)
+                                    .child("profile." + extension)
+                                    .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+
+                                    Picasso.get()
+                                            .load(uri)
+                                            .resize(64, 64)
+                                            .transform(new CircleTransform())
+                                            .placeholder(R.drawable.loading)
+                                            .into(mCircleProfilePic);
+
+                                }
+                            });
+
+                        } catch (NullPointerException e){
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
         final TextView mLastActive = headerView.findViewById(R.id.nav_header_last_active);
         ref.child("users").child(uid).child("device").child("past").orderByChild("time").limitToLast(1)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
+                        mLastActive.setText("Never");
+
                         for(DataSnapshot ds : dataSnapshot.getChildren()) {
                             try {
-                                Long time = ds.child("time").getValue(Long.class);
-
                                 String date;
+                                Long time = ds.child("time").getValue(Long.class);
 
                                 try {
                                     date = new java.text.SimpleDateFormat("MMM dd")
                                             .format(new java.util.Date (time));
+
+                                    Log.d("DATE", date);
 
                                 } catch (NullPointerException e){
                                     date = "Never";
@@ -271,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 try {
                     for (DataSnapshot snapshotChild : dataSnapshot.getChildren()) {
-                        double distance = snapshotChild.child("distance").getValue(Double.class);
+                        double distance = Double.valueOf(snapshotChild.child("distance").getValue(String.class));
                         total += distance;
                     }
 

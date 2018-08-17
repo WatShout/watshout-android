@@ -7,22 +7,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -41,11 +38,9 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -62,18 +57,13 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
-import com.watshout.watshout.pojo.CreateRoadMap;
 import com.watshout.watshout.pojo.FriendRequestResponse;
-import com.watshout.watshout.pojo.NewsFeedList;
-
-import org.apache.log4j.chainsaw.Main;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,7 +74,6 @@ import javax.xml.transform.TransformerException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MapFragment extends android.app.Fragment implements OnMapReadyCallback, SensorEventListener {
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -147,12 +136,12 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     // Resource file declarations
     Button mStart;
-    Button mStop;
+    FloatingActionButton mStop;
 
     //Button mCamera;
 
     Button popUpStart;
-    Button popUpStop;
+    FloatingActionButton popUpStop;
 
     TextView timerText;
     TextView speedTextDialog;
@@ -162,7 +151,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     Boolean hasStrava;
 
     DrawerLayout mDrawerLayout;
-    ImageButton mCenter;
+    FloatingActionButton mCenter;
 
     long originalStartTime;
 
@@ -291,6 +280,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mRelativeLayout = view.findViewById(R.id.relative);
         mDrawerLayout = MainActivity.getDrawerLayout();
 
+        Resources resources = getActivity().getResources();
+        int softBarHeight = getSoftButtonsBarHeight();
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         final int displayHeight = displayMetrics.heightPixels;
@@ -327,7 +319,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         }); */
 
-        FloatingActionButton fabDialog = (FloatingActionButton) popUpView.findViewById(R.id.fabDialog);
+        FloatingActionButton fabDialog = (FloatingActionButton) popUpView.findViewById(R.id.location);
         fabDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -375,7 +367,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // This helps the app not crash in certain contexts
         MapsInitializer.initialize(getActivity().getApplicationContext());
 
-        mStart = view.findViewById(R.id.start);
+        mStart = view.findViewById(R.id.popUpStart);
         mStop = view.findViewById(R.id.stop);
         popUpStop = popUpView.findViewById(R.id.stop);
         popUpStart = popUpView.findViewById(R.id.popUpStart);
@@ -391,7 +383,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         handler = new Handler() ;
 
-        mStart.setBackgroundResource(R.drawable.round_button);
+        mStart.setBackgroundResource(R.drawable.round_play_button);
 
         isMapMoving = true;
         mv = view.findViewById(R.id.map);
@@ -422,6 +414,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                ref.child("users").child(uid).child("device").child("current")
+                        .removeValue();
 
                 fusedLocation.resetLatLng();
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -594,10 +589,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void startClick() {
 
         floatingActionButton.show();
-        mStart.setVisibility(View.INVISIBLE);
-        mStop.setVisibility(View.INVISIBLE);
-        mStart.setText("");
-        popUpStart.setText("");
+        mStart.setVisibility(View.VISIBLE);
+        mStop.setVisibility(View.VISIBLE);
         popUpStop.setVisibility(View.VISIBLE);
 
         if (timeRunning){
@@ -628,26 +621,11 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             activityRunning = true;
         }
 
+        int resource = currentlyTrackingLocation ? R.drawable.round_play_button : R.drawable.round_pause_button;
+        mStart.setBackgroundResource(resource);
+        popUpStart.setBackgroundResource(resource);
+
         currentlyTrackingLocation = !currentlyTrackingLocation;
-
-        if (currentlyTrackingLocation){
-            mStart.setBackgroundResource(R.drawable.pause);
-            mStart.setText("");
-            //mStart.setText("Pause");
-
-            popUpStart.setBackgroundResource(R.drawable.pause);
-            //popUpStart.setText("Pause");
-            mStart.setText("");
-        } else {
-            mStart.setBackgroundResource(R.drawable.resume);
-            //mStart.setText("Resume");
-            mStart.setText("");
-
-            popUpStart.setBackgroundResource(R.drawable.resume);
-            //popUpStart.setText("Resume");
-            mStart.setText("");
-        }
-
 
     }
 
@@ -725,6 +703,23 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 Log.d("RETRO", t.toString());
             }
         });
+    }
+
+    @SuppressLint("NewApi")
+    private int getSoftButtonsBarHeight() {
+        // getRealMetrics is only available with API 17 and +
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            DisplayMetrics metrics = new DisplayMetrics();
+            getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            int usableHeight = metrics.heightPixels;
+            getActivity().getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+            int realHeight = metrics.heightPixels;
+            if (realHeight > usableHeight)
+                return realHeight - usableHeight;
+            else
+                return 0;
+        }
+        return 0;
     }
 
 }

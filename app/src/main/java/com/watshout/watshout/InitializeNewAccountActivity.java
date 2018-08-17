@@ -86,7 +86,7 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialize_account);
 
-        uploadedOwnPicture = Carrier.getUploadedOwnProfilePicture();
+        uploadedOwnPicture = false;
 
         mProfile = findViewById(R.id.profilePictureDisplay);
         mBirthday = findViewById(R.id.birthdayButton);
@@ -238,8 +238,8 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                 }
             });
 
-            uploadedOwnPicture = true;
         } else {
+            Log.d("TEST", "This happens");
             goToMainActivity();
         }
     }
