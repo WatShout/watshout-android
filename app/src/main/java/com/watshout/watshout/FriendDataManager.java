@@ -37,13 +37,14 @@ class FriendDataManager {
 
     // FriendCurrentLocation is a simple object for getting/setting a
     // user's most recent lat/lng (used for the sidebar button click)
-    private HashMap<String, FriendCurrentLocation> friendsCurrentlyOnMap;
+    private CurrentlyTrackingFriendsHolder currentlyTrackingFriends =
+            new CurrentlyTrackingFriendsHolder();
 
     FriendDataManager(String uid, final GoogleMap googleMap, final RecyclerView recyclerView, final Context context,
                       final MapRecycleViewCarrier carrier) {
 
         mapPlotterList = new HashMap<>();
-        friendsCurrentlyOnMap = new HashMap<>();
+
 
         final RecyclerView mRecyclerView = carrier.getRecyclerView();
         mRecyclerView.setHasFixedSize(true);
@@ -62,7 +63,7 @@ class FriendDataManager {
                         String name = (String) dataSnapshot.getValue();
 
                         IndividualFriendData thisFriend = new IndividualFriendData(name, theirUID, mapPlotterList,
-                                googleMap, recyclerView, context, friendsCurrentlyOnMap);
+                                googleMap, recyclerView, context, currentlyTrackingFriends);
 
                         thisFriend.startTrackingLocation();
                         thisFriend.listenForStop();

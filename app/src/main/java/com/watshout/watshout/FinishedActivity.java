@@ -94,6 +94,13 @@ public class FinishedActivity extends AppCompatActivity{
 
         time.setText("Time: " + formattedMin + ":" + formattedSec);
 
+        /*
+        double rawMetricDistance = getIntent().getDoubleExtra("DISTANCE", 0);
+
+        if (rawMetricDistance == 0){
+            rawMetricDistance = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
+        }*/
+
         final double rawMetricDistance = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
 
         final PaceCalculator pc = new PaceCalculator(rawMetricDistance, min, sec, this);

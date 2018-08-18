@@ -16,6 +16,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         app:layout_constraintBottom_toTopOf="@+id/timerText"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,37 +38,23 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/stop"
-        app:layout_constraintStart_toEndOf="@+id/start"
+        app:layout_constraintStart_toEndOf="@+id/popUpStart"
         app:layout_constraintTop_toBottomOf="@+id/map" />
 
     <Button
-        android:id="@+id/start"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background="@drawable/round_button"
-        android:layout_alignTop="@+id/timerText"
-        android:layout_toStartOf="@+id/timerText"
-        android:text="Start"
+        android:id="@+id/popUpStart"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_alignBottom="@+id/timerText"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/round_play_button"
         app:layout_constraintBottom_toTopOf="@+id/stop"
         app:layout_constraintEnd_toStartOf="@+id/timerText"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-    <Button
-        android:id="@+id/stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/timerText"
-        android:layout_toEndOf="@+id/timerText"
-        android:background="@android:color/holo_red_dark"
-        android:text="Stop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/timerText"
-        app:layout_constraintTop_toBottomOf="@+id/start" />
-
- <!--   <Button
+    <!--   <Button
         android:id="@+id/cameraButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -78,13 +65,16 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
+        app:fabSize="normal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/popUpStart"
         android:layout_gravity="end|bottom"
+        android:layout_toStartOf="@+id/popUpStart"
         android:background="@android:color/white"
-        android:src="@drawable/baseline_pin_drop_black_18dp" />
+        android:src="@drawable/grey_location"
+        android:layout_marginRight="25dp"
+        app:backgroundTint="#FFFFFF" />
 
     <android.support.v7.widget.RecyclerView
         android:layout_marginLeft="5dp"
@@ -96,12 +86,28 @@
         android:layout_alignParentTop="true"
         android:background="@color/fui_transparent" />
 
-    <ImageButton
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/stop"
+        app:fabSize="normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/popUpStart"
+        android:layout_marginLeft="25dp"
+        android:layout_toEndOf="@+id/popUpStart"
+        android:clickable="true"
+        android:src="@drawable/stop"
+        app:backgroundTint="#FF979797" />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/recenter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:src="@android:drawable/ic_menu_mylocation" />
+        android:layout_alignParentTop="true"
+        android:clickable="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/my_location"
+        app:backgroundTint="#FFF" />
 
 </RelativeLayout>

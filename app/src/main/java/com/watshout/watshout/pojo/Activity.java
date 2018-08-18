@@ -1,4 +1,3 @@
-
 package com.watshout.watshout.pojo;
 
 import com.google.gson.annotations.Expose;
@@ -32,7 +31,19 @@ public class Activity {
     private String pace;
     @SerializedName("activity_id")
     @Expose
-    private String activityID;
+    private String activityId;
+    @SerializedName("profile_pic_url")
+    @Expose
+    private String profilePicUrl;
+    @SerializedName("temp_celcius")
+    @Expose
+    private Double tempCelcius;
+    @SerializedName("weather_type")
+    @Expose
+    private String weatherType;
+    @SerializedName("weather_id")
+    @Expose
+    private Integer weatherId;
 
     public String getUid() {
         return uid;
@@ -90,12 +101,52 @@ public class Activity {
         this.timeElapsed = timeElapsed;
     }
 
-    public String getPace() { return pace; }
+    public String getPace() {
+        return pace;
+    }
 
-    public void setPace(String pace) { this.pace = pace; }
+    public void setPace(String pace) {
+        this.pace = pace;
+    }
 
-    public String getActivityID() { return activityID; }
+    public String getActivityId() {
+        return activityId;
+    }
 
-    public void setActivityID(String activityID) { this.activityID = activityID; }
+    public void setActivityId(String activityId) {
+        this.activityId = activityId;
+    }
+
+    public String getProfilePicUrl() {
+        return profilePicUrl;
+    }
+
+    public void setProfilePicUrl(String profilePicUrl) {
+        this.profilePicUrl = profilePicUrl;
+    }
+
+    public Double getTempCelcius() {
+        return tempCelcius;
+    }
+
+    public void setTempCelcius(Double tempCelcius) {
+        this.tempCelcius = tempCelcius;
+    }
+
+    public String getWeatherType() {
+        return weatherType;
+    }
+
+    public void setWeatherType(String weatherType) {
+        this.weatherType = weatherType;
+    }
+
+    public Integer getWeatherId() {
+        return weatherId;
+    }
+
+    public void setWeatherId(Integer weatherId) {
+        this.weatherId = weatherId;
+    }
 
 }

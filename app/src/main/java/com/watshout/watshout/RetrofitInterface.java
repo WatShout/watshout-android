@@ -1,9 +1,11 @@
 package com.watshout.watshout;
 
+import com.watshout.watshout.pojo.CreateRoadMap;
 import com.watshout.watshout.pojo.FriendRequestList;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.FriendsList;
 import com.watshout.watshout.pojo.NewsFeedList;
+import com.watshout.watshout.pojo.SuccessCheck;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -42,6 +44,12 @@ public interface RetrofitInterface {
     );
 
     @FormUrlEncoded
+    @POST("/api/authorized/")
+    Call<SuccessCheck> getEmailAuthorized(
+            @Field("email") String email
+    );
+
+    @FormUrlEncoded
     @POST("/api/activitystartnotification/")
     Call<FriendRequestResponse> sendActivityNotification(
             @Field("my_uid") String myUID
@@ -49,7 +57,7 @@ public interface RetrofitInterface {
 
     @FormUrlEncoded
     @POST("/api/createroadsnap/")
-    Call<String> createRoadSnap(
+    Call<CreateRoadMap> createRoadSnap(
             @Field("coordinates") String coordinates
     );
 

@@ -15,6 +15,86 @@
       },
       "oauth_client": [
         {
+          "client_id": "107414838661-00lmc8u2o3bmjit3dk79legl6un30ukf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "c3346775f6c3288158043d3ddd8971181a2da162"
+          }
+        },
+        {
+          "client_id": "107414838661-deqq7dv6luodijgnnak8sbvqqehvamsb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "89bfa047656889e39f838702f9fcffbd82bc120b"
+          }
+        },
+        {
+          "client_id": "107414838661-p53v65lpepf8u5dl7kp1ige321u6c9v8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "e2331abbd0ac06356af5c0ab47727c4a17241880"
+          }
+        },
+        {
+          "client_id": "107414838661-eeul043vo7bansh60mm4cvcgau22p8dh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "7ea9bc23adc53dac720775f0b400b15ff3f5ff05"
+          }
+        },
+        {
+          "client_id": "107414838661-32429p55f1red9otc9t1ku93061iib6a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "4b2578093df81efdd0520d11c1c348fc34ff6cf0"
+          }
+        },
+        {
+          "client_id": "107414838661-nontrcjblekucbk2s95seub35vr362a4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "07ced4b87436502aeec18aaac575d00ce5a47991"
+          }
+        },
+        {
+          "client_id": "107414838661-fgh8bntl284c5qd5q70k95ibotqnc3kr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "3bb062a03ef7356966d6521bf543d75c4ffad61f"
+          }
+        },
+        {
+          "client_id": "107414838661-l3b699qjav5ubs6ofp8uh0bpdm4biev6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "db8c0f4bd6872cb095db951dc8f262b129b6c28c"
+          }
+        },
+        {
+          "client_id": "107414838661-e91vv0r79j80d51oqa41sipqidvv72ie.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "a7cc3776c6240914215e56cb77682967ebd4aea0"
+          }
+        },
+        {
+          "client_id": "107414838661-qskreft611l25p1rmb3tl6tt8sniql75.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.watshout.watshout",
+            "certificate_hash": "6007dc636312367ac3d59f5be30200c034a0173d"
+          }
+        },
+        {
           "client_id": "107414838661-7cuun40sqv8125g9lla55unjc9183hq7.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +109,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107414838661-7cuun40sqv8125g9lla55unjc9183hq7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

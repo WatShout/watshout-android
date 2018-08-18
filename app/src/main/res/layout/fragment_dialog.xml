@@ -1,169 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dialogLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/dialogLayout"
-    android:background="@color/secondaryDarkColor"
-    >
+    android:layout_gravity="center_horizontal"
+    android:background="@color/colorPrimaryDark">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_gravity="center_horizontal"
-        android:weightSum="13">
-
-        <TextView
-            android:id="@+id/timerText1"
-            android:layout_weight="2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/d_din"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center_horizontal"
-            android:text="0:00"
-            android:textColor="@android:color/white"
-            android:textSize="80dp"
-            android:textStyle="bold"
-            />
-
-        <TextView
-            android:id="@+id/speedTextDialog"
-            android:layout_weight="3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/d_din"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="center_horizontal"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
-            android:text="0 m/s"
-            android:textColor="@android:color/white"
-            android:textSize="80dp"
-            android:textStyle="bold"
-            />
-
-        <TextView
-            android:id="@+id/stepsDialog"
-            android:layout_weight="2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/d_din"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="0dp"
-            android:text="0 steps"
-            android:textColor="@android:color/white"
-            android:textSize="60dp"
-            android:textStyle="bold"
-            />
-
-        <TextView
-            android:id="@+id/distanceDialog"
-            android:layout_weight="3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/d_din"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:text="0 m"
-            android:textColor="@android:color/white"
-            android:textSize="60dp"
-            android:textStyle="bold"
-            />
-
-
-
-
-    <ImageView
+    <TextView
+        android:id="@+id/timerText1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="center"
-        android:contentDescription="@string/app_name" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="21dp"
+        android:fontFamily="@font/d_din"
+        android:text="00:00:00"
+        android:textColor="@android:color/white"
+        android:textSize="70dp" />
 
-
-
-    <LinearLayout
+    <TextView
+        android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="2"
-        android:weightSum="7">
+        android:layout_alignEnd="@+id/timerText1"
+        android:layout_below="@+id/timerText1"
+        android:fontFamily="@font/d_din"
+        android:text="TIME"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20dp" />
 
-        <TextView
-            android:id="@+id/a"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            />
+    <TextView
+        android:id="@+id/stepsDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="156dp"
+        android:layout_marginStart="47dp"
+        android:fontFamily="@font/d_din"
+        android:text="0"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20dp" />
 
-        <Button
-            android:id="@+id/popUpStart"
-            android:text="Start"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/round_button"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:layout_alignTop="@+id/distanceDialog"
-            />
+    <TextView
+        android:id="@+id/speedTextDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="154dp"
+        android:fontFamily="@font/d_din"
+        android:text="00:00"
+        android:textColor="@android:color/white"
+        android:textSize="120dp" />
 
-        <TextView
-            android:id="@+id/b"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            />
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/speedTextDialog"
+        android:layout_below="@+id/speedTextDialog"
+        android:fontFamily="@font/d_din"
+        android:text="/MI"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20dp" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabDialog"
-            android:background="@android:color/white"
-            android:layout_weight="1"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:gravity="center_vertical|center_horizontal"
-            android:layout_margin="16dp"
-            android:src="@drawable/baseline_pin_drop_black_18dp"/>
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/distanceDialog"
+        android:layout_below="@+id/distanceDialog"
+        android:layout_marginTop="-171dp"
+        android:fontFamily="@font/d_din"
+        android:text="METERS"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20dp" />
 
-        <TextView
-            android:id="@+id/c"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            />
-        <Button
-            android:id="@+id/stop"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:background="@drawable/round_button"
-            android:text=""
-            />
-        <TextView
-            android:id="@+id/d"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            />
+    <TextView
+        android:id="@+id/distanceDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="171dp"
+        android:fontFamily="@font/d_din"
+        android:text="00.0"
+        android:textColor="@android:color/white"
+        android:textSize="70dp" />
 
-    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/stop"
+        app:fabSize="normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/popUpStart"
+        android:layout_marginLeft="25dp"
+        android:layout_toEndOf="@+id/popUpStart"
+        android:clickable="true"
+        android:src="@drawable/stop"
+        app:backgroundTint="#FF979797" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/location"
+        app:fabSize="normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/stop"
+        android:layout_gravity="end|bottom"
+        android:layout_marginRight="25dp"
+        android:layout_toStartOf="@+id/popUpStart"
+        android:background="@android:color/white"
+        android:src="@drawable/grey_location"
+        app:backgroundTint="#FFFFFF" />
+
 
     <Button
-        android:id="@+id/cameraButton"
-        android:layout_weight="2"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/round_button_camera"
-        android:text="" />
-    </LinearLayout>
+        android:id="@+id/popUpStart"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="60dp"
+        android:background="@drawable/round_play_button"
+        app:layout_constraintBottom_toTopOf="@+id/stop"
+        app:layout_constraintEnd_toStartOf="@+id/timerText"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+</RelativeLayout>
     <!--
     <Button
         android:id="@+id/cameraButton"
@@ -173,6 +141,3 @@
         android:layout_centerHorizontal="true"
         android:text="Camera" />
         -->
-
-
-</LinearLayout>

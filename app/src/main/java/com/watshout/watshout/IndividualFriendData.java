@@ -41,12 +41,12 @@ public class IndividualFriendData {
 
     private Bitmap profilePic;
 
-    private HashMap<String, FriendCurrentLocation> friendsCurrentlyOnMap;
+    private CurrentlyTrackingFriendsHolder holder;
 
 
     IndividualFriendData(String name, String uid, HashMap mapPlotterList, GoogleMap googleMap,
                          RecyclerView recyclerView, Context context,
-                         HashMap<String, FriendCurrentLocation> friendsCurrentlyOnMap){
+                         CurrentlyTrackingFriendsHolder holder){
 
         this.name = getInitials(name);
         this.uid = uid;
@@ -54,7 +54,7 @@ public class IndividualFriendData {
         this.googleMap = googleMap;
         this.recyclerView = recyclerView;
         this.context = context;
-        this.friendsCurrentlyOnMap = friendsCurrentlyOnMap;
+        this.holder = holder;
 
         firstEntry = true;
 
@@ -74,11 +74,11 @@ public class IndividualFriendData {
                     firstEntry = false;
 
                     // Add new FriendCurrentLocation with the user's latest lat/lng
-                    friendsCurrentlyOnMap.put(uid, (new FriendCurrentLocation(name, new LatLng(lat, lon))));
+                    holder.update(uid, new FriendCurrentLocation(name, new LatLng(lat, lon)));
 
                     // Create a new adapter using the newly-updated HashMap. Set the adapter on the
                     // 'bubble sidebar'
-                    RecyclerView.Adapter adapter = new MapFriendAdapter(friendsCurrentlyOnMap, context, googleMap);
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(holder.getCurrent(), context, googleMap);
                     recyclerView.setAdapter(adapter);
 
                     // Create a new entry in mapPlotterList with a new MapPlotter object that is specific
@@ -92,11 +92,11 @@ public class IndividualFriendData {
                 } else {
 
                     // Simply update the latest lat/lng values and plot them on the map
-                    friendsCurrentlyOnMap.get(uid).setCoords(new LatLng(lat, lon));
+                    holder.update(uid, new FriendCurrentLocation(name, new LatLng(lat, lon)));
                     mapPlotterList.get(uid).addFriendMarker(lat, lon);
 
                     // Set the adapter with new values
-                    RecyclerView.Adapter adapter = new MapFriendAdapter(friendsCurrentlyOnMap, context, googleMap);
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(holder.getCurrent(), context, googleMap);
                     recyclerView.setAdapter(adapter);
 
                 }
@@ -153,12 +153,10 @@ public class IndividualFriendData {
                         mapPlotterList.remove(uid);
                     }
 
-                    // Remove entry from map friend items
-                    if (friendsCurrentlyOnMap.get(uid) != null){
-                        friendsCurrentlyOnMap.remove(uid);
-                    }
+                    holder.remove(uid);
 
-                    RecyclerView.Adapter adapter = new MapFriendAdapter(friendsCurrentlyOnMap, context, googleMap);
+
+                    RecyclerView.Adapter adapter = new MapFriendAdapter(holder.getCurrent(), context, googleMap);
                     recyclerView.setAdapter(adapter);
 
                 }
@@ -172,19 +170,6 @@ public class IndividualFriendData {
         });
     }
 
-    private Bitmap getSquareBitmap(Bitmap bm) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-
-        int narrowSize = Math.min(width, height);
-        int differ = (int)Math.abs((bm.getHeight() - bm.getWidth())/2.0f);
-        width  = (width  == narrowSize) ? 0 : differ;
-        height = (width == 0) ? differ : 0;
-
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, width, height, narrowSize, narrowSize);
-        //bm.recycle();
-        return resizedBitmap;
-    }
 
     private String getInitials(String text) {
         String firstLetters = "";
