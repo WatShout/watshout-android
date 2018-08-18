@@ -131,7 +131,7 @@ public class CalendarFragment extends android.app.Fragment {
                     current.setDistance(individual.get("distance"));
                     current.setTimeElapsed(individual.get("time_elapsed"));
                     current.setPace(individual.get("pace"));
-                    current.setActivityID(individual.get("activity_id"));
+                    current.setActivityId(individual.get("activity_id"));
 
                     listItems.add(current);
 
@@ -206,7 +206,7 @@ public class CalendarFragment extends android.app.Fragment {
                     individualItemInfo.put("distance", currentActivity.getDistance());
                     individualItemInfo.put("time_elapsed", currentActivity.getTimeElapsed());
                     individualItemInfo.put("pace", currentActivity.getPace());
-                    individualItemInfo.put("activity_id", currentActivity.getActivityID());
+                    individualItemInfo.put("activity_id", currentActivity.getActivityId());
 
                     individualItem.put(currentActivity.getTime() + "", individualItemInfo);
 

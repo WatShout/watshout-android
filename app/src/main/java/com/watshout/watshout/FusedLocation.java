@@ -133,6 +133,7 @@ public class FusedLocation  {
                 if (MapFragment.currentlyTrackingLocation){
 
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+                    Log.d(TAG, "Uploading to Firebase");
                     latLngList.add(new LatLng(lat, lon));
 
                     TrackPoint temp = new TrackPoint();

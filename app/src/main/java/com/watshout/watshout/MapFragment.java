@@ -232,8 +232,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-        System.out.println("Speed is: "  +fusedLocation.getTheSpeed());
-        //distanceText.setText(fusedLocation.getTheSpeed() + "");
+
         mapPlotter.moveCamera(zoom);
     }
 

@@ -24,28 +24,12 @@
                 android:layout_height="match_parent"
                 android:background="#494949">
 
-                <android.support.v7.widget.CardView
-                    android:id="@+id/circleProfilePic"
+                <ImageView
+                    android:id="@+id/profilePic"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginEnd="-75dp"
-                    android:layout_marginTop="22dp"
-                    android:layout_toStartOf="@+id/news_feed_name"
-                    android:shape="ring"
-                    app:cardBackgroundColor="@color/defaultColor"
-                    app:cardCornerRadius="24dp">
-
-
-                    <TextView
-                        android:id="@+id/news_feed_initials"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:text="EB"
-                        android:textColor="#FFFFFF"
-                        android:textSize="24sp" />
-                </android.support.v7.widget.CardView>
+                    android:layout_alignTop="@+id/news_feed_name"
+                    android:layout_marginLeft="20dp" />
 
                 <TextView
                     android:id="@+id/news_feed_name"
@@ -83,15 +67,6 @@
                     android:textColor="#fff"
                     android:textSize="22dp"
                     android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginEnd="-75dp"
-                    android:layout_marginTop="92dp"
-                    android:layout_toStartOf="@+id/news_feed_name"
-                    app:srcCompat="@drawable/running" />
 
                 <ImageView
                     android:id="@+id/news_feed_map"
@@ -175,9 +150,38 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentEnd="true"
-                    android:layout_alignTop="@+id/circleProfilePic"
-                    android:layout_marginRight="25dp"
+                    android:layout_alignTop="@+id/profilePic"
+                    android:layout_marginEnd="15dp"
                     app:srcCompat="@drawable/decline" />
+
+                <ImageView
+                    android:id="@+id/weather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/textView9"
+                    android:layout_alignStart="@+id/profilePic"
+                    android:paddingRight="5dp"
+                    app:srcCompat="@drawable/sunny" />
+
+                <TextView
+                    android:id="@+id/weather_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/news_feed_activity_name"
+                    android:layout_alignEnd="@+id/profilePic"
+                    android:text="Sunny"
+                    android:textColor="#fff"
+                    android:textSize="8dp" />
+
+                <TextView
+                    android:id="@+id/temperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@+id/profilePic"
+                    android:layout_below="@+id/news_feed_activity_name"
+                    android:text="16°C"
+                    android:textColor="#fff"
+                    android:textSize="10dp" />
             </RelativeLayout>
 
 

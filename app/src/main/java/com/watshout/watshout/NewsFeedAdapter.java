@@ -78,15 +78,64 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
 
         String formattedTime = epochToIso8601(time);
 
+        Picasso.get()
+                .load(newsFeedItem.getProfilePicUrl())
+                .resize(64, 64)
+                .transform(new CircleTransform())
+                .placeholder(R.drawable.news_feed_loading)
+                .into(holder.mProfilePic);
+
         holder.mTime.setText(formattedTime);
         holder.mActivityName.setText(newsFeedItem.getEventName());
-
-        String initials = "";
-        for (String s : newsFeedItem.getName().split(" ")) {
-            initials += s.charAt(0);
-        }
-        holder.mInitials.setText(initials);
         holder.mActivityDistance.setText(newsFeedItem.getDistance());
+
+        // Make sure weather data isn't null
+        if (newsFeedItem.getTempCelcius() != null &&
+                newsFeedItem.getWeatherId() != null &&
+                newsFeedItem.getWeatherType() != null) {
+
+            double temperature = newsFeedItem.getTempCelcius();
+            int temp = (int) Math.round(temperature);
+
+            holder.mTemperature.setText(temp + "°C");
+            holder.mWeatherLabel.setText(newsFeedItem.getWeatherType());
+
+            int firstIdDigit = Integer.parseInt(Integer.toString(newsFeedItem.getWeatherId()).substring(0, 1));
+
+            int weatherIconResource = R.drawable.sunny;
+
+            switch (firstIdDigit){
+
+                case 2:
+                    weatherIconResource = R.drawable.windy;
+                    break;
+
+                case 3:
+                    weatherIconResource = R.drawable.rainy;
+                    break;
+
+                case 5:
+                    weatherIconResource = R.drawable.rainy;
+                    break;
+
+                case 6:
+                    weatherIconResource = R.drawable.snowy;
+                    break;
+
+                case 7:
+                    weatherIconResource = R.drawable.cloudy;
+                    break;
+
+                case 8:
+                    weatherIconResource = R.drawable.sunny;
+                    break;
+
+            }
+
+            holder.mWeatherIcon.setImageResource(weatherIconResource);
+            holder.mWeatherLabel.setText(newsFeedItem.getWeatherType());
+
+        }
 
         int timeElapsed = Integer.valueOf(newsFeedItem.getTimeElapsed());
         String formattedElapsedTime = TimeManipulator.getInstance().formatTime(timeElapsed);
@@ -110,10 +159,10 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
-                            Log.d("NEWS", newsFeedItem.getActivityID());
+                            Log.d("NEWS", newsFeedItem.getActivityId());
 
                             ref.child("users").child(uid).child("device").child("past")
-                                    .child(newsFeedItem.getActivityID()).removeValue();
+                                    .child(newsFeedItem.getActivityId()).removeValue();
 
                             listItems.remove(position);
                             notifyDataSetChanged();
@@ -150,10 +199,13 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
         TextView mActivityDistance;
         TextView mActivityTime;
         TextView mActivityPace;
-        TextView mInitials;
         ImageView mMap;
         LinearLayout mLinearLayout;
         ImageView mDeleteActivity;
+        ImageView mProfilePic;
+        TextView mWeatherLabel;
+        TextView mTemperature;
+        ImageView mWeatherIcon;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -165,9 +217,12 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
             mActivityDistance = itemView.findViewById(R.id.news_feed_activity_distance);
             mActivityTime = itemView.findViewById(R.id.news_feed_activity_time);
             mActivityPace = itemView.findViewById(R.id.news_feed_activity_pace);
-            mInitials = itemView.findViewById(R.id.news_feed_initials);
             mLinearLayout = itemView.findViewById(R.id.card_linear_layout);
             mDeleteActivity = itemView.findViewById(R.id.deleteActivity);
+            mProfilePic = itemView.findViewById(R.id.profilePic);
+            mWeatherIcon = itemView.findViewById(R.id.weather);
+            mWeatherLabel = itemView.findViewById(R.id.weather_label);
+            mTemperature = itemView.findViewById(R.id.temperature);
 
         }
     }
