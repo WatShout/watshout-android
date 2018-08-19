@@ -41,7 +41,7 @@ public class FusedLocation  {
     double prevLat;
     double prevLon;
     double distance;
-    int counter;
+
     TextView speedTextDialog;
     TextView stepsDialog;
     TextView distanceDialog;
@@ -146,27 +146,29 @@ public class FusedLocation  {
                     String nowAsISO = df.format(new Date());
 
                     XMLCreator.addPoint(lat, lon, altitude, 69, nowAsISO);
-                    if(counter == 0) {}
-                    else {
-                        distance += calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
-                                lat*Math.PI/180, lon*Math.PI/180 );
-                        int tempDistance = (int) distance;
-                        distanceDialog.setText(tempDistance + "");
 
-                        // Calculate pace
-                        if (tempDistance > 0){
-                            double rawMetricPace = time / tempDistance;
+                    distance += calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
+                            lat*Math.PI/180, lon*Math.PI/180 );
 
-                            int metricMinutePace = (int) (rawMetricPace / 60);
-                            int metricSecondPace = (int) (rawMetricPace - metricMinutePace * 60);
+                    int tempDistance = (int) distance;
+                    distanceDialog.setText(tempDistance + "");
 
-                            String metricMinuteString = String.format("%02d", metricMinutePace);
-                            String metricSecondString = String.format("%02d", metricSecondPace);
+                    // Calculate pace
+                    if (tempDistance > 0){
+                        double rawMetricPace = time / tempDistance;
 
-                            speedTextDialog.setText(metricMinuteString + ":" + metricSecondString);
-                        }
+                        int metricMinutePace = (int) (rawMetricPace / 60);
+                        int metricSecondPace = (int) (rawMetricPace - metricMinutePace * 60);
+
+                        Log.d("VALS", "Time: " + time + "\nMetric pace: " +
+                                rawMetricPace + "\nTemp Distance: " + tempDistance + "\nMMP: " + metricMinutePace + "\nMSP: " + metricSecondPace);
+
+                        String metricMinuteString = String.format("%02d", metricMinutePace);
+                        String metricSecondString = String.format("%02d", metricSecondPace);
+
+                        speedTextDialog.setText(metricMinuteString + ":" + metricSecondString);
                     }
-                    counter ++;
+
                     prevLat = lat;
                     prevLon = lon;
                 }
