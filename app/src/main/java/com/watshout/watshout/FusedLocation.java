@@ -28,7 +28,7 @@ import java.util.TimeZone;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-public class FusedLocation  {
+public class FusedLocation {
 
     private Context context;
     private MapPlotter mapPlotter;
@@ -80,7 +80,7 @@ public class FusedLocation  {
         return latLngList;
     }
 
-    private void updateSharedPreferenceValues(double lat, double lon){
+    private void updateSharedPreferenceValues(double lat, double lon) {
 
         editor.putString("last_latitude", lat + "");
         editor.putString("last_longitude", lon + "");
@@ -113,16 +113,15 @@ public class FusedLocation  {
 
                 mapPlotter.addMarker(lat, lon);
                 double newSpeed = 1609.34 / speed;
-                int secondsSpeed = (int)(newSpeed%60);
+                int secondsSpeed = (int) (newSpeed % 60);
                 String theSpeed;
-                newSpeed = (int)(newSpeed/60);
-                if(newSpeed > 60)
+                newSpeed = (int) (newSpeed / 60);
+                if (newSpeed > 60)
                     speedTextDialog.setText("---");
-                else if((secondsSpeed + "").length() == 1) {
+                else if ((secondsSpeed + "").length() == 1) {
                     theSpeed = (int) (newSpeed) + ":0" + secondsSpeed;
                     speedTextDialog.setText(theSpeed + " m/mi");
-                }
-                else {
+                } else {
                     theSpeed = (int) (newSpeed) + ":" + secondsSpeed;
                     speedTextDialog.setText(theSpeed + " m/mi");
                 }
@@ -130,7 +129,7 @@ public class FusedLocation  {
                 Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
                         + "\nAccuracy: " + accuracy);
 
-                if (MapFragment.currentlyTrackingLocation){
+                if (MapFragment.currentlyTrackingLocation) {
 
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
                     Log.d(TAG, "Uploading to Firebase");
@@ -147,26 +146,17 @@ public class FusedLocation  {
 
                     XMLCreator.addPoint(lat, lon, altitude, 69, nowAsISO);
 
-                    distance += calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
-                            lat*Math.PI/180, lon*Math.PI/180 );
+                    distance += calculationByDistance(prevLat * Math.PI / 180, prevLon * Math.PI / 180,
+                            lat * Math.PI / 180, lon * Math.PI / 180);
 
                     int tempDistance = (int) distance;
                     distanceDialog.setText(tempDistance + "");
 
                     // Calculate pace
-                    if (tempDistance > 0){
-                        double rawMetricPace = time / tempDistance;
+                    if (tempDistance > 0) {
 
-                        int metricMinutePace = (int) (rawMetricPace / 60);
-                        int metricSecondPace = (int) (rawMetricPace - metricMinutePace * 60);
+                        speedTextDialog.setText(metersPerSecondToMinutesPerKilometer(speed));
 
-                        Log.d("VALS", "Time: " + time + "\nMetric pace: " +
-                                rawMetricPace + "\nTemp Distance: " + tempDistance + "\nMMP: " + metricMinutePace + "\nMSP: " + metricSecondPace);
-
-                        String metricMinuteString = String.format("%02d", metricMinutePace);
-                        String metricSecondString = String.format("%02d", metricSecondPace);
-
-                        speedTextDialog.setText(metricMinuteString + ":" + metricSecondString);
                     }
 
                     prevLat = lat;
@@ -196,7 +186,7 @@ public class FusedLocation  {
 
     }
 
-    public void setCurrentRunningTime(int time){
+    public void setCurrentRunningTime(int time) {
         this.time = time;
     }
 
@@ -204,14 +194,14 @@ public class FusedLocation  {
         return speed;
     }
 
-    public double calculationByDistance(double initialLat, double initialLong, double finalLat, double finalLong){
+    public double calculationByDistance(double initialLat, double initialLong, double finalLat, double finalLong) {
         /*PRE: All the input values are in radians!*/
 
         double latDiff = finalLat - initialLat;
         double longDiff = finalLong - initialLong;
         double earthRadius = 6371; //In Km if you want the distance in km
 
-        double distanceTemp = 1000*2*earthRadius*Math.asin(Math.sqrt(Math.pow(Math.sin(latDiff/2.0),2)+Math.cos(initialLat)*Math.cos(finalLat)*Math.pow(Math.sin(longDiff/2),2)));
+        double distanceTemp = 1000 * 2 * earthRadius * Math.asin(Math.sqrt(Math.pow(Math.sin(latDiff / 2.0), 2) + Math.cos(initialLat) * Math.cos(finalLat) * Math.pow(Math.sin(longDiff / 2), 2)));
 
         return distanceTemp;
 
@@ -225,5 +215,23 @@ public class FusedLocation  {
         coords[1] = longitude;
 
         return coords;
+    }
+
+    private String metersPerSecondToMinutesPerKilometer(double speed) {
+
+        if (speed != 0) {
+            double pace = (1 / speed) / 60 * 1000;
+            System.out.println(pace);
+
+            int minutes = (int) Math.floor(pace);
+            System.out.println(minutes);
+
+            int seconds = (int) Math.floor((pace - minutes) * 60);
+
+            return minutes + ":" + seconds;
+        } else {
+            return "0:00";
+        }
+
     }
 }
