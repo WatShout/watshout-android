@@ -35,9 +35,9 @@ public class Activity {
     @SerializedName("profile_pic_url")
     @Expose
     private String profilePicUrl;
-    @SerializedName("temp_celcius")
+    @SerializedName("temp_celsius")
     @Expose
-    private Double tempCelcius;
+    private Double tempCelsius;
     @SerializedName("weather_type")
     @Expose
     private String weatherType;
@@ -125,12 +125,12 @@ public class Activity {
         this.profilePicUrl = profilePicUrl;
     }
 
-    public Double getTempCelcius() {
-        return tempCelcius;
+    public Double getTempCelsius() {
+        return tempCelsius;
     }
 
-    public void setTempCelcius(Double tempCelcius) {
-        this.tempCelcius = tempCelcius;
+    public void setTempCelsius(Double tempCelsius) {
+        this.tempCelsius = tempCelsius;
     }
 
     public String getWeatherType() {

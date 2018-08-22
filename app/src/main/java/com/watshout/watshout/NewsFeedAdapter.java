@@ -90,11 +90,11 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
         holder.mActivityDistance.setText(newsFeedItem.getDistance());
 
         // Make sure weather data isn't null
-        if (newsFeedItem.getTempCelcius() != null &&
+        if (newsFeedItem.getTempCelsius() != null &&
                 newsFeedItem.getWeatherId() != null &&
                 newsFeedItem.getWeatherType() != null) {
 
-            double temperature = newsFeedItem.getTempCelcius();
+            double temperature = newsFeedItem.getTempCelsius();
             int temp = (int) Math.round(temperature);
 
             holder.mTemperature.setText(temp + "°C");
