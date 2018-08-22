@@ -3,6 +3,7 @@ package com.watshout.watshout;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -18,6 +19,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -88,6 +90,8 @@ public class MainActivity extends AppCompatActivity implements
     String CURRENT_DEVICE_ID;
     String stravaToken;
 
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
     private StorageReference mStorageRef;
     private DatabaseReference activityImagesRef;
 
@@ -124,24 +128,50 @@ public class MainActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
         disableNavigationViewScrollbars(navigationView);
 
-        // Checks if a user has an account entry. If not they get redirected
-        ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+        if (!thisUser.isEmailVerified()){
 
-                        if (!dataSnapshot.exists()){
-                            Intent initialize = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
-                            finish();
-                            startActivity(initialize);
+            thisUser.sendEmailVerification();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+            builder.setTitle("Email verification sent");
+            builder.setMessage("We ask that all new users please verify their " +
+                    "email address. Please follow the link sent to your email " +
+                    "and then you will be able to log in.");
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    mAuth.signOut();
+                    Intent reopenSignIn = new Intent(getApplicationContext(), SignInActivity.class);
+                    getApplicationContext().startActivity(reopenSignIn);
+
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+        } else {
+            // Checks if a user has an account entry. If not they get redirected
+            ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(
+                    new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            if (!dataSnapshot.exists()){
+                                Intent initialize = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
+                                finish();
+                                startActivity(initialize);
+                            }
+
                         }
 
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) { }
                     }
+            );
+        }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) { }
-                }
-        );
 
         ref.child("users").child(uid).child("device").child("ID").setValue(CURRENT_DEVICE_ID);
         ref.child("users").child(uid).child("device").child("name").setValue(android.os.Build.MODEL);

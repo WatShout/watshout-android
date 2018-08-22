@@ -132,7 +132,7 @@ public class CalendarFragment extends android.app.Fragment {
                     current.setTimeElapsed(individual.get("time_elapsed"));
                     current.setPace(individual.get("pace"));
                     current.setActivityId(individual.get("activity_id"));
-                    current.setTempCelcius(Double.valueOf(individual.get("temp_celcius")));
+                    current.setTempCelsius(Double.valueOf(individual.get("temp_celcius")));
                     current.setWeatherType(individual.get("weather_type"));
                     current.setWeatherId(Integer.valueOf(individual.get("weather_id")));
 
@@ -210,7 +210,7 @@ public class CalendarFragment extends android.app.Fragment {
                     individualItemInfo.put("time_elapsed", currentActivity.getTimeElapsed());
                     individualItemInfo.put("pace", currentActivity.getPace());
                     individualItemInfo.put("activity_id", currentActivity.getActivityId());
-                    individualItemInfo.put("temp_celcius", currentActivity.getTempCelcius() + "");
+                    individualItemInfo.put("temp_celcius", currentActivity.getTempCelsius() + "");
                     individualItemInfo.put("weather_type", currentActivity.getWeatherType());
                     individualItemInfo.put("weather_id", currentActivity.getWeatherId() + "");
 

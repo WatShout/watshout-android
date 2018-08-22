@@ -150,6 +150,8 @@ public class SignInActivity extends AppCompatActivity {
                 String email = thisUser.getEmail();
                 mAuth = FirebaseAuth.getInstance();
 
+
+
                 Call<SuccessCheck> call = retrofitInterface.getEmailAuthorized(email);
                 call.enqueue(new Callback<SuccessCheck>() {
                     @Override
@@ -159,31 +161,56 @@ public class SignInActivity extends AppCompatActivity {
 
                         if (authorized){
 
-                            // if Firebase user doesn't have profile_pic_format, open InitializeNewAccountActivity
-                            ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                    if (dataSnapshot.hasChild("profile_pic_format")) {
-                                        Carrier.setUploadedOwnProfilePicture(true);
-                                        Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
-                                        openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        getApplicationContext().startActivity(openMain);
-                                        finish();
-                                    } else {
-                                        Carrier.setUploadedOwnProfilePicture(false);
-                                        Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
-                                        openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        getApplicationContext().startActivity(openPfp);
-                                        finish();
+                            if (!thisUser.isEmailVerified()){
+
+                                thisUser.sendEmailVerification();
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
+
+                                builder.setTitle("Email verification sent");
+                                builder.setMessage("We ask that all new users please verify their " +
+                                        "email address. Please follow the link sent to your email " +
+                                        "and then you will be able to log in.");
+
+                                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        mAuth.signOut();
+                                        Intent reopenSignIn = new Intent(getApplicationContext(), SignInActivity.class);
+                                        getApplicationContext().startActivity(reopenSignIn);
                                     }
-                                }
+                                });
 
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
 
-                                }
-                            });
+                            } else {
+                                // if Firebase user doesn't have profile_pic_format, open InitializeNewAccountActivity
+                                ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                        if (dataSnapshot.hasChild("profile_pic_format")) {
+                                            Carrier.setUploadedOwnProfilePicture(true);
+                                            Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
+                                            openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            getApplicationContext().startActivity(openMain);
+                                            finish();
+                                        } else {
+                                            Carrier.setUploadedOwnProfilePicture(false);
+                                            Intent openPfp = new Intent(getApplicationContext(), InitializeNewAccountActivity.class);
+                                            openPfp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            getApplicationContext().startActivity(openPfp);
+                                            finish();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
                         } else {
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);

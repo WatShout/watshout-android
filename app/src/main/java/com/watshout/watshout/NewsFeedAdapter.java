@@ -89,7 +89,7 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
         holder.mActivityName.setText(newsFeedItem.getEventName());
         holder.mActivityDistance.setText(newsFeedItem.getDistance());
 
-        Log.d("NFA", newsFeedItem.getTempCelcius() + ", " +
+        Log.d("NFA", newsFeedItem.getTempCelsius() + ", " +
                 newsFeedItem.getWeatherId() + ", " + newsFeedItem.getWeatherType());
 
         // Make sure weather data isn't null
