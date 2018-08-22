@@ -75,6 +75,8 @@ import javax.xml.transform.TransformerException;
 import retrofit2.Call;
 import retrofit2.Callback;
 
+import static android.content.Context.SENSOR_SERVICE;
+
 public class MapFragment extends android.app.Fragment implements OnMapReadyCallback, SensorEventListener {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -84,13 +86,11 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     SensorManager sensorManager;
 
-    ArrayList<String> requestIDs = new ArrayList<>();
 
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
     MapView mv;
 
-    ArrayList<LatLng> latLngList;
 
     RetrofitInterface retrofitInterface = RetrofitClient
             .getRetrofitInstance().create(RetrofitInterface.class);
@@ -192,7 +192,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
 
         SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
+                .getDefaultSharedPreferences(getContext());
         double last_latitude = Double
                 .parseDouble(settings.getString("last_latitude", "37.4419"));
         double last_longitude = Double
@@ -261,7 +261,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         getActivity().setTitle("map");
 
-        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) getActivity().getSystemService(SENSOR_SERVICE);
 
         ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -275,12 +275,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             }
         });
 
-
         mRelativeLayout = view.findViewById(R.id.relative);
         mDrawerLayout = MainActivity.getDrawerLayout();
-
-        Resources resources = getActivity().getResources();
-        int softBarHeight = getSoftButtonsBarHeight();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -421,16 +417,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
                 sendActivityNotification();
-                //ActionBar actionBar = getSupportActionBar();
+
                 ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-                //actionBar.hide();
                 actionBar.setDisplayHomeAsUpEnabled(false);
                 actionBar.setHomeButtonEnabled(false);
+
                 Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                         R.anim.fui_slide_in_right);
                 ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
                 hiddenPanel.startAnimation(bottomUp);
                 hiddenPanel.setVisibility(View.VISIBLE);
+
                 popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
                 startClick();
 
@@ -682,6 +679,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getActivity().getApplicationContext().startActivity(openNext);
             getActivity().finish();
+
+            // This seems to fix the multi-location updates
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
 
 
     }
