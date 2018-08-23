@@ -261,6 +261,14 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         getActivity().setTitle("map");
 
+        Bundle bundle = getArguments();
+        String type;
+        try {
+            type = String.valueOf(bundle.getString("type"));
+        } catch (NullPointerException e){
+            type = "map";
+        }
+
         sensorManager = (SensorManager) getActivity().getSystemService(SENSOR_SERVICE);
 
         ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -366,6 +374,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mStop = view.findViewById(R.id.stop);
         popUpStop = popUpView.findViewById(R.id.stop);
         popUpStart = popUpView.findViewById(R.id.popUpStart);
+
+        if (type.equals("map")){
+            mStart.setVisibility(View.INVISIBLE);
+        }
 
         mStop.setVisibility(View.INVISIBLE);
         popUpStop.setVisibility(View.INVISIBLE);

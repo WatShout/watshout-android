@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -87,14 +88,6 @@ public class SignInActivity extends AppCompatActivity {
             }
         }
 
-        if (request.size() > 0) {
-            // Request the permission
-            ActivityCompat.requestPermissions(SignInActivity.this,
-                    request.toArray(new String[0]),
-                    0);
-        }
-
-
         // Send initial warning
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean firstLaunch = prefs.getBoolean("isInitialLaunch", true);
@@ -131,18 +124,31 @@ public class SignInActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
 
                 String msg = "Thank you for trying out Watshout! Please note that our initial " +
-                        "launch is only open to users with .edu email addresses. If you would like " +
-                        "to join our whitelist please visit https://watshout.com/whitelist/";
+                        "launch is only open to users with .edu email addresses and users on our " +
+                        "whitelist.";
                 SpannableString spanMsg = new SpannableString(msg);
                 Linkify.addLinks(spanMsg, Linkify.ALL);
 
                 builder.setTitle("Watshout Closed Beta");
                 builder.setMessage(spanMsg);
 
+                builder.setNegativeButton("Join whitelist", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                                Uri.parse("https://watshout.com/whitelist/"));
+                        startActivity(browserIntent);
+                        finish();
+                    }
+                });
+
                 builder.setPositiveButton("I understand", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
                         prefs.edit().putBoolean("isInitialLaunch", false).apply();
+
+                        // Launch permission request dialog
+                        askForPermission(request);
 
                         startActivityForResult(
                                 // Get an instance of AuthUI based on the default app
@@ -308,6 +314,16 @@ public class SignInActivity extends AppCompatActivity {
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void askForPermission(List<String> request) {
+        // Ask for permissions
+        if (request.size() > 0) {
+            // Request the permission
+            ActivityCompat.requestPermissions(SignInActivity.this,
+                    request.toArray(new String[0]),
+                    0);
+        }
     }
 }
 

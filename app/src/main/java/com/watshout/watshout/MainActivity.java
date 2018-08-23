@@ -419,12 +419,31 @@ public class MainActivity extends AppCompatActivity implements
                         .commit();
                 break;
 
-            case R.id.nav_home:
+
+            case R.id.nav_activity:
+                MapFragment activityFragment = new MapFragment();
+                Bundle activityBundle = new Bundle();
+                activityBundle.putString("type", "activity");
+                activityFragment.setArguments(activityBundle);
 
                 getFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.screen_area, new MapFragment())
+                        .replace(R.id.screen_area, activityFragment)
                         .commit();
+                break;
+
+
+            case R.id.nav_map:
+                MapFragment mapFragment = new MapFragment();
+                Bundle mapBundle = new Bundle();
+                mapBundle.putString("type", "map");
+                mapFragment.setArguments(mapBundle);
+
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, mapFragment)
+                        .commit();
+
                 break;
 
             case R.id.nav_calendar:
@@ -495,7 +514,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed(){
 
-        navigationView.setCheckedItem(R.id.nav_home);
+        navigationView.setCheckedItem(R.id.nav_map);
 
         // set to MapFragment
         getFragmentManager()
