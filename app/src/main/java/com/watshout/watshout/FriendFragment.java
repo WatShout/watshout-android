@@ -3,6 +3,7 @@ package com.watshout.watshout;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,6 +24,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -321,7 +324,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
             case R.id.send_request:
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Enter Friend Email");
+                AlertDialog dialog;
+                builder.setTitle("Search Friend by Email");
 
                 // Set up the input
                 final EditText input = new EditText(getActivity());
@@ -349,7 +353,11 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                     }
                 });
 
+                dialog = builder.create();
+                dialog.getWindow()
+                        .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
                 builder.show();
+
                 break;
 
         }

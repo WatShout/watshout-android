@@ -99,30 +99,6 @@ public class SignInActivity extends AppCompatActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean firstLaunch = prefs.getBoolean("isInitialLaunch", true);
 
-        if (firstLaunch) {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
-
-            String msg = "Thank you for trying out Watshout! Please note that our initial " +
-                    "launch is only open to users with .edu email addresses. If you would like " +
-                    "to join our whitelist please visit https://watshout.com/whitelist/";
-            SpannableString spanMsg = new SpannableString(msg);
-            Linkify.addLinks(spanMsg, Linkify.ALL);
-
-            builder.setTitle("Email verification sent");
-            builder.setMessage(spanMsg);
-
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-
-                    prefs.edit().putBoolean("isInitialLaunch", false).apply();
-
-                }
-            });
-
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
 
         if (!isNetworkAvailable()){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -149,18 +125,57 @@ public class SignInActivity extends AppCompatActivity {
             getApplicationContext().startActivity(openMain);
             finish();
         } else {
-            startActivityForResult(
-                    // Get an instance of AuthUI based on the default app
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setLogo(R.drawable.small_logo)
-                            .setIsSmartLockEnabled(false)
-                            .setTheme(R.style.LoginTheme)
-                            .setAvailableProviders(Arrays.asList(
-                                    new AuthUI.IdpConfig.GoogleBuilder().build(),
-                                    new AuthUI.IdpConfig.EmailBuilder().build()))
-                            .build(),
-                    RC_SIGN_IN);
+
+            if (firstLaunch) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
+
+                String msg = "Thank you for trying out Watshout! Please note that our initial " +
+                        "launch is only open to users with .edu email addresses. If you would like " +
+                        "to join our whitelist please visit https://watshout.com/whitelist/";
+                SpannableString spanMsg = new SpannableString(msg);
+                Linkify.addLinks(spanMsg, Linkify.ALL);
+
+                builder.setTitle("Watshout Closed Beta");
+                builder.setMessage(spanMsg);
+
+                builder.setPositiveButton("I understand", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        prefs.edit().putBoolean("isInitialLaunch", false).apply();
+
+                        startActivityForResult(
+                                // Get an instance of AuthUI based on the default app
+                                AuthUI.getInstance()
+                                        .createSignInIntentBuilder()
+                                        .setLogo(R.drawable.small_logo)
+                                        .setIsSmartLockEnabled(false)
+                                        .setTheme(R.style.LoginTheme)
+                                        .setAvailableProviders(Arrays.asList(
+                                                new AuthUI.IdpConfig.GoogleBuilder().build(),
+                                                new AuthUI.IdpConfig.EmailBuilder().build()))
+                                        .build(),
+                                RC_SIGN_IN);
+
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            } else {
+                startActivityForResult(
+                        // Get an instance of AuthUI based on the default app
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setLogo(R.drawable.small_logo)
+                                .setIsSmartLockEnabled(false)
+                                .setTheme(R.style.LoginTheme)
+                                .setAvailableProviders(Arrays.asList(
+                                        new AuthUI.IdpConfig.GoogleBuilder().build(),
+                                        new AuthUI.IdpConfig.EmailBuilder().build()))
+                                .build(),
+                        RC_SIGN_IN);
+            }
         }
 
     }
