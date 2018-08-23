@@ -27,7 +27,7 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
     private String[][] settingsLabels;
     private SettingsFunctions settingsFunctions;
 
-    public SettingsListAdapter(Context context, List<ParentItem> itemList) {
+    SettingsListAdapter(Context context, List<ParentItem> itemList) {
         this.itemList = itemList;
         this.context = context;
         this.inflater = LayoutInflater.from(context);
@@ -40,8 +40,8 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
         settingsGroupNames.put(4, "Legal");
 
         settingsLabels = new String[5][4];
-        settingsLabels[0][0] = "Data screens";
-        settingsLabels[0][1] = "Message presets";
+        //settingsLabels[0][0] = "Data screens";
+        settingsLabels[0][0] = "Message presets";
 
         settingsLabels[1][0] = "Units";
         settingsLabels[1][1] = "Language";

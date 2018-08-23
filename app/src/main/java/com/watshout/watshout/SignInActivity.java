@@ -5,14 +5,18 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableString;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -91,11 +95,41 @@ public class SignInActivity extends AppCompatActivity {
         }
 
 
+        // Send initial warning
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean firstLaunch = prefs.getBoolean("isInitialLaunch", true);
+
+        if (firstLaunch) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
+
+            String msg = "Thank you for trying out Watshout! Please note that our initial " +
+                    "launch is only open to users with .edu email addresses. If you would like " +
+                    "to join our whitelist please visit https://watshout.com/whitelist/";
+            SpannableString spanMsg = new SpannableString(msg);
+            Linkify.addLinks(spanMsg, Linkify.ALL);
+
+            builder.setTitle("Email verification sent");
+            builder.setMessage(spanMsg);
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+
+                    prefs.edit().putBoolean("isInitialLaunch", false).apply();
+
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
         if (!isNetworkAvailable()){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             builder.setTitle("No Network Connection Detected");
-            builder.setMessage("The app will now close. Please re-open the app once you have a network connection");
+            builder.setMessage("The app will now close. Please re-open the app " +
+                    "once you have a network connection");
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -123,8 +157,8 @@ public class SignInActivity extends AppCompatActivity {
                             .setIsSmartLockEnabled(false)
                             .setTheme(R.style.LoginTheme)
                             .setAvailableProviders(Arrays.asList(
-                                    new AuthUI.IdpConfig.EmailBuilder().build(),
-                                    new AuthUI.IdpConfig.GoogleBuilder().build()))
+                                    new AuthUI.IdpConfig.GoogleBuilder().build(),
+                                    new AuthUI.IdpConfig.EmailBuilder().build()))
                             .build(),
                     RC_SIGN_IN);
         }

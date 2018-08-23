@@ -42,7 +42,7 @@ public class SettingsFragment extends android.app.Fragment {
 
         ParentItem parent1 = new ParentItem();
         parent1.getChildItemList().add(new ChildItem());
-        parent1.getChildItemList().add(new ChildItem());
+        //parent1.getChildItemList().add(new ChildItem());
 
         ParentItem parent2 = new ParentItem();
         parent2.getChildItemList().add(new ChildItem());
