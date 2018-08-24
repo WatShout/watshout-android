@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements
             .getReference();
 
     LatLng home;
+    final boolean[] hasRequests = {false};
 
     // Gets a unique hardware ID for a device
     @SuppressLint("HardwareIds")
@@ -114,6 +115,8 @@ public class MainActivity extends AppCompatActivity implements
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        hasRequests[0] = false;
 
         CURRENT_DEVICE_ID = getDeviceID();
 
@@ -461,6 +464,7 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.nav_friends:
+
                 getFragmentManager()
                         .beginTransaction()
                         .replace(R.id.screen_area, new FriendFragment())

@@ -132,7 +132,7 @@ public class CalendarFragment extends android.app.Fragment {
                     current.setTimeElapsed(individual.get("time_elapsed"));
                     current.setPace(individual.get("pace"));
                     current.setActivityId(individual.get("activity_id"));
-                    current.setTempCelsius(Double.valueOf(individual.get("temp_celcius")));
+                    current.setTempCelsius(Double.valueOf(individual.get("temp_celsius")));
                     current.setWeatherType(individual.get("weather_type"));
                     current.setWeatherId(Integer.valueOf(individual.get("weather_id")));
 

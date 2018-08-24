@@ -3,9 +3,7 @@ package com.watshout.watshout;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,20 +23,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -53,16 +43,9 @@ import com.watshout.watshout.pojo.FriendRequestList;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.FriendsList;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -86,7 +69,8 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             .getInstance()
             .getReference();
 
-    Menu menu;
+    Menu globalMenu;
+    MenuInflater globalInflater;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
@@ -133,6 +117,36 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             }
         });
 
+        ref.child("friend_requests").child(uid).orderByChild("request_type")
+                .equalTo("received")
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        globalMenu.clear();
+                        globalInflater.inflate(R.menu.friend_menu_requests, globalMenu);
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                        globalMenu.clear();
+                        globalInflater.inflate(R.menu.friend_menu_no_requests, globalMenu);
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
         // This is a very hacky solution. Essentially this makes sure refreshData()
         // only loads ONCE.
@@ -286,9 +300,11 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        this.menu = menu;
+        this.globalMenu = menu;
+        this.globalInflater = inflater;
         menu.clear();
-        inflater.inflate(R.menu.friend_menu, menu);
+
+        inflater.inflate(R.menu.friend_menu_no_requests, menu);
     }
 
     @Override
@@ -309,6 +325,16 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
                 PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
                 popupWindow.setAnimationStyle(R.style.popup_window_animation);
                 popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+
+                popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+
+                    globalMenu.clear();
+                    globalInflater.inflate(R.menu.friend_menu_no_requests, globalMenu);
+
+                    }
+                });
 
                 RelativeLayout relativeLayout = popupView.findViewById(R.id.request_relative_layout);
 
