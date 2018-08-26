@@ -132,9 +132,25 @@ public class CalendarFragment extends android.app.Fragment {
                     current.setTimeElapsed(individual.get("time_elapsed"));
                     current.setPace(individual.get("pace"));
                     current.setActivityId(individual.get("activity_id"));
-                    current.setTempCelsius(Double.valueOf(individual.get("temp_celsius")));
-                    current.setWeatherType(individual.get("weather_type"));
-                    current.setWeatherId(Integer.valueOf(individual.get("weather_id")));
+
+                    // Weather data is not guaranteeed
+                    try {
+                        current.setTempCelsius(Double.valueOf(individual.get("temp_celsius")));
+                    } catch (NullPointerException e){
+                        current.setTempCelsius(null);
+                    }
+
+                    try {
+                        current.setWeatherType(individual.get("weather_type"));
+                    } catch (NullPointerException e){
+                        current.setWeatherType(null);
+                    }
+
+                    try {
+                        current.setWeatherId(Integer.valueOf(individual.get("weather_id")));
+                    } catch (NullPointerException e){
+                        current.setWeatherId(null);
+                    }
 
                     listItems.add(current);
 
@@ -210,7 +226,7 @@ public class CalendarFragment extends android.app.Fragment {
                     individualItemInfo.put("time_elapsed", currentActivity.getTimeElapsed());
                     individualItemInfo.put("pace", currentActivity.getPace());
                     individualItemInfo.put("activity_id", currentActivity.getActivityId());
-                    individualItemInfo.put("temp_celcius", currentActivity.getTempCelsius() + "");
+                    individualItemInfo.put("temp_celsius", currentActivity.getTempCelsius() + "");
                     individualItemInfo.put("weather_type", currentActivity.getWeatherType());
                     individualItemInfo.put("weather_id", currentActivity.getWeatherId() + "");
 

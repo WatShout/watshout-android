@@ -157,9 +157,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     FloatingActionButton floatingActionButton;
 
-    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
+    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L;
     Handler handler;
-    int Seconds, Minutes, MilliSeconds ;
+    int Seconds, Minutes, MilliSeconds;
 
     private boolean timeRunning = false;
 
@@ -187,7 +187,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             googleMapGlobal.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_color
                     ));
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
 
@@ -233,10 +233,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
+        googleMapGlobal.setMyLocationEnabled(true);
+        googleMapGlobal.getUiSettings().setMyLocationButtonEnabled(false);
+
         mapPlotter.moveCamera(zoom);
     }
 
-    public void onPause(){
+    public void onPause() {
         super.onPause();
 
         Log.d("PAUSE", "You just paused");
@@ -250,7 +253,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("MAP", "hello");
     }
 
@@ -265,7 +268,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         String type;
         try {
             type = String.valueOf(bundle.getString("type"));
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             type = "map";
         }
 
@@ -328,22 +331,27 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onClick(View view) {
                 final Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                         R.anim.fui_slide_out_left);
-                final ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+                final ViewGroup hiddenPanel = (ViewGroup) popUpView.findViewById(R.id.dialogLayout);
 
                 hiddenPanel.startAnimation(bottomUp);
                 bottomUp.setAnimationListener(new Animation.AnimationListener() {
-                    public void onAnimationStart(Animation anim)
-                    {
+                    public void onAnimationStart(Animation anim) {
 
-                    };
-                    public void onAnimationRepeat(Animation anim)
-                    {
-                    };
-                    public void onAnimationEnd(Animation anim)
-                    {
+                    }
+
+                    ;
+
+                    public void onAnimationRepeat(Animation anim) {
+                    }
+
+                    ;
+
+                    public void onAnimationEnd(Animation anim) {
                         hiddenPanel.setVisibility(View.INVISIBLE);
                         popUp.dismiss();
-                    };
+                    }
+
+                    ;
                 });
 
             }
@@ -355,7 +363,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onClick(View view) {
                 Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                         R.anim.fui_slide_in_right);
-                ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+                ViewGroup hiddenPanel = (ViewGroup) popUpView.findViewById(R.id.dialogLayout);
                 hiddenPanel.startAnimation(bottomUp);
                 hiddenPanel.setVisibility(View.VISIBLE);
                 popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
@@ -375,7 +383,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         popUpStop = popUpView.findViewById(R.id.stop);
         popUpStart = popUpView.findViewById(R.id.popUpStart);
 
-        if (type.equals("map")){
+        if (type.equals("map")) {
             mStart.setVisibility(View.INVISIBLE);
         }
 
@@ -388,7 +396,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         distanceDialog = popUpView.findViewById(R.id.distanceDialog);
         timerText = popUpView.findViewById(R.id.timerText1);
 
-        handler = new Handler() ;
+        handler = new Handler();
 
         mStart.setBackgroundResource(R.drawable.round_play_button);
 
@@ -408,6 +416,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 double longitude = coords[1];
 
                 LatLng current = new LatLng(latitude, longitude);
+
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
 
                 googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 19));
 
