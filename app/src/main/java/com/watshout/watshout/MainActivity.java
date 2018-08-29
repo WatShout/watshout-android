@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements
                                             .load(uri)
                                             .resize(64, 64)
                                             .transform(new CircleTransform())
-                                            .placeholder(R.drawable.loading)
+                                            .placeholder(R.drawable.large_no_word)
                                             .into(mCircleProfilePic);
 
                                 }
@@ -378,9 +378,14 @@ public class MainActivity extends AppCompatActivity implements
         // Ideally we would want this to be the location one is at when they start the app
         home = new LatLng(37.4419, -122.1430);
 
+        MapFragment activityFragment = new MapFragment();
+        Bundle activityBundle = new Bundle();
+        activityBundle.putString("type", "activity");
+        activityFragment.setArguments(activityBundle);
+
         getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.screen_area, new MapFragment())
+                .replace(R.id.screen_area, activityFragment)
                 .commit();
 
         ref.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -439,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.nav_map:
                 MapFragment mapFragment = new MapFragment();
                 Bundle mapBundle = new Bundle();
-                mapBundle.putString("type", "map");
+                mapBundle.putString("type", "activity");
                 mapFragment.setArguments(mapBundle);
 
                 getFragmentManager()
