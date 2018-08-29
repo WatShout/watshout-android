@@ -178,6 +178,8 @@ public class MapPlotter {
                 .position(currentLocation)
                 .icon(null));
 
+        newMarker.setVisible(false);
+
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {

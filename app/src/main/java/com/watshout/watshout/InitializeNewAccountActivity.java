@@ -1,9 +1,11 @@
 package com.watshout.watshout;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -42,10 +44,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
-import com.vansuita.pickimage.bean.PickResult;
-import com.vansuita.pickimage.bundle.PickSetup;
-import com.vansuita.pickimage.dialog.PickImageDialog;
-import com.vansuita.pickimage.listeners.IPickResult;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
@@ -61,15 +59,26 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
     final String email = thisUser.getEmail();
     final String name = thisUser.getDisplayName();
 
+    final static int PICK_IMAGE_CODE = 1;
+
     public static final int GET_FROM_GALLERY = 3;
     public static final String TAG = "PfpRetrieval";
     public final Context context = this;
     ImageView mProfile;
-
-    Button mBirthday;
     boolean uploadedOwnPicture;
 
     boolean pickedBirthday = false;
+
+    TextView mFirst;
+    TextView mLast;
+    TextView mBirthdayText;
+    TextView mGender;
+    TextView mEmail;
+    TextView mTheirName;
+
+    ProgressDialog progressDialog;
+
+    Button mSave;
 
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
@@ -84,18 +93,90 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_initialize_account);
+        setContentView(R.layout.activity_initialize_account_new);
+
+        mProfile = findViewById(R.id.myProfilePic);
+
+        progressDialog = new ProgressDialog(InitializeNewAccountActivity.this);
+
+        Picasso.get()
+                .load(R.drawable.blank_profile)
+                .resize(256, 256)
+                .transform(new CircleTransform())
+                .into(mProfile);
 
         uploadedOwnPicture = false;
 
-        mProfile = findViewById(R.id.profilePictureDisplay);
-        mBirthday = findViewById(R.id.birthdayButton);
+        mSave = findViewById(R.id.mSave);
+
+        mFirst = findViewById(R.id.firstname);
+        mLast = findViewById(R.id.lastname);
+        mBirthdayText = findViewById(R.id.birthday);
+        mGender = findViewById(R.id.gender);
+        mEmail = findViewById(R.id.email);
+        mTheirName = findViewById(R.id.theirName);
+
+        String[] names = name.split(" ");
+        String firstName = names[0];
+        String lastName = "";
+        for (int i = 1; i < names.length; i++){
+            lastName += names[i] + " ";
+        }
+
+        mFirst.setText(firstName);
+        mLast.setText(lastName);
+        mEmail.setText(email);
+        mTheirName.setText(name);
 
         Calendar cal = Calendar.getInstance();
 
         final int year = cal.get(Calendar.YEAR);
         final int month = cal.get(Calendar.MONTH);
         final int day = cal.get(Calendar.DAY_OF_MONTH);
+
+        mProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(pickPhoto , PICK_IMAGE_CODE);//one can be replaced with any action code
+
+            }
+        });
+
+        mGender.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder b = new AlertDialog.Builder(InitializeNewAccountActivity.this);
+                b.setTitle("Pick your gender");
+                String[] types = {"Male", "Female", "Other"};
+                b.setItems(types, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+                        switch(which){
+                            case 0:
+                                mGender.setText("Male");
+                                break;
+                            case 1:
+                                mGender.setText("Female");
+                                break;
+                            case 2:
+                                mGender.setText("Other");
+                                break;
+                        }
+                    }
+
+                });
+
+                b.show();
+
+            }
+        });
 
         // Load current profile picture, display in ImageView
         ref.child("users").child(uid).child("profile_pic_format").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -117,7 +198,7 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                                             .load(uri)
                                             .placeholder(R.drawable.loading)
                                             .resize(256, 256)
-                                            .centerCrop()
+                                            .transform(new CircleTransform())
                                             .into(mProfile);
 
                                 }
@@ -132,7 +213,7 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
             }
         });
 
-        mBirthday.setOnClickListener(new View.OnClickListener() {
+        mBirthdayText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -162,40 +243,18 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
 
                 birthday = strDate;
 
-                mBirthday.setText(strDate);
+                mBirthdayText.setText(strDate);
 
             }
         };
 
-        fixScreen();
+        mSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                continueToMainActivity();
+            }
+        });
 
-    }
-
-    public void fixScreen(){
-        TextView title = findViewById(R.id.addPfp);
-
-        Log.d("Debug",uploadedOwnPicture+"");
-
-        if (uploadedOwnPicture){
-            // update title
-            title.setText("Change Profile Picture");
-
-            // resize ImageView
-            ImageView tv1;
-            tv1= (ImageView) findViewById(R.id.profilePictureDisplay);
-
-            final int numDp = 250;
-            Resources r = getResources();
-            final int pxDim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, numDp, r.getDisplayMetrics());
-
-            Log.d("Debug","Profile picture side length: "+pxDim+"px");
-
-            tv1.getLayoutParams().width = pxDim;
-            tv1.getLayoutParams().height = pxDim;
-
-            // Conceal date picker
-            ((Button)findViewById(R.id.birthdayButton)).setVisibility(View.INVISIBLE);
-        }
     }
 
     public void selectProfilePicture(View v){
@@ -206,7 +265,30 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
 
     }
 
-    public void continueToMainActivity(View v){
+    public void continueToMainActivity(){
+
+        boolean anyErrors = false;
+
+        if (mGender.getText().toString().equals("Please select")){
+            mGender.setTextColor(Color.parseColor("#FF0000"));
+            anyErrors = true;
+        }
+
+        if (mBirthdayText.getText().toString().equals("Please select")){
+            mBirthdayText.setTextColor(Color.parseColor("#FF0000"));
+            anyErrors = true;
+        }
+
+        if (anyErrors){
+            Toast.makeText(this, "Please fill out all required information",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ref.child("users").child(uid).child("profile_pic_format").setValue("png");
+        ref.child("users").child(uid).child("email").setValue(email);
+        ref.child("users").child(uid).child("name").setValue(name);
+        ref.child("users").child(uid).child("birthday").setValue(birthday);
 
         if (!uploadedOwnPicture) {
 
@@ -227,11 +309,6 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                     .putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                    ref.child("users").child(uid).child("profile_pic_format").setValue("png");
-                    ref.child("users").child(uid).child("email").setValue(email);
-                    ref.child("users").child(uid).child("name").setValue(name);
-                    ref.child("users").child(uid).child("birthday").setValue(birthday);
 
                     goToMainActivity();
 
@@ -255,16 +332,6 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
 
     }
 
-    byte[] getImageData(Bitmap bmp) {
-
-        ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, bao); // bmp is bitmap from user image file
-        bmp.recycle();
-        byte[] byteArray = bao.toByteArray();
-
-        return byteArray;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
 
@@ -274,9 +341,12 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
         try {
             switch (requestCode) {
 
-                case GET_FROM_GALLERY:
+                case PICK_IMAGE_CODE:
                     if (resultCode == Activity.RESULT_OK) {
                         Log.i(TAG,"Uploading image.");
+
+                        progressDialog.setMessage("Uploading profile picture...");
+                        progressDialog.show();
 
                         //data gives you the image uri. Try to convert that to bitmap
                         //convert data to bitmap, display in ImageView
@@ -284,26 +354,10 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
                         Bitmap bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                         bmp = ImageUtils.reshapeAsProfilePicture(bmp,this);
 
-                        // display selected image
-                        ImageView tv1;
-                        tv1= (ImageView) findViewById(R.id.profilePictureDisplay);
-                        tv1.setImageBitmap(bmp);
-
-                        // resize ImageView
-                        final int numDp = 250;
-                        Resources r = getResources();
-                        final int pxDim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, numDp, r.getDisplayMetrics());
-
-                        Log.d("Debug","Profile picture side length: "+pxDim+"px");
-
-                        tv1.getLayoutParams().width = pxDim;
-                        tv1.getLayoutParams().height = pxDim;
-
-                        updateButtonText();
                         uploadBitmapAsProfilePicture(bmp,uid);
 
                         uploadedOwnPicture = true;
-                        fixScreen();
+                        //fixScreen();
 
                         break;
                     } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -336,25 +390,25 @@ public class InitializeNewAccountActivity extends AppCompatActivity {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
 
-                ref.child("users").child(uid).child("profile_pic_format").setValue("png");
-                ref.child("users").child(uid).child("email").setValue(email);
-                ref.child("users").child(uid).child("name").setValue(name);
-                ref.child("users").child(uid).child("birthday").setValue(birthday);
+                Log.d("PHOTO", "Upload worked");
 
+                pfpRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+
+                        progressDialog.dismiss();
+
+                        Picasso.get()
+                                .load(uri)
+                                .resize(256, 256)
+                                .transform(new CircleTransform())
+                                .into(mProfile);
+
+                    }
+                });
             }
         });
-
-    }
-
-    public void updateButtonText() {
-        // update button text
-        Button uploadButton = findViewById(R.id.uploadPfpButton);
-        uploadButton.setText("Select new profile picture");
-
-        Button continueButton = findViewById(R.id.continueButton);
-        continueButton.setText("Continue");
 
     }
 
