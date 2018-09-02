@@ -6,14 +6,23 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,16 +43,30 @@ public class FinishedActivity extends AppCompatActivity{
     String uid = thisUser.getUid();
     String date;
 
-    Boolean hasStrava;
-    Boolean wantsToUploadStrava;
+    boolean hasStrava;
+    boolean wantsToUploadStrava;
 
-    CheckBox stravaCheckBox;
-    Button returnToMap;
+    //CheckBox stravaCheckBox;
+    ImageView returnToMap;
     TextView time;
     TextView distance;
     TextView pace;
-    String mapURL;
+    //String mapURL;
+    String displayMapURL;
+    String uploadMapURL;
     ImageView mFinishedRun;
+    TextView mDistLabel;
+    TextView mTimeLabel;
+    TextView mPaceLabel;
+    TextView mStatisticsText;
+    ImageView mShrinker;
+
+    RelativeLayout mBottomLayout;
+
+    Button uploadGpx;
+    Button uploadTo;
+
+    boolean isExpanded = true;
 
     // General database reference
     DatabaseReference ref = FirebaseDatabase
@@ -53,8 +76,7 @@ public class FinishedActivity extends AppCompatActivity{
 
     void loadMapImage() {
         Picasso.get()
-                .load(mapURL)
-                .resize(600, 300)
+                .load(displayMapURL)
                 .into(mFinishedRun);
     }
 
@@ -64,24 +86,52 @@ public class FinishedActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finished);
 
-        stravaCheckBox = findViewById(R.id.stravaBox);
-        returnToMap = findViewById(R.id.returnToMap);
+        Window window = this.getWindow();
+
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        // finally change the color
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
+
+        //stravaCheckBox = findViewById(R.id.stravaBox);
+        returnToMap = findViewById(R.id.back);
         time = findViewById(R.id.time);
         distance = findViewById(R.id.distance);
         pace = findViewById(R.id.pace);
         mFinishedRun = findViewById(R.id.finishedRun);
+        mDistLabel = findViewById(R.id.distLabel);
+        mPaceLabel = findViewById(R.id.paceLabel);
+        mTimeLabel = findViewById(R.id.timeLabel);
+        mShrinker = findViewById(R.id.shrinker);
+        mStatisticsText = findViewById(R.id.statText);
+        uploadGpx = findViewById(R.id.uploadGpx);
+        uploadTo = findViewById(R.id.uploadTo);
+        mBottomLayout = findViewById(R.id.bottomLayout);
+
+        final float scale = getResources().getDisplayMetrics().density;
+        int pixels = (int) (250 * scale + 0.5f);
+
+        RelativeLayout.LayoutParams rel_btn = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, pixels);
+        rel_btn.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        mBottomLayout.setLayoutParams(rel_btn);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         String units = settings.getString("Units", "Metric");
 
         // Get value to determine whether or nlt to show checkbox
         hasStrava = Boolean.valueOf(getIntent().getStringExtra("STRAVA"));
-        mapURL = getIntent().getStringExtra("MAP_URL");
+        displayMapURL = getIntent().getStringExtra("DISPLAY_MAP_URL");
+        uploadMapURL = getIntent().getStringExtra("UPLOAD_MAP_URL");
 
         loadMapImage();
 
         if (!hasStrava) {
-            stravaCheckBox.setVisibility(View.INVISIBLE);
+            //stravaCheckBox.setVisibility(View.INVISIBLE);
         }
 
         // load time and distance data
@@ -92,7 +142,7 @@ public class FinishedActivity extends AppCompatActivity{
         String formattedMin = formatter.format(min);
         String formattedSec = formatter.format(sec);
 
-        time.setText("Time: " + formattedMin + ":" + formattedSec);
+        time.setText(formattedMin + ":" + formattedSec);
 
         /*
         double rawMetricDistance = getIntent().getDoubleExtra("DISTANCE", 0);
@@ -105,8 +155,8 @@ public class FinishedActivity extends AppCompatActivity{
 
         final PaceCalculator pc = new PaceCalculator(rawMetricDistance, min, sec, this);
 
-        distance.setText("Distance: " + pc.getDistance() + pc.getDistanceUnits());
-        pace.setText("Pace: " + pc.getPace() + pc.getPaceUnits());
+        distance.setText(pc.getDistance() + pc.getDistanceUnits());
+        pace.setText(pc.getPace() + pc.getPaceUnits());
 
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
@@ -115,7 +165,46 @@ public class FinishedActivity extends AppCompatActivity{
         date = getIntent().getStringExtra("GPX_NAME");
         date = date.substring(0, date.length() - 4);
 
-        Button uploadGpx = findViewById(R.id.uploadGpx);
+        mShrinker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int visible = isExpanded ? View.INVISIBLE : View.VISIBLE;
+                Drawable icon = isExpanded ? ResourcesCompat.getDrawable(getResources(),
+                        R.drawable.black_arrow_up, null) :
+                        ResourcesCompat.getDrawable(getResources(),
+                                R.drawable.black_arrow_down, null);
+
+                int height = isExpanded ? 50 : 250;
+
+                final float scale = getResources().getDisplayMetrics().density;
+                int pixels = (int) (height * scale + 0.5f);
+
+                RelativeLayout.LayoutParams rel_btn = new RelativeLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, pixels);
+                rel_btn.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                mBottomLayout.setLayoutParams(rel_btn);
+
+                mShrinker.setImageDrawable(icon);
+
+                mDistLabel.setVisibility(visible);
+                mPaceLabel.setVisibility(visible);
+                mTimeLabel.setVisibility(visible);
+
+                mStatisticsText.setVisibility(visible);
+
+                uploadGpx.setVisibility(visible);
+                uploadTo.setVisibility(visible);
+
+                distance.setVisibility(visible);
+                time.setVisibility(visible);
+                pace.setVisibility(visible);
+
+                isExpanded = !isExpanded;
+
+            }
+        });
+
         uploadGpx.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,7 +214,7 @@ public class FinishedActivity extends AppCompatActivity{
                 progressDialog.show();
 
                 // If user checked box, then upload to Strava
-                wantsToUploadStrava = stravaCheckBox.isChecked();
+                //wantsToUploadStrava = stravaCheckBox.isChecked();
 
                 try {
 
@@ -133,7 +222,7 @@ public class FinishedActivity extends AppCompatActivity{
                             pc.getMetricDistance(),
                             pc.getMetricPace(),
                             pc.getTotalSeconds(),
-                            mapURL);
+                            uploadMapURL);
 
                     uploadToDatabase.moveCurrentToPast(date);
 

@@ -1,88 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/primaryColor">
 
     <ImageView
         android:id="@+id/finishedRun"
-        android:layout_width="275dp"
-        android:layout_height="275dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="76dp"
-        android:adjustViewBounds="true" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:adjustViewBounds="true"
+        app:srcCompat="@android:color/white" />
+
+    <RelativeLayout
+        android:id="@+id/bottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="227dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/pace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/distLabel"
+            android:layout_marginEnd="14dp"
+            android:text="08:35min/mi"
+            android:textColor="#000000"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/timeLabel"
+            android:layout_alignTop="@+id/pace"
+            android:text="00:42:35"
+            android:textColor="#000000"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/uploadGpx"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/uploadTo"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/button_corners_black"
+            android:fontFamily="@font/d_din"
+            android:text="WATSHOUT"
+            android:textColor="@color/primaryColor"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/distLabel"
+            android:layout_alignTop="@+id/pace"
+            android:text="4.2mi"
+            android:textColor="#000000"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/uploadTo"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/button_corners_black"
+            android:fontFamily="@font/d_din"
+            android:text="UPLOAD TO..."
+            android:textColor="@color/colorPrimary"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/distLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="43dp"
+            android:fontFamily="@font/d_din"
+            android:text="DISTANCE"
+            android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/timeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/shrinker"
+            android:fontFamily="@font/d_din"
+            android:text="TIME"
+            android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/paceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/pace"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/d_din"
+            android:text="PACE"
+            android:textColor="#000000" />
+
+        <ImageView
+            android:id="@+id/shrinker"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"
+            app:srcCompat="@drawable/black_arrow_down" />
+
+        <TextView
+            android:id="@+id/statText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="65dp"
+            android:fontFamily="@font/d_din"
+            android:text="STATISTICS"
+            android:textColor="#000"
+            android:textSize="18dp" />
+    </RelativeLayout>
+
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/primaryColor"></android.support.v7.widget.Toolbar>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="23dp"
+        android:layout_marginTop="18dp"
+        android:fontFamily="@font/d_din"
         android:text="Run Complete"
-        android:textSize="30dp" />
+        android:textColor="#000"
+        android:textSize="18dp" />
 
-    <Button
-        android:id="@+id/uploadGpx"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/returnToMap"
-        android:layout_toStartOf="@+id/returnToMap"
-        android:text="upload run"
-        android:layout_marginRight="10dp"
-        android:textSize="20dp"
-        android:layout_toLeftOf="@+id/returnToMap" />
-
-    <Button
-        android:id="@+id/returnToMap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="54dp"
-        android:layout_marginEnd="18dp"
-        android:text="return to map"
-        android:textSize="20dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="18dp" />
-
-    <TextView
-        android:id="@+id/distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="185dp"
-        android:text="miles"
-        android:textSize="20dp" />
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="148dp"
-        android:text="min:sec"
-        android:textSize="20dp" />
-
-    <TextView
-        android:id="@+id/pace"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="112dp"
-        android:text="mph"
-        android:textSize="20dp" />
-
-    <CheckBox
-        android:id="@+id/stravaBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/uploadGpx"
-        android:layout_marginBottom="12dp"
-        android:text="Upload to Strava" />
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignEnd="@+id/uploadTo"
+        android:layout_alignParentTop="true"
+        app:srcCompat="@drawable/black_left_arrow" />
 
 
 </RelativeLayout>

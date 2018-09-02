@@ -148,7 +148,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     TextView stepsDialog;
     TextView distanceDialog;
 
-    Boolean hasStrava;
+    boolean hasStrava;
 
     DrawerLayout mDrawerLayout;
     FloatingActionButton mCenter;
@@ -658,6 +658,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     public void stopClick() {
 
+        Log.d("MAP", "test");
+
         floatingActionButton.show();
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
@@ -674,45 +676,56 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         }
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+
+        String newSize = "&size=" + 400 + "x" + 640;
+
         String encodedPath = PolyUtil.encode(fusedLocation.getLatLng());
-        String mapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
+        String baseMapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
+        String displayMapURL = baseMapURL + "&size=" + 400 + "x" + 640;
+        String uploadMapURL = baseMapURL + "&size=" + 600 + "x" + 300;
 
-            Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
+        Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
 
-            // Generates a current date
-            UploadToDatabase uploadToDatabase = new UploadToDatabase();
-            String date = uploadToDatabase.getFormattedDate();
+        // Generates a current date
+        UploadToDatabase uploadToDatabase = new UploadToDatabase();
+        String date = uploadToDatabase.getFormattedDate();
 
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            byte[] bitmapdata = stream.toByteArray();
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] bitmapdata = stream.toByteArray();
 
-            openNext.putExtra("MAP_IMAGE", bitmapdata);
-            openNext.putExtra("MAP_URL", mapURL);
-            openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
-            openNext.putExtra("GPX_NAME_ONLY", date);
-            openNext.putExtra("GPX_NAME",date+".gpx");
-            openNext.putExtra("MIN", Minutes);
-            openNext.putExtra("SEC", Seconds);
+        openNext.putExtra("MAP_IMAGE", bitmapdata);
+        openNext.putExtra("DISPLAY_MAP_URL", displayMapURL);
+        openNext.putExtra("UPLOAD_MAP_URL", uploadMapURL);
 
-            // Writes an XML file
-            try {
-                XMLCreator.saveFile(date);
-            } catch (TransformerException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
+        openNext.putExtra("GPX_NAME_ONLY", date);
+        openNext.putExtra("GPX_NAME",date+".gpx");
+        openNext.putExtra("MIN", Minutes);
+        openNext.putExtra("SEC", Seconds);
 
-            Carrier.setXMLCreator(XMLCreator);
+        // Writes an XML file
+        try {
+            XMLCreator.saveFile(date);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-            openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            getActivity().getApplicationContext().startActivity(openNext);
-            getActivity().finish();
+        Carrier.setXMLCreator(XMLCreator);
 
-            // This seems to fix the multi-location updates
-            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getActivity().getApplicationContext().startActivity(openNext);
+        getActivity().finish();
+
+        // This seems to fix the multi-location updates
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
 
 
     }
