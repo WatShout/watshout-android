@@ -138,17 +138,23 @@ public class CalendarFragment extends android.app.Fragment {
                         current.setTempCelsius(Double.valueOf(individual.get("temp_celsius")));
                     } catch (NullPointerException e){
                         current.setTempCelsius(null);
+                    } catch (NumberFormatException e){
+                        current.setTempCelsius(null);
                     }
 
                     try {
                         current.setWeatherType(individual.get("weather_type"));
                     } catch (NullPointerException e){
                         current.setWeatherType(null);
+                    } catch (NumberFormatException e){
+                        current.setWeatherType(null);
                     }
 
                     try {
                         current.setWeatherId(Integer.valueOf(individual.get("weather_id")));
                     } catch (NullPointerException e){
+                        current.setWeatherId(null);
+                    } catch (NumberFormatException e){
                         current.setWeatherId(null);
                     }
 

@@ -45,12 +45,12 @@
             android:id="@+id/uploadGpx"
             android:layout_width="160dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/uploadTo"
-            android:layout_marginRight="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="18dp"
             android:background="@drawable/button_corners_black"
             android:fontFamily="@font/d_din"
-            android:text="WATSHOUT"
+            android:text="UPLOAD RUN"
             android:textColor="@color/primaryColor"
             android:textSize="18dp" />
 
@@ -64,6 +64,7 @@
             android:textColor="#000000"
             android:textSize="20dp" />
 
+        <!--
         <Button
             android:id="@+id/uploadTo"
             android:layout_width="160dp"
@@ -77,6 +78,7 @@
             android:text="UPLOAD TO..."
             android:textColor="@color/colorPrimary"
             android:textSize="18dp" />
+            -->
 
         <TextView
             android:id="@+id/distLabel"

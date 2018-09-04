@@ -33,30 +33,32 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
         this.inflater = LayoutInflater.from(context);
 
         settingsGroupNames = new HashMap<>();
-        settingsGroupNames.put(0, "Activity");
-        settingsGroupNames.put(1, "Setup");
-        settingsGroupNames.put(2, "Account");
-        settingsGroupNames.put(3, "Watch");
-        settingsGroupNames.put(4, "Legal");
+        //settingsGroupNames.put(0, "Activity");
+        //settingsGroupNames.put(0, "Setup");
+        settingsGroupNames.put(0, "Account");
+        //settingsGroupNames.put(2, "Watch");
+        settingsGroupNames.put(1, "Legal");
 
         settingsLabels = new String[5][4];
         //settingsLabels[0][0] = "Data screens";
-        settingsLabels[0][0] = "Message presets";
+        //settingsLabels[0][0] = "Message presets";
 
-        settingsLabels[1][0] = "Units";
-        settingsLabels[1][1] = "Language";
-        settingsLabels[1][2] = "Permissions";
+        //settingsLabels[1][0] = "Units";
+        //settingsLabels[1][0] = "Language";
+        //settingsLabels[0][0] = "Permissions";
 
-        settingsLabels[2][0] = "Email";
-        settingsLabels[2][1] = "Password";
-        settingsLabels[2][2] = "Linked accounts";
+        settingsLabels[0][0] = "Email";
+        settingsLabels[0][1] = "Password";
+        //settingsLabels[2][2] = "Linked accounts";
 
-        settingsLabels[3][0] = "Pair a device";
+        //settingsLabels[3][0] = "Pair a device";
 
-        settingsLabels[4][0] = "Support";
-        settingsLabels[4][1] = "Privacy policy";
-        settingsLabels[4][2] = "License";
-        settingsLabels[4][3] = "Terms of use";
+        //settingsLabels[2][0] = "Support";
+        settingsLabels[1][0] = "Privacy policy";
+        //settingsLabels[2][2] = "License";
+        settingsLabels[1][1] = "Terms of use";
+
+        //
 
     }
 
@@ -134,19 +136,19 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
 
         switch (groupPosition) {
 
-            case 0:
+            case 9:
                 viewHolder.mIcon.setImageResource(R.drawable.running);
                 break;
-            case 1:
+            case 99:
                 viewHolder.mIcon.setImageResource(R.drawable.wrench);
                 break;
-            case 2:
+            case 0:
                 viewHolder.mIcon.setImageResource(R.drawable.person);
                 break;
-            case 3:
+            case 9999:
                 viewHolder.mIcon.setImageResource(R.drawable.watch);
                 break;
-            case 4:
+            case 1:
                 viewHolder.mIcon.setImageResource(R.drawable.legal);
                 break;
 
@@ -159,6 +161,7 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
         for (int i = 0; i < settingsLabels[groupPosition].length; i++) {
 
             if (settingsLabels[groupPosition][i] != null){
+
                 description += settingsLabels[groupPosition][i] + ", ";
             }
 
@@ -166,11 +169,12 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
 
         // Remove the ", " at the end of the string
         description = description.toLowerCase();
+        //Log.d("TEST", description);
         description = description.substring(0, description.length() - 2);
 
         // Make the first character capital
-        String firstLetter = description.substring(0, 1).toUpperCase();
-        description = firstLetter + description.substring(1);
+        //String firstLetter = description.substring(0, 1).toUpperCase();
+        //description = firstLetter + description.substring(1);
 
         viewHolder.mDescription.setText(description);
 

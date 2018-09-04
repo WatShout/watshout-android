@@ -100,7 +100,9 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
             double temperature = newsFeedItem.getTempCelsius();
             int temp = (int) Math.round(temperature);
 
-            holder.mTemperature.setText(temp + "°C");
+            int temp_f = temp * 9/5 + 32;
+
+            holder.mTemperature.setText(temp_f + "°F");
             holder.mWeatherLabel.setText(newsFeedItem.getWeatherType());
 
             int firstIdDigit = Integer.parseInt(Integer.toString(newsFeedItem.getWeatherId()).substring(0, 1));
@@ -138,6 +140,10 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
             holder.mWeatherIcon.setImageResource(weatherIconResource);
             holder.mWeatherLabel.setText(newsFeedItem.getWeatherType());
 
+        } else {
+            holder.mWeatherIcon.setVisibility(View.INVISIBLE);
+            holder.mWeatherLabel.setVisibility(View.INVISIBLE);
+            holder.mTemperature.setVisibility(View.INVISIBLE);
         }
 
         int timeElapsed = Integer.valueOf(newsFeedItem.getTimeElapsed());
