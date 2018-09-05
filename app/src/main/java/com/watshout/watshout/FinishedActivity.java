@@ -46,6 +46,8 @@ public class FinishedActivity extends AppCompatActivity{
     boolean hasStrava;
     boolean wantsToUploadStrava;
 
+    final double KM_TO_MILE = 0.621371;
+
     //CheckBox stravaCheckBox;
     ImageView returnToMap;
     TextView time;
@@ -121,7 +123,8 @@ public class FinishedActivity extends AppCompatActivity{
         mBottomLayout.setLayoutParams(rel_btn);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        String units = settings.getString("Units", "Metric");
+        //String units = settings.getString("Units", "Metric");
+        String units = "Imperial";
 
         // Get value to determine whether or nlt to show checkbox
         hasStrava = Boolean.valueOf(getIntent().getStringExtra("STRAVA"));
@@ -144,16 +147,12 @@ public class FinishedActivity extends AppCompatActivity{
 
         time.setText(formattedMin + ":" + formattedSec);
 
-        /*
-        double rawMetricDistance = getIntent().getDoubleExtra("DISTANCE", 0);
-
-        if (rawMetricDistance == 0){
-            rawMetricDistance = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
-        }*/
-
         final double rawMetricDistance = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
+        final double rawImperialDistance = rawMetricDistance * KM_TO_MILE;
 
-        final PaceCalculator pc = new PaceCalculator(rawMetricDistance, min, sec, this);
+        // Making this imperial for now
+        //final PaceCalculator pc = new PaceCalculator(rawMetricDistance, min, sec, this);
+        final PaceCalculator pc = new PaceCalculator(rawImperialDistance, min, sec, this);
 
         distance.setText(pc.getDistance() + pc.getDistanceUnits());
         pace.setText(pc.getPace() + pc.getPaceUnits());

@@ -121,13 +121,18 @@ public class FusedLocation  {
                 long time = location.getTime();
                 float accuracy = location.getAccuracy();
 
+                speedTextDialog.setText(metersPerSecondToMinutesPerKilometer(speed, false));
 
+                // @ Viraj: Do we still need this?
+                //if(newSpeed > 60)
+
+                /*
                 double newSpeed = 1609.34 / speed;
                 int secondsSpeed = (int)(newSpeed%60);
                 String theSpeed;
                 newSpeed = (int)(newSpeed/60);
-                //if(newSpeed > 60)
-                    speedTextDialog.setText(metersPerSecondToMinutesPerKilometer(speed));
+                */
+
                 //else if((secondsSpeed + "").length() == 1) {
                     //theSpeed = (int) (newSpeed) + ":0" + secondsSpeed;
                     //speedTextDialog.setText(theSpeed + " m/mi");
@@ -278,7 +283,7 @@ public class FusedLocation  {
             return target >= angle1 || target <= angle2;
     }
 
-    private String metersPerSecondToMinutesPerKilometer(double speed) {
+    private String metersPerSecondToMinutesPerKilometer(double speed, boolean metric) {
 
         if (speed != 0) {
             double pace = (1 / speed) / 60 * 1000;

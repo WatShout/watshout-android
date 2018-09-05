@@ -218,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements
         View headerView = navigationView.getHeaderView(0);
 
         navigationView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        navigationView.setCheckedItem(R.id.nav_activity);
 
         // This sets the user's initials but it looks like we're just using profile pics now
         /*
@@ -252,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements
 
                                     Picasso.get()
                                             .load(uri)
-                                            .resize(64, 64)
+                                            .resize(128, 128)
                                             .transform(new CircleTransform())
                                             .placeholder(R.drawable.large_no_word)
                                             .into(mCircleProfilePic);
@@ -341,7 +342,8 @@ public class MainActivity extends AppCompatActivity implements
         final double KM_TO_MILE = 0.621371;
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        final String units = settings.getString("Units", "Imperial");
+        //final String units = settings.getString("Units", "Imperial");
+        final String units = "Imperial";
 
         ref.child("users").child(uid).child("device").child("past").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -355,12 +357,17 @@ public class MainActivity extends AppCompatActivity implements
                         total += distance;
                     }
 
+                    total = total * KM_TO_MILE;
+                    mDistance.setText(total + "mi");
+
+                    /*
                     if (units.equals("Imperial")){
                         total = total * KM_TO_MILE;
                         mDistance.setText(total + " mi");
                     } else {
                         mDistance.setText(total + " km");
                     }
+                    */
                 } catch (NullPointerException e){
                     mDistance.setText("N/A");
                 } catch (DatabaseException e){
@@ -440,7 +447,7 @@ public class MainActivity extends AppCompatActivity implements
                         .commit();
                 break;
 
-
+            /*
             case R.id.nav_map:
                 MapFragment mapFragment = new MapFragment();
                 Bundle mapBundle = new Bundle();
@@ -452,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements
                         .replace(R.id.screen_area, mapFragment)
                         .commit();
 
-                break;
+                break;*/
 
             case R.id.nav_calendar:
                 getFragmentManager()
@@ -523,7 +530,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed(){
 
-        navigationView.setCheckedItem(R.id.nav_map);
+        navigationView.setCheckedItem(R.id.nav_activity);
 
         // set to MapFragment
         getFragmentManager()

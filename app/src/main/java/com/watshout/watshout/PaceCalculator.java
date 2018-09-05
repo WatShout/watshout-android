@@ -27,7 +27,8 @@ public class PaceCalculator {
         this.sec = sec;
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        String units = settings.getString("Units", "Metric");
+        //String units = settings.getString("Units", "Metric");
+        String units = "Imperial";
 
         this.units = units;
 

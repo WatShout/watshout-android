@@ -181,7 +181,7 @@
             android:layout_toEndOf="@+id/textView5"
             android:paddingLeft="30dp"
             android:text="John"
-            android:textColor="#fff"
+            android:textColor="@color/lightGrey"
             android:textSize="18dp" />
 
         <TextView
@@ -192,7 +192,7 @@
             android:layout_toEndOf="@+id/textView5"
             android:paddingLeft="30dp"
             android:text="Doe"
-            android:textColor="#fff"
+            android:textColor="@color/lightGrey"
             android:textSize="18dp" />
 
         <TextView
@@ -225,7 +225,7 @@
             android:layout_toEndOf="@+id/textView5"
             android:paddingLeft="30dp"
             android:text="johndoe@company.com"
-            android:textColor="#fff"
+            android:textColor="@color/lightGrey"
             android:textSize="14dp" />
     </RelativeLayout>
 

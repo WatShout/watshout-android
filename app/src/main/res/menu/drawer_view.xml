@@ -13,11 +13,11 @@
             android:title="News Feed" />
 
 
-        <item
+        <!--<item
             android:id="@+id/nav_map"
             android:checked="true"
             android:icon="@drawable/location"
-            android:title="Map" />
+            android:title="Map" />-->
 
         <item
             android:id="@+id/nav_calendar"
