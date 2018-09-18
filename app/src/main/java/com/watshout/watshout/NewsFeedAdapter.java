@@ -80,7 +80,7 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
 
         Picasso.get()
                 .load(newsFeedItem.getProfilePicUrl())
-                .resize(64, 64)
+                .resize(128, 128)
                 .transform(new CircleTransform())
                 .placeholder(R.drawable.news_feed_loading)
                 .into(holder.mProfilePic);

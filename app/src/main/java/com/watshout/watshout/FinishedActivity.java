@@ -66,7 +66,7 @@ public class FinishedActivity extends AppCompatActivity{
     RelativeLayout mBottomLayout;
 
     Button uploadGpx;
-    Button uploadTo;
+    //Button uploadTo;
 
     boolean isExpanded = true;
 
@@ -111,7 +111,7 @@ public class FinishedActivity extends AppCompatActivity{
         mShrinker = findViewById(R.id.shrinker);
         mStatisticsText = findViewById(R.id.statText);
         uploadGpx = findViewById(R.id.uploadGpx);
-        uploadTo = findViewById(R.id.uploadTo);
+        //uploadTo = findViewById(R.id.uploadTo);
         mBottomLayout = findViewById(R.id.bottomLayout);
 
         final float scale = getResources().getDisplayMetrics().density;
@@ -193,7 +193,7 @@ public class FinishedActivity extends AppCompatActivity{
                 mStatisticsText.setVisibility(visible);
 
                 uploadGpx.setVisibility(visible);
-                uploadTo.setVisibility(visible);
+                //uploadTo.setVisibility(visible);
 
                 distance.setVisibility(visible);
                 time.setVisibility(visible);
