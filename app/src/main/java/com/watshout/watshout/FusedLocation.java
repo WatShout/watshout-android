@@ -15,6 +15,13 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
@@ -38,11 +45,14 @@ public class FusedLocation  {
     private XMLCreator XMLCreator;
     public static double latitude = 0;
     public static double longitude = 0;
+    ArrayList<Double> preLat;
+    ArrayList<Double> preLon;
     //double speed;
     double prevLat;
     double prevLon;
     double distance;
 
+    boolean out;
     double info [][] = new double [3][3];
     //double bearingArr [] = new double [3];
     ArrayList<String> bearingArr = new ArrayList<String>();
@@ -61,7 +71,7 @@ public class FusedLocation  {
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid,
                   XMLCreator XMLCreator, TextView speedTextDialog,
-                  TextView stepsDialog, TextView distanceDialog)
+                  TextView stepsDialog, TextView distanceDialog, ArrayList preLat, ArrayList preLon)
             throws TransformerException, ParserConfigurationException {
 
         this.context = context;
@@ -74,9 +84,11 @@ public class FusedLocation  {
         this.distanceDialog = distanceDialog;
         this.settings = PreferenceManager.getDefaultSharedPreferences(context);
         this.editor = settings.edit();
-
         this.latLngList = new ArrayList<>();
+        this.preLat = preLat;
+        this.preLon = preLon;
         distance = 0;
+        out = false;
 
     }
 
@@ -96,11 +108,14 @@ public class FusedLocation  {
 
     }
 
+
     public LocationCallback buildLocationCallback() {
 
         LocationCallback locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                //}
+                updateMapPlotter();
 
                 MapFragment.GPSconnected = true;
 
@@ -176,7 +191,11 @@ public class FusedLocation  {
                         if(aveSpeed > 10)
                             return;
                     }*/
-
+                    if(out == false && preLat!= null) {
+                        for(int x = 0; x < preLat.size(); x ++)
+                            mapPlotter.addMarker(preLat.get(x), preLon.get(x));
+                        out = true;
+                    }
 
                     mapPlotter.addMarker(lat, lon);
                     new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
@@ -319,4 +338,39 @@ public class FusedLocation  {
     public static double haversin(double val) {
         return Math.pow(Math.sin(val / 2), 2);
     }
+    public void updateMapPlotter(){
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        DatabaseReference dfRef =  FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("device").child("current");
+        dfRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot coords : dataSnapshot.getChildren()) {
+                    //System.out.println("COORD:" + coords.child("lat"));
+                    double theLat = Double.parseDouble(coords.child("lat").getValue().toString());
+                    double theLon = Double.parseDouble(coords.child("lon").getValue().toString());
+                    // if(preLat!=null) {
+                    preLat.add(theLat);
+                    preLon.add(theLon);
+                    // }
+                     System.out.println("@#@:" + preLon);
+                     System.out.println("(LATTT" + theLat + ", " + theLon + ")");
+                    //mapPlotter.addMarker(theLat, theLon);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("ERROR-database");
+            }
+        });
+
+        //if(preLat.size()!=0)
+        // return true;
+        //return false;
+    }
+   /* public boolean method() {
+
+    }*/
+
 }

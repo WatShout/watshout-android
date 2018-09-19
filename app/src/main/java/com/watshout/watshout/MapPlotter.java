@@ -23,6 +23,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -60,6 +67,7 @@ public class MapPlotter {
         this.profilePic = null;
         this.uid = uid;
         this.context = context;
+
 
         currentIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.current);
 
@@ -172,6 +180,7 @@ public class MapPlotter {
 
         LatLng currentLocation = new LatLng(lat, lon);
         LatLng previousLocation;
+        System.out.println("MARKERCALLED");
 
         // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
@@ -208,7 +217,7 @@ public class MapPlotter {
         if (com.watshout.watshout.MapFragment.currentlyTrackingLocation){
 
             if (markers.size() > 0) {
-
+                System.out.println("POLYLINE IN");
                 polylines.add(googleMap.addPolyline(new PolylineOptions()
                         .add(previousLocation, currentLocation)
                         .color(Color.RED)
@@ -219,4 +228,6 @@ public class MapPlotter {
         }
 
     }
+
+
 }

@@ -31,6 +31,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,6 +83,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     LocationRequest locationRequest;
     LocationCallback locationCallback;
 
+    ArrayList<Double> preLat;
+    ArrayList<Double> preLon;
     FusedLocation fusedLocation;
 
     SensorManager sensorManager;
@@ -171,6 +174,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     private final static int CAMERA = 350;
 
     public MapFragment() {
+        preLat= new ArrayList<>();
+        preLon= new ArrayList<>();
     }
 
     // This runs as the map rendering is completed
@@ -207,6 +212,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // Marker list is a array of the current user's Markers
         markerList = new ArrayList<>();
 
+
         mapPlotter = new MapPlotter(markerList, googleMapGlobal, true, uid, getActivity());
 
         try {
@@ -219,16 +225,26 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 new MapRecycleViewCarrier(mRecyclerView));
 
         // Starts location-getting process
+        //ThreadB b = new ThreadB();
+        //start();
+       // boolean ans;
+        //updateMapPlotter();
+
+
+
+        System.out.println("PRELAT!:" +preLat);
+        System.out.println("PRELON!:" +preLon);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
         fusedLocation = null;
         try {
             fusedLocation = new FusedLocation(getActivity().getApplicationContext(),
-                    mapPlotter, uid, XMLCreator, speedTextDialog, stepsDialog, distanceDialog);
+                    mapPlotter, uid, XMLCreator, speedTextDialog, stepsDialog, distanceDialog, preLat, preLon);
         } catch (TransformerException e) {
             e.printStackTrace();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
+
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
@@ -764,5 +780,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
         return 0;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("DESTROY BEING CALLED!!!!");
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        DatabaseReference df;
+        df = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid()).child("device").child("current");
+        df.setValue(null);
+    }
+
 
 }
