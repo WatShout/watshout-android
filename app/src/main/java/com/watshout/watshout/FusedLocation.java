@@ -15,8 +15,14 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.SphericalUtil;
-
 import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
 
@@ -38,6 +44,19 @@ public class FusedLocation  {
     private XMLCreator XMLCreator;
     public static double latitude = 0;
     public static double longitude = 0;
+    ArrayList<Double> preLat;
+    ArrayList<Double> preLon;
+    //double speed;
+    double prevLat;
+    double prevLon;
+    double distance;
+
+    boolean out;
+    double info [][] = new double [3][3];
+    //double bearingArr [] = new double [3];
+    ArrayList<String> bearingArr = new ArrayList<String>();
+    ArrayList<String> speedArr = new ArrayList<String>();
+    //ArrayList<String> timeArr = new ArrayList<String> ();
     double distance;
 
     private TextView speedTextDialog;
@@ -61,7 +80,7 @@ public class FusedLocation  {
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid,
                   XMLCreator XMLCreator, TextView speedTextDialog,
-                  TextView stepsDialog, TextView distanceDialog)
+                  TextView stepsDialog, TextView distanceDialog, ArrayList preLat, ArrayList preLon)
             throws TransformerException, ParserConfigurationException {
 
         this.context = context;
@@ -73,9 +92,11 @@ public class FusedLocation  {
         this.distanceDialog = distanceDialog;
         this.settings = PreferenceManager.getDefaultSharedPreferences(context);
         this.editor = settings.edit();
-
         this.latLngList = new ArrayList<>();
+        this.preLat = preLat;
+        this.preLon = preLon;
         distance = 0;
+        out = false;
 
     }
 
@@ -93,11 +114,14 @@ public class FusedLocation  {
 
     }
 
+
     public LocationCallback buildLocationCallback() {
 
         LocationCallback locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                //}
+                updateMapPlotter();
 
                 if (current != null) {
                     previous = current;
@@ -121,6 +145,96 @@ public class FusedLocation  {
                 double bearing = location.getBearing();
                 double altitude = location.getAltitude();
                 long time = location.getTime();
+                float accuracy = location.getAccuracy();
+
+                speedTextDialog.setText(metersPerSecondToMinutesPerKilometer(speed, false));
+
+                // @ Viraj: Do we still need this?
+                //if(newSpeed > 60)
+
+                /*
+                double newSpeed = 1609.34 / speed;
+                int secondsSpeed = (int)(newSpeed%60);
+                String theSpeed;
+                newSpeed = (int)(newSpeed/60);
+                */
+
+                //else if((secondsSpeed + "").length() == 1) {
+                    //theSpeed = (int) (newSpeed) + ":0" + secondsSpeed;
+                    //speedTextDialog.setText(theSpeed + " m/mi");
+                //}
+                //else {
+                //    theSpeed = (int) (newSpeed) + ":" + secondsSpeed;
+                //    speedTextDialog.setText(theSpeed + " m/mi");
+               // }
+
+                Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
+                        + "\nAccuracy: " + accuracy);
+
+                if (MapFragment.currentlyTrackingLocation){
+                    bearingArr.add(bearing + "");
+                    speedArr.add(speed + "");
+                    //timeArr.add(time + "");
+                    int size = bearingArr.size();
+                   /* if(size >= 3){
+                        int a = (int)Double.parseDouble(bearingArr.get(size-1));
+                        int b = (int)Double.parseDouble(bearingArr.get(size-2));
+                        int c = (int)Double.parseDouble(bearingArr.get(size-3));
+                        int aDiff1 = (a - 90)%360;
+                        int aDiff2 = (a + 90)%360;
+                        int bDiff1 = (b - 90)%360;
+                        int bDiff2 = (b + 90)%360;
+                        if(is_angle_between(b, aDiff1, aDiff2) == false){
+                            if(is_angle_between(c, bDiff1, bDiff2) == false){Log.d("Bearing is", bearing + "");}
+                                else {Log.d("Tagis", "Method ended");
+                                return;
+                            }
+                        }
+                    }*/
+                    int speedSize = speedArr.size();
+                   /* if(speedSize >= 2) {
+                        //d = vt + 0.5(vf-v)t
+                        double vFinal = Double.parseDouble(speedArr.get(speedSize - 1));
+                        double vInitial = Double.parseDouble(speedArr.get(speedSize - 2));
+                        //long tFinal = Long.parseLong(timeArr.get(speedSize - 1));
+                        //long tInitial = Long.parseLong(timeArr.get(speedSize - 2));
+                        double aveSpeed = 0.5*(vFinal - vInitial);
+                        if(aveSpeed > 10)
+                            return;
+                    }*/
+                    if(out == false && preLat!= null) {
+                        for(int x = 0; x < preLat.size(); x ++)
+                            mapPlotter.addMarker(preLat.get(x), preLon.get(x));
+                        out = true;
+                    }
+
+                    mapPlotter.addMarker(lat, lon);
+                    new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+                    Log.d(TAG, "Uploading to Firebase");
+                    latLngList.add(new LatLng(lat, lon));
+
+                    TrackPoint temp = new TrackPoint();
+                    //if(accuracy<16)
+                    trackPoints.add(temp);
+
+                    TimeZone tz = TimeZone.getTimeZone("UTC");
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+                    df.setTimeZone(tz);
+                    String nowAsISO = df.format(new Date());
+
+                    XMLCreator.addPoint(lat, lon, altitude, 69, nowAsISO);
+
+
+                    if(bearingArr.size() <2) {distance = 0;}
+                    else {
+                        distance += calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
+                                lat*Math.PI/180, lon*Math.PI/180);
+                        //distance += distanceBetweenTwoCoordinates(prevLat,prevLon,
+                        // lat, lon);}
+                    }
+                    Log.d("Distance text", distance + "");
+                    int tempDistance = (int) distance;
+                    distanceDialog.setText(tempDistance + "");
 
                 current = new LatLng(lat, lon);
 
@@ -195,4 +309,39 @@ public class FusedLocation  {
     public static double haversin(double val) {
         return Math.pow(Math.sin(val / 2), 2);
     }
+    public void updateMapPlotter(){
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        DatabaseReference dfRef =  FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("device").child("current");
+        dfRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot coords : dataSnapshot.getChildren()) {
+                    //System.out.println("COORD:" + coords.child("lat"));
+                    double theLat = Double.parseDouble(coords.child("lat").getValue().toString());
+                    double theLon = Double.parseDouble(coords.child("lon").getValue().toString());
+                    // if(preLat!=null) {
+                    preLat.add(theLat);
+                    preLon.add(theLon);
+                    // }
+                     System.out.println("@#@:" + preLon);
+                     System.out.println("(LATTT" + theLat + ", " + theLon + ")");
+                    //mapPlotter.addMarker(theLat, theLon);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("ERROR-database");
+            }
+        });
+
+        //if(preLat.size()!=0)
+        // return true;
+        //return false;
+    }
+   /* public boolean method() {
+
+    }*/
+
 }
