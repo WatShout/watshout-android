@@ -410,29 +410,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
 
-                double[] coords = fusedLocation.getLatestCoords();
-
-                double latitude = coords[0];
-                double longitude = coords[1];
-
-                LatLng current = new LatLng(latitude, longitude);
-
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-
-                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 19));
-
-                googleMapGlobal.setMapStyle(
-                        MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_color
-                        ));
+                googleMapGlobal.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        fusedLocation.getLatestLatLng(), 19));
 
             }
         });
@@ -506,9 +485,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             Seconds = Seconds % 60;
 
             MilliSeconds = (int) (UpdateTime % 1000);
-
-            int totalSeconds = (Minutes * 60) + Seconds;
-            fusedLocation.setCurrentRunningTime(totalSeconds);
 
             timerText.setText("00:" + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds));
