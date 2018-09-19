@@ -21,8 +21,6 @@ import java.util.HashMap;
 
 public class IndividualFriendData {
 
-    private final long TEN_MEGABYTE = 10 * 1024 * 1024;
-
     private DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
@@ -35,11 +33,6 @@ public class IndividualFriendData {
     private GoogleMap googleMap;
     private RecyclerView recyclerView;
     private Context context;
-
-    private FirebaseStorage storage = FirebaseStorage.getInstance();
-    private StorageReference storageReference = storage.getReference();
-
-    private Bitmap profilePic;
 
     private CurrentlyTrackingFriendsHolder holder;
 

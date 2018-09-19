@@ -22,7 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
+import com.google.maps.android.SphericalUtil;
 import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
 
@@ -41,7 +41,6 @@ public class FusedLocation  {
     private Context context;
     private MapPlotter mapPlotter;
     private String uid;
-    private ArrayList<Waypoint> trackPoints;
     private XMLCreator XMLCreator;
     public static double latitude = 0;
     public static double longitude = 0;
@@ -58,14 +57,24 @@ public class FusedLocation  {
     ArrayList<String> bearingArr = new ArrayList<String>();
     ArrayList<String> speedArr = new ArrayList<String>();
     //ArrayList<String> timeArr = new ArrayList<String> ();
+    double distance;
 
-    TextView speedTextDialog;
-    TextView stepsDialog;
-    TextView distanceDialog;
-    SharedPreferences settings;
-    SharedPreferences.Editor editor;
-    List<LatLng> latLngList;
-    int time;
+    private TextView speedTextDialog;
+    private TextView stepsDialog;
+    private TextView distanceDialog;
+    private SharedPreferences settings;
+    private SharedPreferences.Editor editor;
+    private List<LatLng> latLngList;
+
+    private double latestLat;
+    private double latestLon;
+
+    private LatLng current;
+    private LatLng previous;
+
+    private int timesSinceLastPlot = 1;
+
+    private static final int EARTH_RADIUS = 6371; // Approx Earth radius in KM
 
     private final static String TAG = "FusedLocation";
 
@@ -77,7 +86,6 @@ public class FusedLocation  {
         this.context = context;
         this.mapPlotter = mapPlotter;
         this.uid = uid;
-        this.trackPoints = new ArrayList<>();
         this.XMLCreator = XMLCreator;
         this.speedTextDialog = speedTextDialog;
         this.stepsDialog = stepsDialog;
@@ -96,9 +104,7 @@ public class FusedLocation  {
         this.latLngList = new ArrayList<>();
     }
 
-    public List getLatLng() {
-        return latLngList;
-    }
+    public List getLatLng() { return latLngList; }
 
     private void updateSharedPreferenceValues(double lat, double lon){
 
@@ -117,6 +123,10 @@ public class FusedLocation  {
                 //}
                 updateMapPlotter();
 
+                if (current != null) {
+                    previous = current;
+                }
+
                 MapFragment.GPSconnected = true;
 
                 Location location = locationResult.getLocations().get(0);
@@ -124,13 +134,14 @@ public class FusedLocation  {
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
 
+                latestLat = latitude;
+                latestLon = longitude;
+
                 updateSharedPreferenceValues(latitude, longitude);
 
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();
                 double speed = location.getSpeed();
-                Log.d("Speed count",  "" + speed);
-                //Toast.makeText(context, speed + "", Toast.LENGTH_SHORT).show();
                 double bearing = location.getBearing();
                 double altitude = location.getAltitude();
                 long time = location.getTime();
@@ -225,22 +236,43 @@ public class FusedLocation  {
                     int tempDistance = (int) distance;
                     distanceDialog.setText(tempDistance + "");
 
-                    // Calculate pace
+                current = new LatLng(lat, lon);
 
+                if (MapFragment.currentlyTrackingLocation) {
 
-                    prevLat = lat;
-                    prevLon = lon;
+                    if (timesSinceLastPlot == 25) {
+                        mapPlotter.addMarker(lat, lon);
+                        new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+                        latLngList.add(current);
+                    }
+
+                    if (previous != null) {
+                        Log.d("DISTANCE", "" + SphericalUtil.computeDistanceBetween(previous, current));
+                    } else {
+                        Log.d("DISTANCE", "Previous is null");
+                    }
+
+                    // Every point gets added to GPX file
+                    XMLCreator.addPoint(lat, lon, altitude, 0, getCurrentTime());
                 }
             }
 
             @Override
-            public void onLocationAvailability(LocationAvailability locationAvailability) {
-
-            }
+            public void onLocationAvailability(LocationAvailability locationAvailability) { }
         };
 
         return locationCallback;
 
+    }
+
+    private String getCurrentTime() {
+
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        df.setTimeZone(tz);
+        String nowAsISO = df.format(new Date());
+
+        return nowAsISO;
     }
 
     public LocationRequest buildLocationRequest() {
@@ -255,71 +287,10 @@ public class FusedLocation  {
 
     }
 
-    public void setCurrentRunningTime(int time){
-        this.time = time;
+    public LatLng getLatestLatLng() {
+        return new LatLng(latestLat, latestLon);
     }
 
-   // public double getTheSpeed() {
-        //return speed;
-    //}
-
-    public double calculationByDistance(double initialLat, double initialLong, double finalLat, double finalLong){
-        /*PRE: All the input values are in radians!*/
-
-        double latDiff = finalLat - initialLat;
-        double longDiff = finalLong - initialLong;
-        double earthRadius = 6371; //In Km if you want the distance in km
-
-        double distanceTemp = 1000*2*earthRadius*Math.asin(Math.sqrt(Math.pow(Math.sin(latDiff/2.0),2)+Math.cos(initialLat)*Math.cos(finalLat)*Math.pow(Math.sin(longDiff/2),2)));
-
-        return distanceTemp;
-
-    }
-
-    public double[] getLatestCoords() {
-
-        double[] coords = new double[2];
-
-        coords[0] = latitude;
-        coords[1] = longitude;
-
-        return coords;
-    }
-
-    public boolean is_angle_between(int target, int angle1, int angle2)
-    {
-        // make the angle from angle1 to angle2 to be <= 180 degrees
-        int rAngle = ((angle2 - angle1) % 360 + 360) % 360;
-        if (rAngle >= 180) {
-            int temp = angle1;
-            angle1 = angle2;
-            angle2 = temp;
-        }
-        // check if it passes through zero
-        if (angle1 <= angle2)
-            return target >= angle1 && target <= angle2;
-        else
-            return target >= angle1 || target <= angle2;
-    }
-
-    private String metersPerSecondToMinutesPerKilometer(double speed, boolean metric) {
-
-        if (speed != 0) {
-            double pace = (1 / speed) / 60 * 1000;
-            System.out.println(pace);
-
-            int minutes = (int) Math.floor(pace);
-            System.out.println(minutes);
-
-            int seconds = (int) Math.floor((pace - minutes) * 60);
-
-            return minutes + ":" + seconds;
-        } else {
-            return "0:00";
-        }
-
-    }
-    private static final int EARTH_RADIUS = 6371; // Approx Earth radius in KM
     public static double distanceBetweenTwoCoordinates(double startLat, double startLong,
                                   double endLat, double endLong) {
 
