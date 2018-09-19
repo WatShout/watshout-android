@@ -115,7 +115,7 @@ public class FusedLocation  {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 //}
-                updateMapPlotter();
+
 
                 MapFragment.GPSconnected = true;
 
@@ -338,37 +338,7 @@ public class FusedLocation  {
     public static double haversin(double val) {
         return Math.pow(Math.sin(val / 2), 2);
     }
-    public void updateMapPlotter(){
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        DatabaseReference dfRef =  FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("device").child("current");
-        dfRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                for (DataSnapshot coords : dataSnapshot.getChildren()) {
-                    //System.out.println("COORD:" + coords.child("lat"));
-                    double theLat = Double.parseDouble(coords.child("lat").getValue().toString());
-                    double theLon = Double.parseDouble(coords.child("lon").getValue().toString());
-                    // if(preLat!=null) {
-                    preLat.add(theLat);
-                    preLon.add(theLon);
-                    // }
-                     System.out.println("@#@:" + preLon);
-                     System.out.println("(LATTT" + theLat + ", " + theLon + ")");
-                    //mapPlotter.addMarker(theLat, theLon);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println("ERROR-database");
-            }
-        });
-
-        //if(preLat.size()!=0)
-        // return true;
-        //return false;
-    }
    /* public boolean method() {
 
     }*/
