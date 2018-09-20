@@ -228,6 +228,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         FriendDataManager friendDataManager = new FriendDataManager(uid, googleMapGlobal, mRecyclerView, getActivity(),
                 new MapRecycleViewCarrier(mRecyclerView));
 
+
         // Starts location-getting process
         //ThreadB b = new ThreadB();
         //start();
