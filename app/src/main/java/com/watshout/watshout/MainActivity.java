@@ -109,6 +109,12 @@ public class MainActivity extends AppCompatActivity implements
         return Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("STOP", "onResume");
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

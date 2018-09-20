@@ -66,7 +66,6 @@ public class FinishedActivity extends AppCompatActivity{
     RelativeLayout mBottomLayout;
 
     Button uploadGpx;
-    Button uploadTo;
 
     boolean isExpanded = true;
 
@@ -111,7 +110,6 @@ public class FinishedActivity extends AppCompatActivity{
         mShrinker = findViewById(R.id.shrinker);
         mStatisticsText = findViewById(R.id.statText);
         uploadGpx = findViewById(R.id.uploadGpx);
-        uploadTo = findViewById(R.id.uploadTo);
         mBottomLayout = findViewById(R.id.bottomLayout);
 
         final float scale = getResources().getDisplayMetrics().density;
@@ -193,7 +191,6 @@ public class FinishedActivity extends AppCompatActivity{
                 mStatisticsText.setVisibility(visible);
 
                 uploadGpx.setVisibility(visible);
-                uploadTo.setVisibility(visible);
 
                 distance.setVisibility(visible);
                 time.setVisibility(visible);
@@ -236,6 +233,13 @@ public class FinishedActivity extends AppCompatActivity{
 
                 progressDialog.dismiss();
 
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(FinishedActivity.this);
+                SharedPreferences.Editor editor = preferences.edit();
+
+                // Ethan
+                editor.putBoolean("currentlyTracking", false);
+                editor.apply();
+
                 // Redirect to MapFragment
                 Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
                 openMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -248,6 +252,13 @@ public class FinishedActivity extends AppCompatActivity{
         returnToMap.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
+
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(FinishedActivity.this);
+                SharedPreferences.Editor editor = preferences.edit();
+
+                // Ethan
+                editor.putBoolean("currentlyTracking", false);
+                editor.apply();
 
                 // Removes current from from 'current' entry
                 UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
@@ -316,7 +327,22 @@ public class FinishedActivity extends AppCompatActivity{
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+
+    }
+
+    @Override
     public void onBackPressed(){
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(FinishedActivity.this);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        // Ethan
+        editor.putBoolean("currentlyTracking", false);
+        editor.apply();
+
         Intent intent = new Intent(FinishedActivity.this,MainActivity.class);
         startActivity(intent);
         finish();

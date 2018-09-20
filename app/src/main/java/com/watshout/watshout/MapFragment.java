@@ -42,6 +42,7 @@ import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -94,6 +95,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     MapPlotter mapPlotter;
     MapView mv;
 
+    int totalSeconds;
 
     RetrofitInterface retrofitInterface = RetrofitClient
             .getRetrofitInstance().create(RetrofitInterface.class);
@@ -173,6 +175,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     private final static int CAMERA = 350;
 
+    int secondsAlready;
+
     public MapFragment() {
         preLat= new ArrayList<>();
         preLon= new ArrayList<>();
@@ -228,7 +232,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         //ThreadB b = new ThreadB();
         //start();
        // boolean ans;
-        updateMapPlotter();
+        //updateMapPlotter();
 
 
 
@@ -255,13 +259,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mapPlotter.moveCamera(zoom);
     }
 
-    public void onPause() {
-        super.onPause();
-
-        Log.d("PAUSE", "You just paused");
-
-    }
-
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
@@ -277,6 +274,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences.Editor editor = preferences.edit();
 
         getActivity().setTitle("map");
 
@@ -505,6 +505,26 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         });
 
+        Log.d("RESUME", Boolean.toString(preferences.getBoolean("currentlyTracking", false)));
+        if (preferences.getBoolean("currentlyTracking", false)) {
+
+            secondsAlready = preferences.getInt("numSeconds", 0);
+
+            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setHomeButtonEnabled(false);
+
+            currentlyTrackingLocation = true;
+            int resource = R.drawable.round_pause_button;
+            mStart.setBackgroundResource(resource);
+            popUpStart.setBackgroundResource(resource);
+
+            updateMapPlotter();
+
+        } else {
+            secondsAlready = 0;
+        }
+
     }
 
     public Runnable runnable = new Runnable() {
@@ -523,7 +543,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             MilliSeconds = (int) (UpdateTime % 1000);
 
-            int totalSeconds = (Minutes * 60) + Seconds;
+            totalSeconds = (Minutes * 60) + Seconds + secondsAlready;
             fusedLocation.setCurrentRunningTime(totalSeconds);
 
             timerText.setText("00:" + String.format("%02d", Minutes) + ":"
@@ -595,6 +615,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     @Override
     public void onResume() {
         super.onResume();
+        Log.d("STOP", "mapFragment onResume");
         Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         sensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
 
@@ -784,12 +805,37 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.out.println("DESTROY BEING CALLED!!!!");
+        Log.d("STOP", "onDestroy");
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences.Editor editor = preferences.edit();
+
+        // Ethan
+        editor.putBoolean("currentlyTracking", activityRunning);
+
+        if (activityRunning) {
+            editor.putInt("numSeconds", totalSeconds);
+        }
+
+        editor.apply();
+
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
         DatabaseReference df;
         df = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid()).child("device").child("current");
         df.setValue(null);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d("STOP", "onStop");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d("STOP", "onDestroyView");
     }
 
     public void updateMapPlotter(){
@@ -810,7 +856,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     // }
                     System.out.println("@#@:" + preLon);
                     System.out.println("(LATTT" + theLat + ", " + theLon + ")");
-                    //mapPlotter.addMarker(theLat, theLon);
+                    mapPlotter.addMarker(theLat, theLon);
+
+                    Log.d("COORDS", theLat + ", " + theLon);
                 }
             }
             @Override
