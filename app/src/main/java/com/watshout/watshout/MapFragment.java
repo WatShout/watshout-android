@@ -234,8 +234,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
        // boolean ans;
         //updateMapPlotter();
 
-
-
         System.out.println("PRELAT!:" +preLat);
         System.out.println("PRELON!:" +preLon);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
