@@ -59,6 +59,7 @@ public class MapPlotter {
     private Context context;
     private Bitmap currentIcon;
 
+    private int timesSinceLastPlot = 1;
 
     MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf, String uid,
                Context context){
@@ -123,29 +124,6 @@ public class MapPlotter {
 
     }
 
-    private Bitmap getCircleBitmap(Bitmap bitmap) {
-        final Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        final Canvas canvas = new Canvas(output);
-
-        final int color = Color.RED;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-        final RectF rectF = new RectF(rect);
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        canvas.drawOval(rectF, paint);
-
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-
-        //bitmap.recycle();
-
-        return output;
-    }
-
     public void addFriendMarker(double lat, double lon){
         LatLng currentLocation = new LatLng(lat, lon);
         LatLng previousLocation;
@@ -170,6 +148,7 @@ public class MapPlotter {
 
             polylines.add(googleMap.addPolyline(new PolylineOptions()
                     .add(previousLocation, currentLocation)
+                    .jointType(2)
                     .width(10)));
 
         }
@@ -200,7 +179,7 @@ public class MapPlotter {
             }
         });
 
-        if (isMapFollowing){
+        if (isMapFollowing) {
             googleMap.moveCamera(CameraUpdateFactory
                     .newLatLngZoom(currentLocation, 19));
         }
@@ -221,6 +200,7 @@ public class MapPlotter {
                 polylines.add(googleMap.addPolyline(new PolylineOptions()
                         .add(previousLocation, currentLocation)
                         .color(Color.RED)
+                        .jointType(2)
                         .width(10)));
 
             }
