@@ -154,6 +154,46 @@ public class FusedLocation  {
                         + "\nAccuracy: " + accuracy);
 
                 if (MapFragment.currentlyTrackingLocation){
+                    bearingArr.add(bearing + "");
+                    speedArr.add(speed + "");
+                    //timeArr.add(time + "");
+                    int size = bearingArr.size();
+                   /* if(size >= 3){
+                        int a = (int)Double.parseDouble(bearingArr.get(size-1));
+                        int b = (int)Double.parseDouble(bearingArr.get(size-2));
+                        int c = (int)Double.parseDouble(bearingArr.get(size-3));
+                        int aDiff1 = (a - 90)%360;
+                        int aDiff2 = (a + 90)%360;
+                        int bDiff1 = (b - 90)%360;
+                        int bDiff2 = (b + 90)%360;
+                        if(is_angle_between(b, aDiff1, aDiff2) == false){
+                            if(is_angle_between(c, bDiff1, bDiff2) == false){Log.d("Bearing is", bearing + "");}
+                                else {Log.d("Tagis", "Method ended");
+                                return;
+                            }
+                        }
+                    }*/
+                    int speedSize = speedArr.size();
+                   /* if(speedSize >= 2) {
+                        //d = vt + 0.5(vf-v)t
+                        double vFinal = Double.parseDouble(speedArr.get(speedSize - 1));
+                        double vInitial = Double.parseDouble(speedArr.get(speedSize - 2));
+                        //long tFinal = Long.parseLong(timeArr.get(speedSize - 1));
+                        //long tInitial = Long.parseLong(timeArr.get(speedSize - 2));
+                        double aveSpeed = 0.5*(vFinal - vInitial);
+                        if(aveSpeed > 10)
+                            return;
+                    }*/
+                   double addDistance = 0;
+                    if(out == false && preLat!= null) {
+                        for(int x = 0; x < preLat.size(); x ++)
+                            mapPlotter.addMarker(preLat.get(x), preLon.get(x));
+                        out = true;
+                        for(int a = 1; a < preLat.size(); a ++){
+                        addDistance += calculationByDistance(preLat.get(a-1)*Math.PI/180,preLon.get(a-1)*Math.PI/180,
+                                preLat.get(a)*Math.PI/180, preLon.get(a)*Math.PI/180);}
+                    }
+
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                     int usedName = preferences.getInt("fusedLocationName", -1);
@@ -175,6 +215,16 @@ public class FusedLocation  {
                         Log.d("MEM_LOCATION", name + "");
                         latLngList.add(new LatLng(lat, lon));
 
+                    if(bearingArr.size() <2) {distance = 0;}
+                    else {
+                        distance += addDistance + calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
+                                lat*Math.PI/180, lon*Math.PI/180);
+                        //distance += distanceBetweenTwoCoordinates(prevLat,prevLon,
+                        // lat, lon);}
+                    }
+                    Log.d("Distance text", distance + "");
+                    int tempDistance = (int) distance;
+                    distanceDialog.setText(tempDistance + "");
                         TimeZone tz = TimeZone.getTimeZone("UTC");
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
                         df.setTimeZone(tz);
@@ -291,6 +341,8 @@ public class FusedLocation  {
     public static double haversin(double val) {
         return Math.pow(Math.sin(val / 2), 2);
     }
+
+
 
    /* public boolean method() {
 
