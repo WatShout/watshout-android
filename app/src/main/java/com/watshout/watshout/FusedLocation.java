@@ -120,6 +120,7 @@ public class FusedLocation  {
 
     }
 
+    // master
 
     public LocationCallback buildLocationCallback() {
 
