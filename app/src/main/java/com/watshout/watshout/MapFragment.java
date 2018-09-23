@@ -80,6 +80,7 @@ import retrofit2.Callback;
 import static android.content.Context.SENSOR_SERVICE;
 
 public class MapFragment extends android.app.Fragment implements OnMapReadyCallback, SensorEventListener {
+
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
@@ -189,18 +190,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
+        Log.d("LIFECYCLE", "onMapRead");
+
         // IMPORTANT
         // This ensures that we can make changes to the map outside of this function
         // which is why we defined it globally
         googleMapGlobal = googleMap;
 
-        try {
-            googleMapGlobal.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_color
-                    ));
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
 
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getContext());
@@ -218,7 +214,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // Marker list is a array of the current user's Markers
         markerList = new ArrayList<>();
 
-
         mapPlotter = new MapPlotter(markerList, googleMapGlobal, true, uid, getActivity());
 
         try {
@@ -231,24 +226,19 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 new MapRecycleViewCarrier(mRecyclerView));
 
 
-        // Starts location-getting process
-        //ThreadB b = new ThreadB();
-        //start();
-       // boolean ans;
-        //updateMapPlotter();
-
-        System.out.println("PRELAT!:" +preLat);
-        System.out.println("PRELON!:" +preLon);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
-        fusedLocation = null;
+
         try {
             fusedLocation = new FusedLocation(getActivity().getApplicationContext(),
-                    mapPlotter, uid, XMLCreator, speedTextDialog, stepsDialog, distanceDialog, preLat, preLon);
+                    mapPlotter, uid, XMLCreator, speedTextDialog, stepsDialog, distanceDialog, preLat, preLon,
+                    googleMapGlobal);
         } catch (TransformerException e) {
             e.printStackTrace();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
+
+        Log.d("MEM_LOCATION", "Just created: " + fusedLocation.name);
 
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
@@ -256,6 +246,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         googleMapGlobal.setMyLocationEnabled(true);
         googleMapGlobal.getUiSettings().setMyLocationButtonEnabled(false);
+
+        googleMapGlobal.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.google_map_color
+                ));
 
         mapPlotter.moveCamera(zoom);
     }
@@ -275,6 +269,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Log.d("LIFECYCLE", "onViewCreated");
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -523,6 +519,12 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             mStart.setBackgroundResource(resource);
             popUpStart.setBackgroundResource(resource);
 
+            mStop.setVisibility(View.VISIBLE);
+            popUpStop.setVisibility(View.VISIBLE);
+            popUpStop.setBackgroundResource(R.drawable.stop);
+
+            floatingActionButton.show();
+
             updateMapPlotter();
 
         } else {
@@ -548,7 +550,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             MilliSeconds = (int) (UpdateTime % 1000);
 
             totalSeconds = (Minutes * 60) + Seconds + secondsAlready;
-            fusedLocation.setCurrentRunningTime(totalSeconds);
+
+            if (fusedLocation != null) {
+                fusedLocation.setCurrentRunningTime(totalSeconds);
+            }
 
             timerText.setText("00:" + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds));
@@ -619,7 +624,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("STOP", "mapFragment onResume");
+
+        Log.d("LIFECYCLE", "onResume");
+
         Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         sensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
 
@@ -655,6 +662,11 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     }
 
     public void startClick() {
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("fusedLocationName", fusedLocation.name);
+        editor.apply();
 
         floatingActionButton.show();
         mStart.setVisibility(View.VISIBLE);
@@ -768,7 +780,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // This seems to fix the multi-location updates
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
 
-
     }
 
     public void sendActivityNotification() {
@@ -809,10 +820,12 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("STOP", "onDestroy");
+        Log.d("LIFECYCLE", "onDestroy");
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString(fusedLocation.toString(), "fusedLocationMemoryAddress");
 
         // Ethan
         editor.putBoolean("currentlyTracking", activityRunning);

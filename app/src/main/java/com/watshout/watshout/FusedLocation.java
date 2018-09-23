@@ -14,6 +14,8 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,6 +55,8 @@ public class FusedLocation  {
     double prevLon;
     double distance;
 
+    public int name;
+
     boolean out;
     double info [][] = new double [3][3];
     //double bearingArr [] = new double [3];
@@ -67,11 +72,14 @@ public class FusedLocation  {
     List<LatLng> latLngList;
     int time;
 
+    GoogleMap googleMap;
+
     private final static String TAG = "FusedLocation";
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid,
                   XMLCreator XMLCreator, TextView speedTextDialog,
-                  TextView stepsDialog, TextView distanceDialog, ArrayList preLat, ArrayList preLon)
+                  TextView stepsDialog, TextView distanceDialog, ArrayList preLat, ArrayList preLon,
+                  GoogleMap googleMap)
             throws TransformerException, ParserConfigurationException {
 
         this.context = context;
@@ -89,6 +97,10 @@ public class FusedLocation  {
         this.preLon = preLon;
         distance = 0;
         out = false;
+        this.googleMap = googleMap;
+
+        Random random = new Random();
+        this.name = random.nextInt(100000);
 
     }
 
@@ -114,8 +126,6 @@ public class FusedLocation  {
         LocationCallback locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                //}
-
 
                 MapFragment.GPSconnected = true;
 
@@ -129,33 +139,16 @@ public class FusedLocation  {
                 double lat = location.getLatitude();
                 double lon = location.getLongitude();
                 double speed = location.getSpeed();
-                Log.d("Speed count",  "" + speed);
-                //Toast.makeText(context, speed + "", Toast.LENGTH_SHORT).show();
                 double bearing = location.getBearing();
                 double altitude = location.getAltitude();
                 long time = location.getTime();
                 float accuracy = location.getAccuracy();
 
+                // Center map on current location
+                LatLng now = new LatLng(lat, lon);
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(now));
+
                 speedTextDialog.setText(metersPerSecondToMinutesPerKilometer(speed, false));
-
-                // @ Viraj: Do we still need this?
-                //if(newSpeed > 60)
-
-                /*
-                double newSpeed = 1609.34 / speed;
-                int secondsSpeed = (int)(newSpeed%60);
-                String theSpeed;
-                newSpeed = (int)(newSpeed/60);
-                */
-
-                //else if((secondsSpeed + "").length() == 1) {
-                    //theSpeed = (int) (newSpeed) + ":0" + secondsSpeed;
-                    //speedTextDialog.setText(theSpeed + " m/mi");
-                //}
-                //else {
-                //    theSpeed = (int) (newSpeed) + ":" + secondsSpeed;
-                //    speedTextDialog.setText(theSpeed + " m/mi");
-               // }
 
                 Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
                         + "\nAccuracy: " + accuracy);
@@ -201,22 +194,26 @@ public class FusedLocation  {
                                 preLat.get(a)*Math.PI/180, preLon.get(a)*Math.PI/180);}
                     }
 
-                    mapPlotter.addMarker(lat, lon);
-                    new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
-                    Log.d(TAG, "Uploading to Firebase");
-                    latLngList.add(new LatLng(lat, lon));
 
-                    TrackPoint temp = new TrackPoint();
-                    //if(accuracy<16)
-                    trackPoints.add(temp);
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                    int usedName = preferences.getInt("fusedLocationName", -1);
 
-                    TimeZone tz = TimeZone.getTimeZone("UTC");
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-                    df.setTimeZone(tz);
-                    String nowAsISO = df.format(new Date());
+                    if (name == usedName) {
+                        bearingArr.add(bearing + "");
+                        speedArr.add(speed + "");
 
-                    XMLCreator.addPoint(lat, lon, altitude, 69, nowAsISO);
+                        if(out == false && preLat!= null) {
+                            for(int x = 0; x < preLat.size(); x ++)
+                                mapPlotter.addMarker(preLat.get(x), preLon.get(x));
+                            out = true;
+                        }
 
+                        mapPlotter.addMarker(lat, lon);
+
+                        new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+                        Log.d(TAG, "Uploading to Firebase");
+                        Log.d("MEM_LOCATION", name + "");
+                        latLngList.add(new LatLng(lat, lon));
 
                     if(bearingArr.size() <2) {distance = 0;}
                     else {
@@ -228,12 +225,17 @@ public class FusedLocation  {
                     Log.d("Distance text", distance + "");
                     int tempDistance = (int) distance;
                     distanceDialog.setText(tempDistance + "");
+                        TimeZone tz = TimeZone.getTimeZone("UTC");
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+                        df.setTimeZone(tz);
+                        String nowAsISO = df.format(new Date());
 
-                    // Calculate pace
+                        XMLCreator.addPoint(lat, lon, altitude, 69, nowAsISO);
+                        prevLat = lat;
+                        prevLon = lon;
+                    }
 
 
-                    prevLat = lat;
-                    prevLon = lon;
                 }
             }
 
@@ -251,9 +253,9 @@ public class FusedLocation  {
 
         LocationRequest locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(1000)
-                .setFastestInterval(1000)
-                .setSmallestDisplacement(0);
+                .setInterval(5000)
+                .setFastestInterval(5000)
+                .setSmallestDisplacement(5);
 
         return locationRequest;
 
@@ -263,9 +265,6 @@ public class FusedLocation  {
         this.time = time;
     }
 
-   // public double getTheSpeed() {
-        //return speed;
-    //}
 
     public double calculationByDistance(double initialLat, double initialLong, double finalLat, double finalLong){
         /*PRE: All the input values are in radians!*/
