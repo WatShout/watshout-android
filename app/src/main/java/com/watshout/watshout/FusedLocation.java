@@ -191,10 +191,14 @@ public class FusedLocation  {
                         if(aveSpeed > 10)
                             return;
                     }*/
+                   double addDistance = 0;
                     if(out == false && preLat!= null) {
                         for(int x = 0; x < preLat.size(); x ++)
                             mapPlotter.addMarker(preLat.get(x), preLon.get(x));
                         out = true;
+                        for(int a = 1; a < preLat.size(); a ++){
+                        addDistance += calculationByDistance(preLat.get(a-1)*Math.PI/180,preLon.get(a-1)*Math.PI/180,
+                                preLat.get(a)*Math.PI/180, preLon.get(a)*Math.PI/180);}
                     }
 
                     mapPlotter.addMarker(lat, lon);
@@ -216,7 +220,7 @@ public class FusedLocation  {
 
                     if(bearingArr.size() <2) {distance = 0;}
                     else {
-                        distance += calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
+                        distance += addDistance + calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
                                 lat*Math.PI/180, lon*Math.PI/180);
                         //distance += distanceBetweenTwoCoordinates(prevLat,prevLon,
                         // lat, lon);}
@@ -338,6 +342,8 @@ public class FusedLocation  {
     public static double haversin(double val) {
         return Math.pow(Math.sin(val / 2), 2);
     }
+
+
 
    /* public boolean method() {
 

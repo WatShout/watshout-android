@@ -87,6 +87,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     ArrayList<Double> preLat;
     ArrayList<Double> preLon;
     FusedLocation fusedLocation;
+    String ans;
 
     SensorManager sensorManager;
 
@@ -103,6 +104,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     int totalSteps;
 
     PopupWindow popUp;
+    int x = 0;
 
     //LayoutParams params;
 
@@ -507,7 +509,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         Log.d("RESUME", Boolean.toString(preferences.getBoolean("currentlyTracking", false)));
         if (preferences.getBoolean("currentlyTracking", false)) {
 
-            secondsAlready = preferences.getInt("numSeconds", 0);
+            //secondsAlready = preferences.getInt("numSeconds", 0);
+            try {
+                StartTime = Long.parseLong(getTime());
+            }catch(NumberFormatException n){}
 
             ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             actionBar.setDisplayHomeAsUpEnabled(false);
@@ -869,6 +874,29 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         //if(preLat.size()!=0)
         // return true;
         //return false;
+    }
+
+    public String getTime() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        DatabaseReference dfRef =  FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("device").child("current");
+        dfRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long temp = dataSnapshot.getChildrenCount();
+                for (DataSnapshot coords : dataSnapshot.getChildren()) {
+                    if(x == 0) {
+                        ans = coords.child("time").getValue().toString();
+                        x++;
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("ERROR-database");
+            }
+        });
+        return ans;
     }
 
 
