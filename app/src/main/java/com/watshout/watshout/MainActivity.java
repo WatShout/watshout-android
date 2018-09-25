@@ -27,11 +27,13 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements
     String CURRENT_DEVICE_ID;
     String stravaToken;
 
+    public LinearLayout mDrawerLinearLayout;
+
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     private StorageReference mStorageRef;
@@ -129,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements
         mDrawerLayout = findViewById(R.id.drawer_layout);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //mDrawerLinearLayout = (LinearLayout) findViewById(R.id.drawer_layout);
 
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
@@ -536,6 +542,15 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed(){
 
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(GravityCompat.START);
+
+        if (drawerOpen) {
+            mDrawerLayout.closeDrawer(Gravity.LEFT);
+        } else {
+            mDrawerLayout.openDrawer(GravityCompat.START);
+        }
+
+      /*
         navigationView.setCheckedItem(R.id.nav_activity);
 
         // set to MapFragment
@@ -543,6 +558,7 @@ public class MainActivity extends AppCompatActivity implements
                 .beginTransaction()
                 .replace(R.id.screen_area, new MapFragment())
                 .commit();
+                */
     }
 
     private boolean isNetworkAvailable() {
