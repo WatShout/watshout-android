@@ -58,6 +58,7 @@ public class MapPlotter {
     private String uid;
     private Context context;
     private Bitmap currentIcon;
+    private boolean initial = true;
 
 
     MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf, String uid,
@@ -154,7 +155,6 @@ public class MapPlotter {
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
                 .position(currentLocation));
 
-        Log.d("MARKERS", markers.toString());
 
         if (markers.size() == 0) {
             previousLocation = currentLocation;
@@ -180,7 +180,6 @@ public class MapPlotter {
 
         LatLng currentLocation = new LatLng(lat, lon);
         LatLng previousLocation;
-        System.out.println("MARKERCALLED");
 
         // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
@@ -214,6 +213,13 @@ public class MapPlotter {
 
         markers.add(newMarker);
 
+        for (Marker i : markers) {
+
+            Log.d("PLOT", i.getPosition().latitude + ", " + i.getPosition().longitude);
+
+        }
+
+
         if (com.watshout.watshout.MapFragment.currentlyTrackingLocation){
 
             if (markers.size() > 0) {
@@ -221,6 +227,7 @@ public class MapPlotter {
                 polylines.add(googleMap.addPolyline(new PolylineOptions()
                         .add(previousLocation, currentLocation)
                         .color(Color.RED)
+                        .jointType(2)
                         .width(10)));
 
             }

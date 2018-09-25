@@ -70,6 +70,7 @@ import com.watshout.watshout.pojo.FriendRequestResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -96,8 +97,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
     MapView mv;
-
-    int totalSeconds;
 
     RetrofitInterface retrofitInterface = RetrofitClient
             .getRetrofitInstance().create(RetrofitInterface.class);
@@ -156,6 +155,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     TextView stepsDialog;
     TextView distanceDialog;
 
+    int numSeconds;
+    int numMinutes;
+    int numHours;
+    long timeGap;
     boolean hasStrava;
 
     DrawerLayout mDrawerLayout;
@@ -167,7 +170,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L;
     Handler handler;
-    int Seconds, Minutes, MilliSeconds;
+    int Hours, Seconds, Minutes, MilliSeconds;
 
     private boolean timeRunning = false;
 
@@ -505,10 +508,20 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         Log.d("RESUME", Boolean.toString(preferences.getBoolean("currentlyTracking", false)));
         if (preferences.getBoolean("currentlyTracking", false)) {
 
-            //secondsAlready = preferences.getInt("numSeconds", 0);
-            try {
-                StartTime = Long.parseLong(getTime());
-            }catch(NumberFormatException n){}
+            numSeconds = preferences.getInt("numSeconds", 0);
+            numMinutes = preferences.getInt("numMinutes", 0);
+            numHours = preferences.getInt("numHours", 0);
+
+            long closeTime = preferences.getLong("closeTimeStamp", SystemClock.uptimeMillis());
+            long timeRightNow = SystemClock.uptimeMillis();
+
+            timeGap = timeRightNow - closeTime;
+
+            // start timer
+            StartTime = SystemClock.uptimeMillis();
+            originalStartTime = StartTime;
+            handler.postDelayed(runnable, 0);
+            timeRunning = true;
 
             ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             actionBar.setDisplayHomeAsUpEnabled(false);
@@ -537,11 +550,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         public void run() {
 
-            MillisecondTime = SystemClock.uptimeMillis() - StartTime;
+            long addTime = timeGap + (numSeconds * 1000) + (numMinutes * 60000) + (numHours * 3600000);
+
+            MillisecondTime = (SystemClock.uptimeMillis() - StartTime) + addTime;
 
             UpdateTime = TimeBuff + MillisecondTime;
 
             Seconds = (int) (UpdateTime / 1000);
+
+            Log.d("SECONDS", Seconds + "");
+
+            Hours = Seconds / 3600;
 
             Minutes = Seconds / 60;
 
@@ -549,13 +568,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             MilliSeconds = (int) (UpdateTime % 1000);
 
-            totalSeconds = (Minutes * 60) + Seconds + secondsAlready;
 
-            if (fusedLocation != null) {
-                fusedLocation.setCurrentRunningTime(totalSeconds);
-            }
-
-            timerText.setText("00:" + String.format("%02d", Minutes) + ":"
+            timerText.setText("0" + Hours + ":" + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds));
 
             handler.postDelayed(this, 0);
@@ -632,35 +646,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     }
 
-    public void captureMapScreen()
-    {
-        SnapshotReadyCallback callback = new SnapshotReadyCallback() {
-
-            @Override
-            public void onSnapshotReady(Bitmap snapshot) {
-                // TODO Auto-generated method stub
-                pathScreen = snapshot;
-
-            }
-        };
-
-        googleMapGlobal.snapshot(callback);
-    }
-
-    public boolean allWhite(Bitmap bmp){
-        for (int i=0;i<bmp.getWidth();i++){
-            for (int j=0;j<bmp.getHeight();j++){
-                int clr=  bmp.getPixel(i,j);
-                int  red   = (clr & 0x00ff0000) >> 16;
-                int  green = (clr & 0x0000ff00) >> 8;
-                int  blue  =  clr & 0x000000ff;
-                if (!(red == 255 && green==255 && blue==255))
-                    return false;
-            }
-        }
-        return true;
-    }
-
     public void startClick() {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -721,64 +706,80 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         mapPlotter.removeFromMap();
 
-        String coordinateList = "";
+        Log.d("LENGTH", fusedLocation.getLatLng().size() + "");
 
-        for (LatLng current : (ArrayList<LatLng>) fusedLocation.getLatLng()){
+        ref.child("users").child(uid).child("device").child("current").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-            coordinateList += current.latitude + "," + current.longitude;
+                List<LatLng> latLngList = new ArrayList<>();
 
-        }
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    LocationObject locationObject = child.getValue(LocationObject.class);
+                    Log.d("LOCATION", "" + locationObject.lat);
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
-        int width = displayMetrics.widthPixels;
+                    LatLng current = new LatLng(locationObject.lat, locationObject.lon);
+                    latLngList.add(current);
 
-        String newSize = "&size=" + 400 + "x" + 640;
+                }
 
-        String encodedPath = PolyUtil.encode(fusedLocation.getLatLng());
-        String baseMapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
-        String displayMapURL = baseMapURL + "&size=" + 400 + "x" + 640;
-        String uploadMapURL = baseMapURL + "&size=" + 600 + "x" + 300;
+                    DisplayMetrics displayMetrics = new DisplayMetrics();
+                    getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                    int height = displayMetrics.heightPixels;
+                    int width = displayMetrics.widthPixels;
 
-        Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
+                    String newSize = "&size=" + 400 + "x" + 640;
 
-        // Generates a current date
-        UploadToDatabase uploadToDatabase = new UploadToDatabase();
-        String date = uploadToDatabase.getFormattedDate();
+                    String encodedPath = PolyUtil.encode(latLngList);
+                    String baseMapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
+                    String displayMapURL = baseMapURL + "&size=" + 400 + "x" + 640;
+                    String uploadMapURL = baseMapURL + "&size=" + 600 + "x" + 300;
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] bitmapdata = stream.toByteArray();
+                    Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
 
-        openNext.putExtra("MAP_IMAGE", bitmapdata);
-        openNext.putExtra("DISPLAY_MAP_URL", displayMapURL);
-        openNext.putExtra("UPLOAD_MAP_URL", uploadMapURL);
+                    // Generates a current date
+                    UploadToDatabase uploadToDatabase = new UploadToDatabase();
+                    String date = uploadToDatabase.getFormattedDate();
 
-        openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
-        openNext.putExtra("GPX_NAME_ONLY", date);
-        openNext.putExtra("GPX_NAME",date+".gpx");
-        openNext.putExtra("MIN", Minutes);
-        openNext.putExtra("SEC", Seconds);
+                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byte[] bitmapdata = stream.toByteArray();
 
-        // Writes an XML file
-        try {
-            XMLCreator.saveFile(date);
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                    openNext.putExtra("MAP_IMAGE", bitmapdata);
+                    openNext.putExtra("DISPLAY_MAP_URL", displayMapURL);
+                    openNext.putExtra("UPLOAD_MAP_URL", uploadMapURL);
 
-        Carrier.setXMLCreator(XMLCreator);
+                    openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
+                    openNext.putExtra("GPX_NAME_ONLY", date);
+                    openNext.putExtra("GPX_NAME",date+".gpx");
+                    openNext.putExtra("MIN", Minutes);
+                    openNext.putExtra("SEC", Seconds);
 
-        openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getActivity().getApplicationContext().startActivity(openNext);
-        getActivity().finish();
+                    // Writes an XML file
+                    try {
+                        XMLCreator.saveFile(date);
+                    } catch (TransformerException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-        // This seems to fix the multi-location updates
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+                    Carrier.setXMLCreator(XMLCreator);
+
+                    openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getActivity().getApplicationContext().startActivity(openNext);
+                    getActivity().finish();
+
+                    // This seems to fix the multi-location updates
+                    fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -822,25 +823,34 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         super.onDestroy();
         Log.d("LIFECYCLE", "onDestroy");
 
+        long closeTimeStamp = SystemClock.uptimeMillis();
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.putString(fusedLocation.toString(), "fusedLocationMemoryAddress");
+        editor.putLong("closeTimeStamp", closeTimeStamp);
 
-        // Ethan
+        double[] latestCords = fusedLocation.getLatestCoords();
+        double lat = latestCords[0];
+        double lon = latestCords[1];
+
+        editor.putString("latestLat", lat + "");
+        editor.putString("latestLon", lon + "");
+
+
+
         editor.putBoolean("currentlyTracking", activityRunning);
 
         if (activityRunning) {
-            editor.putInt("numSeconds", totalSeconds);
+            editor.putInt("numHours", Hours);
+            editor.putInt("numSeconds", Seconds);
+            editor.putInt("numMinutes", Minutes);
+            Log.d("TIMING", "Setting seconds: " + Seconds + "\nSettings minutes: " + Minutes);
         }
 
         editor.apply();
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        DatabaseReference df;
-        df = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid()).child("device").child("current");
-        df.setValue(null);
     }
 
     @Override

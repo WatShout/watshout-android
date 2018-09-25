@@ -195,84 +195,85 @@ class XMLCreator {
 
         String fileName = date + ".gpx";
 
+        /*
         storageReference.child("users").child(uid).child("gpx").child(fileName)
                 .putBytes(bytes).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
                 Log.d(TAG, "Uploaded GPX to Firebase Storage correctly");
+            }
+        });*/
 
-                RequestQueue queue = Volley.newRequestQueue(context);
-                String stravaURL = EndpointURL.getInstance().getStravaURL(uid, date);
-                String createMapURL = EndpointURL.getInstance().addActivityURL();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String stravaURL = EndpointURL.getInstance().getStravaURL(uid, date);
+        String createMapURL = EndpointURL.getInstance().addActivityURL();
 
-                StringRequest createMapRequest = new StringRequest(Request.Method.POST,
-                        createMapURL, new Response.Listener<String>() {
+        StringRequest createMapRequest = new StringRequest(Request.Method.POST,
+                createMapURL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                Log.d(TAG, "Activity uploaded successfully!");
+                Toast.makeText(context, "Activity uploaded successfully!", Toast.LENGTH_SHORT).show();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Log.d(TAG, "Activity upload failed");
+                Log.e(TAG, error.toString());
+
+
+            }
+        }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("uid", uid);
+                params.put("time_stamp", date);
+                return params;
+            }
+        };
+
+        createMapRequest.setRetryPolicy(new DefaultRetryPolicy(
+                5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        queue.add(createMapRequest);
+
+        // This code only runs if user wants to upload to Strava
+        if (hasStrava) {
+            StringRequest stravaRequest = new StringRequest(Request.Method.GET, stravaURL,
+                    new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
 
-                                    Log.d(TAG, "Activity uploaded successfully!");
-                                Toast.makeText(context, "Activity uploaded successfully!", Toast.LENGTH_SHORT).show();
-
-                                }
-                            }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                                Log.d(TAG, "Activity upload failed");
-                                Log.e(TAG, error.toString());
-
-
-                            }
-                        }){
-                    @Override
-                    protected Map<String,String> getParams(){
-                        Map<String,String> params = new HashMap<String, String>();
-                        params.put("uid", uid);
-                        params.put("time_stamp", date);
-                        return params;
-                    }
-                };
-
-                createMapRequest.setRetryPolicy(new DefaultRetryPolicy(
-                        5000,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-                queue.add(createMapRequest);
-
-                // This code only runs if user wants to upload to Strava
-                if (hasStrava) {
-                    StringRequest stravaRequest = new StringRequest(Request.Method.GET, stravaURL,
-                            new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-
-                                    Toast.makeText(context,
-                                            "Uploaded to Strava!",
-                                            Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, "Uploaded GPX to Strava correctly");
-
-                                }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
                             Toast.makeText(context,
-                                    "Strava upload failed",
+                                    "Uploaded to Strava!",
                                     Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "Uploading GPX to Strava failed: " + error);
+                            Log.d(TAG, "Uploaded GPX to Strava correctly");
+
                         }
-                    });
-
-                    stravaRequest.setRetryPolicy(new DefaultRetryPolicy(
-                            5000,
-                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-                    queue.add(stravaRequest);
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(context,
+                            "Strava upload failed",
+                            Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Uploading GPX to Strava failed: " + error);
                 }
+            });
 
-            }
-        });
+            stravaRequest.setRetryPolicy(new DefaultRetryPolicy(
+                    5000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            queue.add(stravaRequest);
+        }
     }
 
     public void resetXML() {

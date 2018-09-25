@@ -3,6 +3,7 @@ package com.watshout.watshout;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.BatteryManager;
 import android.util.Log;
 
@@ -21,6 +22,10 @@ class LocationObject {
     public long time;
 
     private DatabaseReference ref;
+
+    LocationObject() {
+
+    }
 
     LocationObject(Context context, String uid, double lat, double lon, double bearing, double speed, double altitude, long time){
 

@@ -147,7 +147,7 @@ public class FusedLocation  {
 
                 // Center map on current location
                 LatLng now = new LatLng(lat, lon);
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(now));
+                //googleMap.moveCamera(CameraUpdateFactory.newLatLng(now));
 
                 speedTextDialog.setText(metersPerSecondToMinutesPerKilometer(speed, false));
 
@@ -231,7 +231,7 @@ public class FusedLocation  {
                         df.setTimeZone(tz);
                         String nowAsISO = df.format(new Date());
 
-                        XMLCreator.addPoint(lat, lon, altitude, 69, nowAsISO);
+                        XMLCreator.addPoint(lat, lon, altitude, 0, nowAsISO);
                         prevLat = lat;
                         prevLon = lon;
                     }
@@ -254,9 +254,9 @@ public class FusedLocation  {
 
         LocationRequest locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(5000)
-                .setFastestInterval(5000)
-                .setSmallestDisplacement(5);
+                .setInterval(1000)
+                .setFastestInterval(1000)
+                .setSmallestDisplacement(0);
 
         return locationRequest;
 
