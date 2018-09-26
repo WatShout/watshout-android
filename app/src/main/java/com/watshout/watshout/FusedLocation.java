@@ -42,7 +42,7 @@ import javax.xml.transform.TransformerException;
 public class FusedLocation  {
 
     private Context context;
-    private MapPlotter mapPlotter;
+    private static MapPlotter mapPlotter;
     private String uid;
     private ArrayList<Waypoint> trackPoints;
     private XMLCreator XMLCreator;
@@ -66,7 +66,7 @@ public class FusedLocation  {
 
     TextView speedTextDialog;
     TextView stepsDialog;
-    TextView distanceDialog;
+    static TextView distanceDialog;
     SharedPreferences settings;
     SharedPreferences.Editor editor;
     List<LatLng> latLngList;
@@ -194,17 +194,23 @@ public class FusedLocation  {
                             //System.out.println("PREVLAT:" + prevLat + ", PREVLON" + prevLon
                                   //  + ", LAT" + lat + ", LON" + lon);
                           //System.out.println("ADDDISTANCE:" + addDistance);
-                        addDistance += calculationByDistance(preLat.get(a-1)*Math.PI/180,preLon.get(a-1)*Math.PI/180,
-                                preLat.get(a)*Math.PI/180, preLon.get(a)*Math.PI/180);}
+                            double anssd = calculationByDistance(preLat.get(a-1)*Math.PI/180,preLon.get(a-1)*Math.PI/180,
+                                    preLat.get(a)*Math.PI/180, preLon.get(a)*Math.PI/180);
+                            System.out.println("12345:" + anssd);
+
+                        distance +=addDistance;
+                            System.out.println("GFGFGF:" + addDistance);}
+
                     }
 
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                     int usedName = preferences.getInt("fusedLocationName", -1);
-
+                    System.out.println("EFEFEF:" + addDistance);
                     if (name == usedName) {
                         bearingArr.add(bearing + "");
                         speedArr.add(speed + "");
+                        //System.out.println("USEDNAME!")
 
                         if(out == false && preLat!= null) {
                             for(int x = 0; x < preLat.size(); x ++)
@@ -219,18 +225,26 @@ public class FusedLocation  {
                         Log.d("MEM_LOCATION", name + "");
                         latLngList.add(new LatLng(lat, lon));
 
-                    if(prevLat<2) {distance = 0;}
+                    if(prevLat<2 ) {
+                        if(distance>0) {
+                            System.out.println("If this prints, succesfull");
+                        }
+                        else
+                            distance = 0;
+                        }
                     else {
-                       //System.out.println("INSIDEADDDISTANCESTATEMENT");
+                       System.out.println("INSIDEADDDISTANCESTATEMENT");
                         //System.out.println("PREVLAT:" + prevLat + ", PREVLON" + prevLon
                               //  + ", LAT" + lat + ", LON" + lon);
-                        distance += addDistance + calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
+                        System.out.println("DFDFDF:" + addDistance);
+                        distance +=  calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
                                 lat*Math.PI/180, lon*Math.PI/180);
                         //distance += distanceBetweenTwoCoordinates(prevLat,prevLon,
                         // lat, lon);}
                     }
                     Log.d("Distance text", distance + "");
                     int tempDistance = (int) distance;
+                    System.out.println("UNUSUAL:" + tempDistance);
                     distanceDialog.setText(tempDistance + "");
                         TimeZone tz = TimeZone.getTimeZone("UTC");
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
@@ -244,7 +258,7 @@ public class FusedLocation  {
 
 
                 }
-            }
+           }
 
             @Override
             public void onLocationAvailability(LocationAvailability locationAvailability) {
