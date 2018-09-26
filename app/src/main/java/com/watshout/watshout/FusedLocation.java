@@ -191,6 +191,9 @@ public class FusedLocation  {
                             mapPlotter.addMarker(preLat.get(x), preLon.get(x));
                         out = true;
                         for(int a = 1; a < preLat.size(); a ++){
+                            //System.out.println("PREVLAT:" + prevLat + ", PREVLON" + prevLon
+                                  //  + ", LAT" + lat + ", LON" + lon);
+                          //System.out.println("ADDDISTANCE:" + addDistance);
                         addDistance += calculationByDistance(preLat.get(a-1)*Math.PI/180,preLon.get(a-1)*Math.PI/180,
                                 preLat.get(a)*Math.PI/180, preLon.get(a)*Math.PI/180);}
                     }
@@ -216,8 +219,11 @@ public class FusedLocation  {
                         Log.d("MEM_LOCATION", name + "");
                         latLngList.add(new LatLng(lat, lon));
 
-                    if(bearingArr.size() <2) {distance = 0;}
+                    if(prevLat<2) {distance = 0;}
                     else {
+                       //System.out.println("INSIDEADDDISTANCESTATEMENT");
+                        //System.out.println("PREVLAT:" + prevLat + ", PREVLON" + prevLon
+                              //  + ", LAT" + lat + ", LON" + lon);
                         distance += addDistance + calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
                                 lat*Math.PI/180, lon*Math.PI/180);
                         //distance += distanceBetweenTwoCoordinates(prevLat,prevLon,
