@@ -29,6 +29,7 @@ import org.alternativevision.gpx.beans.TrackPoint;
 import org.alternativevision.gpx.beans.Waypoint;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -101,6 +102,9 @@ public class FusedLocation  {
         out = false;
         this.googleMap = googleMap;
 
+        prevLat = Double.valueOf(settings.getString("last_latitude", ""));
+        prevLon = Double.valueOf(settings.getString("last_longitude", ""));
+
         Random random = new Random();
         this.name = random.nextInt(100000);
 
@@ -161,7 +165,23 @@ public class FusedLocation  {
                 LatLng now = new LatLng(lat, lon);
                 //googleMap.moveCamera(CameraUpdateFactory.newLatLng(now));
 
-                speedTextDialog.setText(parsePace(speed / MS_TO_MM));
+                DecimalFormat pace = new DecimalFormat("##");
+
+                if (speed > 0) {
+                    // Speed is in m/s
+                    double minuteMilePace = MS_TO_MM / speed;
+
+                    int minutes = (int) Math.floor(minuteMilePace);
+                    int seconds = (int) Math.floor((minuteMilePace - minutes) * 60);
+
+                    String minString = pace.format(minutes);
+                    String secString = pace.format(seconds);
+
+                    speedTextDialog.setText(minString + ":" + secString);
+                } else {
+                    speedTextDialog.setText("00:00");
+                }
+
 
                 Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
                         + "\nAccuracy: " + accuracy);
@@ -257,7 +277,11 @@ public class FusedLocation  {
                     Log.d("Distance text", distance + "");
                     int tempDistance = (int) distance;
                     System.out.println("UNUSUAL:" + tempDistance);
-                    distanceDialog.setText(tempDistance + "");
+                    double miles = tempDistance * 0.000621371;
+
+
+                    DecimalFormat decimalFormat = new DecimalFormat("##.##");
+                    distanceDialog.setText(decimalFormat.format(miles));
                         TimeZone tz = TimeZone.getTimeZone("UTC");
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
                         df.setTimeZone(tz);
@@ -288,7 +312,7 @@ public class FusedLocation  {
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(4000)
                 .setFastestInterval(4000)
-                .setSmallestDisplacement(5);
+                .setSmallestDisplacement(0);
 
         return locationRequest;
 

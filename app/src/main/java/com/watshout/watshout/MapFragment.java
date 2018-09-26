@@ -758,6 +758,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     openNext.putExtra("MIN", Minutes);
                     openNext.putExtra("SEC", Seconds);
 
+                    String distance = distanceDialog.getText().toString();
+                    openNext.putExtra("DISTANCE", distance);
+
                     // Writes an XML file
                     try {
                         XMLCreator.saveFile(date);

@@ -54,6 +54,7 @@ import com.google.firebase.storage.StorageReference;
 import com.samsandberg.stravaauthenticator.StravaAuthenticateActivity;
 import com.squareup.picasso.Picasso;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -351,11 +352,6 @@ public class MainActivity extends AppCompatActivity implements
 
         final TextView mDistance = headerView.findViewById(R.id.nav_header_total_distance);
         mDistance.setText("N/A");
-        final double KM_TO_MILE = 0.621371;
-
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        //final String units = settings.getString("Units", "Imperial");
-        final String units = "Imperial";
 
         ref.child("users").child(uid).child("device").child("past").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -369,17 +365,11 @@ public class MainActivity extends AppCompatActivity implements
                         total += distance;
                     }
 
-                    total = total * KM_TO_MILE;
-                    mDistance.setText(total + "mi");
+                    DecimalFormat decimalFormat = new DecimalFormat("##.##");
+                    String totalDistance = decimalFormat.format(total);
 
-                    /*
-                    if (units.equals("Imperial")){
-                        total = total * KM_TO_MILE;
-                        mDistance.setText(total + " mi");
-                    } else {
-                        mDistance.setText(total + " km");
-                    }
-                    */
+                    mDistance.setText(totalDistance);
+
                 } catch (NullPointerException e){
                     mDistance.setText("N/A");
                 } catch (DatabaseException e){

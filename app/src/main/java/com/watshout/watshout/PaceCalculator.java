@@ -5,156 +5,58 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 public class PaceCalculator {
 
-    private double rawMetricDistance;
+    private double distance;
     private int min;
     private int sec;
 
-    private String metricPace;
-    private String metricDistance;
 
-    private String imperialPace;
-    private String imperialDistance;
-
-    private String units;
-
-    PaceCalculator(double rawMetricDistance, int min, int sec, Context context) {
-        this.rawMetricDistance = rawMetricDistance;
+    PaceCalculator(double distance, int min, int sec) {
+        this.distance = round(distance, 2);
         this.min = min;
         this.sec = sec;
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        //String units = settings.getString("Units", "Metric");
-        String units = "Imperial";
-
-        this.units = units;
-
-        calculateValues();
     }
 
-    public String getImperialPace() {
-        return imperialPace;
+    public double getDistance() {
+        return distance;
     }
 
-    public String getImperialDistance() {
-        return imperialDistance;
-    }
-
-    public String getPaceUnits() {
-
-        if (units.equals("Metric")){
-            return "mi/km";
-        } else {
-            return "mi/m";
-        }
-
-    }
-
-    public String getDistanceUnits() {
-
-        if (units.equals("Metric")){
-            return "km";
-        } else {
-            return "m";
-        }
-
-    }
-
-    public String getDistance() {
-
-        if (units.equals("Metric")){
-            return this.metricDistance;
-        } else {
-            return this.imperialDistance;
-        }
+    public int getTotalSeconds() {
+        return (min * 60) + sec;
     }
 
     public String getPace() {
+        int totalSeconds = getTotalSeconds();
 
-        if (units.equals("Metric")){
-            return this.metricPace;
+        if (distance > 0.05) {
+            double rawMetricPace = totalSeconds / distance;
+
+            int imperialMinutePace = (int) (rawMetricPace / 60);
+            int imperialSecondPace = (int) (rawMetricPace - imperialMinutePace * 60);
+
+            DecimalFormat df = new DecimalFormat("##");
+            String minutes = df.format(imperialMinutePace);
+            String seconds = df.format(imperialSecondPace);
+
+            return minutes + ":" + seconds;
+
         } else {
-            return this.imperialPace;
-        }
-    }
-
-    public int getTotalSeconds() {return (min * 60) + sec;}
-
-    public String getMetricPace(){
-        return metricPace;
-    }
-
-    public String getMetricDistance() {
-        return metricDistance;
-    }
-
-    private void calculateMetricValues(){
-        DecimalFormat decimalFormat = new DecimalFormat(".#");
-        String metricDistanceString = decimalFormat.format(rawMetricDistance);
-
-        int totalSeconds = (min * 60) + sec;
-
-        // Perform metric calculations first, those are getting uploaded to Firebase either way
-        double rawMetricPace = totalSeconds / rawMetricDistance;
-
-        int metricMinutePace = (int) (rawMetricPace / 60);
-        int metricSecondPace = (int) (rawMetricPace - metricMinutePace * 60);
-
-        if (rawMetricDistance <= 0.05){
-            this.metricDistance = "0.0";
-            this.metricPace = "0:00";
-        } else {
-            String metricMinuteString = String.format("%02d", metricMinutePace);
-            String metricSecondString = String.format("%02d", metricSecondPace);
-
-            this.metricPace = metricMinuteString + ":" + metricSecondString;
-            this.metricDistance = metricDistanceString;
+            return "0:00";
         }
 
-        Log.d("PaceCalculator", "Raw metric distance: " + rawMetricDistance +
-            "\nMetric distance: " + metricDistance + "\nMetric pace: " + metricPace);
-
     }
 
-    private void calculateImperialValues() {
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
 
-        double KM_TO_MILE = 0.621371;
-        double rawImperialDistance = rawMetricDistance * KM_TO_MILE;
-        DecimalFormat decimalFormat = new DecimalFormat(".#");
-        String imperialDistanceString = decimalFormat.format(rawImperialDistance);
-
-        int totalSeconds = (min * 60) + sec;
-
-        // Perform metric calculations first, those are getting uploaded to Firebase either way
-        double rawMetricPace = totalSeconds / rawImperialDistance;
-
-        int imperialMinutePace = (int) (rawMetricPace / 60);
-        int imperialSecondPace = (int) (rawMetricPace - imperialMinutePace * 60);
-
-        // Using metric here to stay consistent with calculateMetricValues()
-        if (rawMetricDistance <= 0.05) {
-            this.imperialDistance = "0.0";
-            this.imperialPace = "0:00";
-        } else {
-            String metricMinuteString = String.format("%02d", imperialMinutePace);
-            String metricSecondString = String.format("%02d", imperialSecondPace);
-
-            this.metricPace = metricMinuteString + ":" + metricSecondString;
-            this.metricDistance = imperialDistanceString;
-        }
-
-        Log.d("PaceCalculator", "Raw imperial distance: " + rawMetricDistance +
-                "\nImperial distance: " + metricDistance + "\nImperial pace: " + metricPace);
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
-
-    private void calculateValues() {
-
-        calculateMetricValues();
-        calculateImperialValues();
-
-    }
-
 }

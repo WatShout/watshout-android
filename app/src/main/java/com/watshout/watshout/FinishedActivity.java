@@ -145,15 +145,14 @@ public class FinishedActivity extends AppCompatActivity{
 
         time.setText(formattedMin + ":" + formattedSec);
 
-        final double rawMetricDistance = findDistanceFromGpx(getIntent().getStringExtra("GPX_NAME"));
-        final double rawImperialDistance = rawMetricDistance * KM_TO_MILE;
+        final double rawDistance = Double.valueOf(getIntent().getStringExtra("DISTANCE"));
 
         // Making this imperial for now
         //final PaceCalculator pc = new PaceCalculator(rawMetricDistance, min, sec, this);
-        final PaceCalculator pc = new PaceCalculator(rawImperialDistance, min, sec, this);
+        final PaceCalculator pc = new PaceCalculator(rawDistance, min, sec);
 
-        distance.setText(pc.getDistance() + pc.getDistanceUnits());
-        pace.setText(pc.getPace() + pc.getPaceUnits());
+        distance.setText(pc.getDistance() + "");
+        pace.setText(pc.getPace() + "");
 
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
@@ -212,24 +211,17 @@ public class FinishedActivity extends AppCompatActivity{
                 // If user checked box, then upload to Strava
                 //wantsToUploadStrava = stravaCheckBox.isChecked();
 
-                try {
+                UploadToDatabase uploadToDatabase = new UploadToDatabase(uid,
+                        pc.getDistance() + "",
+                        pc.getPace(),
+                        pc.getTotalSeconds(),
+                        uploadMapURL);
 
-                    UploadToDatabase uploadToDatabase = new UploadToDatabase(uid,
-                            pc.getImperialDistance(),
-                            pc.getImperialPace(),
-                            pc.getTotalSeconds(),
-                            uploadMapURL);
+                uploadToDatabase.moveCurrentToPast(date);
 
-                    uploadToDatabase.moveCurrentToPast(date);
-
-                    // Upload GPX to Firebase Storage
-                    XMLCreator.uploadToFirebaseStorage(date, wantsToUploadStrava);
-                    XMLCreator.resetXML();
-
-
-                } catch (IOException e){
-                    e.printStackTrace();
-                }
+                // Upload GPX to Firebase Storage
+                //XMLCreator.uploadToFirebaseStorage(date, wantsToUploadStrava);
+                //XMLCreator.resetXML();
 
                 progressDialog.dismiss();
 
