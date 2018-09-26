@@ -558,7 +558,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             Seconds = (int) (UpdateTime / 1000);
 
-            Log.d("SECONDS", Seconds + "");
+            //Log.d("SECONDS", Seconds + "");
 
             Hours = Seconds / 3600;
 
