@@ -1,8 +1,10 @@
 package com.watshout.watshout;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -228,7 +230,8 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 break;
 
             case "Privacy policy":
-                settingsFunctions.privacyPolicy();
+                Intent privacyIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.watshout.com/privacy"));
+                context.startActivity(privacyIntent);
                 break;
 
             case "License":
@@ -236,7 +239,9 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 break;
 
             case "Terms of use":
-                settingsFunctions.termsOfUse();
+                Intent termIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.watshout.com/terms"));
+                context.startActivity(termIntent);
+                //settingsFunctions.termsOfUse();
                 break;
 
             case "Message presets":

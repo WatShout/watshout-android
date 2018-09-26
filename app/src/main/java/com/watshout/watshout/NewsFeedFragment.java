@@ -39,6 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,12 @@ public class NewsFeedFragment extends android.app.Fragment implements SwipeRefre
             public void onResponse(Call<NewsFeedList> call, retrofit2.Response<NewsFeedList> response) {
 
                 List<Activity> newsFeedList = response.body().getActivities();
+
+                Collections.sort(newsFeedList);
+
+                for (Activity i : newsFeedList) {
+                    Log.d("Activity", i.getTime()+ "");
+                }
 
                 adapter = new NewsFeedAdapter(newsFeedList, getActivity(), false);
                 recyclerView.setAdapter(adapter);

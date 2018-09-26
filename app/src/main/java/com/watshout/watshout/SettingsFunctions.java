@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
@@ -162,8 +163,8 @@ public class SettingsFunctions {
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Lol you're out of luck", Toast.LENGTH_SHORT)
-                        .show();
+                //Toast.makeText(context, "Lol you're out of luck", Toast.LENGTH_SHORT)
+                 //       .show();
             }
         });
 
@@ -175,8 +176,8 @@ public class SettingsFunctions {
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Who actually reads this?", Toast.LENGTH_SHORT)
-                        .show();
+                //Toast.makeText(context, "Who actually reads this?", Toast.LENGTH_SHORT)
+                 //       .show();
             }
         });
 
@@ -188,8 +189,8 @@ public class SettingsFunctions {
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Are you the CIA?", Toast.LENGTH_SHORT)
-                        .show();
+                //Toast.makeText(context, "Are you the CIA?", Toast.LENGTH_SHORT)
+                 //       .show();
             }
         });
 
@@ -201,8 +202,9 @@ public class SettingsFunctions {
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Please go outside", Toast.LENGTH_SHORT)
-                        .show();
+                //Toast.makeText(context, "Please go outside", Toast.LENGTH_SHORT)
+                 //       .show();
+
             }
         });
 

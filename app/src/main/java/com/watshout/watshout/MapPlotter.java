@@ -59,6 +59,9 @@ public class MapPlotter {
     private Context context;
     private Bitmap currentIcon;
     private boolean initial = true;
+    Polyline bigPolyLine;
+
+    private int plotCounter = 0;
 
 
     MapPlotter(ArrayList<Marker> markers, GoogleMap googleMap, boolean isSelf, String uid,
@@ -151,87 +154,109 @@ public class MapPlotter {
         LatLng currentLocation = new LatLng(lat, lon);
         LatLng previousLocation;
 
-        // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
-        Marker newMarker = googleMap.addMarker(new MarkerOptions()
-                .position(currentLocation));
+        if (plotCounter % 5 == 0) {
+            // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
+            Marker newMarker = googleMap.addMarker(new MarkerOptions()
+                    .position(currentLocation));
 
 
-        if (markers.size() == 0) {
-            previousLocation = currentLocation;
+            if (markers.size() == 0) {
+                previousLocation = currentLocation;
+            } else {
+                previousLocation = markers.get(markers.size() - 1).getPosition();
+                markers.get(markers.size() - 1).setIcon(null);
+                markers.get(markers.size() - 1).setVisible(false);
+            }
+
+            markers.add(newMarker);
+
+            if (markers.size() > 0) {
+
+                polylines.add(googleMap.addPolyline(new PolylineOptions()
+                        .add(previousLocation, currentLocation)
+                        .width(10)));
+
+            }
+            plotCounter = 0;
         } else {
-            previousLocation = markers.get(markers.size() - 1).getPosition();
-            markers.get(markers.size() - 1).setIcon(null);
-            markers.get(markers.size() - 1).setVisible(false);
+            plotCounter++;
         }
 
-        markers.add(newMarker);
 
-        if (markers.size() > 0) {
 
-            polylines.add(googleMap.addPolyline(new PolylineOptions()
-                    .add(previousLocation, currentLocation)
-                    .width(10)));
+    }
 
+    public void massPlot(ArrayList<LatLng> points) {
+        PolylineOptions options = new PolylineOptions().color(Color.RED)
+                .jointType(2)
+                .width(10);
+        for (int z = 0; z < points.size(); z++) {
+            LatLng point = points.get(z);
+            options.add(point);
         }
-
+        bigPolyLine = googleMap.addPolyline(options);
     }
 
     public void addMarker(double lat, double lon){
 
-        LatLng currentLocation = new LatLng(lat, lon);
-        LatLng previousLocation;
+        if (plotCounter % 5 == 0) {
 
-        // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
-        Marker newMarker = googleMap.addMarker(new MarkerOptions()
-                .position(currentLocation)
-                .icon(null));
+            LatLng currentLocation = new LatLng(lat, lon);
+            LatLng previousLocation;
 
-        newMarker.setVisible(false);
+            // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
+            Marker newMarker = googleMap.addMarker(new MarkerOptions()
+                    .position(currentLocation)
+                    .icon(null));
 
-        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
+            newMarker.setVisible(false);
 
-                moveCamera(19);
-                isMapFollowing = true;
+            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
 
-                return false;
+                    moveCamera(19);
+                    isMapFollowing = true;
+
+                    return false;
+                }
+            });
+
+            if (isMapFollowing){
+                googleMap.moveCamera(CameraUpdateFactory
+                        .newLatLngZoom(currentLocation, 19));
             }
-        });
 
-        if (isMapFollowing){
-            googleMap.moveCamera(CameraUpdateFactory
-                    .newLatLngZoom(currentLocation, 19));
-        }
+            if (markers.size() == 0) {
+                previousLocation = currentLocation;
+            } else {
+                previousLocation = markers.get(markers.size() - 1).getPosition();
+                markers.get(markers.size() - 1).setVisible(false);
+            }
 
-        if (markers.size() == 0) {
-            previousLocation = currentLocation;
+            markers.add(newMarker);
+
+            for (Marker i : markers) {
+                Log.d("PLOT", i.getPosition().latitude + ", " + i.getPosition().longitude);
+            }
+
+
+            if (com.watshout.watshout.MapFragment.currentlyTrackingLocation){
+
+                if (markers.size() > 0) {
+                    System.out.println("POLYLINE IN");
+                    polylines.add(googleMap.addPolyline(new PolylineOptions()
+                            .add(previousLocation, currentLocation)
+                            .color(Color.RED)
+                            .jointType(2)
+                            .width(10)));
+
+                }
+
+            }
+            plotCounter = 0;
         } else {
-            previousLocation = markers.get(markers.size() - 1).getPosition();
-            markers.get(markers.size() - 1).setVisible(false);
-        }
-
-        markers.add(newMarker);
-
-        for (Marker i : markers) {
-
-            Log.d("PLOT", i.getPosition().latitude + ", " + i.getPosition().longitude);
-
-        }
-
-
-        if (com.watshout.watshout.MapFragment.currentlyTrackingLocation){
-
-            if (markers.size() > 0) {
-                System.out.println("POLYLINE IN");
-                polylines.add(googleMap.addPolyline(new PolylineOptions()
-                        .add(previousLocation, currentLocation)
-                        .color(Color.RED)
-                        .jointType(2)
-                        .width(10)));
-
-            }
-
+            plotCounter++;
         }
 
     }
