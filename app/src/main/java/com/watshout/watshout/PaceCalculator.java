@@ -35,6 +35,14 @@ public class PaceCalculator {
         calculateValues();
     }
 
+    public String getImperialPace() {
+        return imperialPace;
+    }
+
+    public String getImperialDistance() {
+        return imperialDistance;
+    }
+
     public String getPaceUnits() {
 
         if (units.equals("Metric")){

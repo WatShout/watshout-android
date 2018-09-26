@@ -215,8 +215,8 @@ public class FinishedActivity extends AppCompatActivity{
                 try {
 
                     UploadToDatabase uploadToDatabase = new UploadToDatabase(uid,
-                            pc.getMetricDistance(),
-                            pc.getMetricPace(),
+                            pc.getImperialDistance(),
+                            pc.getImperialPace(),
                             pc.getTotalSeconds(),
                             uploadMapURL);
 

@@ -1,9 +1,11 @@
 package com.watshout.watshout.pojo;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Activity {
+public class Activity implements Comparable<Activity> {
 
     @SerializedName("uid")
     @Expose
@@ -149,4 +151,14 @@ public class Activity {
         this.weatherId = weatherId;
     }
 
+    @Override
+    public int compareTo(@NonNull Activity o) {
+        if (this.getTime() > o.getTime()) {
+            return -1;
+        } else if (this.getTime().equals(o.getTime())) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
 }

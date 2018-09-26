@@ -74,6 +74,8 @@ public class FusedLocation  {
 
     GoogleMap googleMap;
 
+    private static final double MS_TO_MM = 26.8224;
+
     private final static String TAG = "FusedLocation";
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid,
@@ -122,6 +124,16 @@ public class FusedLocation  {
 
     // master
 
+    private String parsePace(double minuteMilePace) {
+
+        double minutes = Math.floor(minuteMilePace);
+
+        double seconds = Math.floor((minuteMilePace - minutes) * 60);
+
+        return (int) minutes + ":" + (int) seconds;
+
+    }
+
     public LocationCallback buildLocationCallback() {
 
         LocationCallback locationCallback = new LocationCallback() {
@@ -149,7 +161,7 @@ public class FusedLocation  {
                 LatLng now = new LatLng(lat, lon);
                 //googleMap.moveCamera(CameraUpdateFactory.newLatLng(now));
 
-                speedTextDialog.setText(metersPerSecondToMinutesPerKilometer(speed, false));
+                speedTextDialog.setText(parsePace(speed / MS_TO_MM));
 
                 Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
                         + "\nAccuracy: " + accuracy);
@@ -274,9 +286,9 @@ public class FusedLocation  {
 
         LocationRequest locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(1000)
-                .setFastestInterval(1000)
-                .setSmallestDisplacement(0);
+                .setInterval(4000)
+                .setFastestInterval(4000)
+                .setSmallestDisplacement(5);
 
         return locationRequest;
 

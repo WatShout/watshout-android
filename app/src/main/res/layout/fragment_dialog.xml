@@ -41,7 +41,7 @@
         android:fontFamily="@font/d_din"
         android:text="0"
         android:textColor="@color/colorPrimary"
-        android:textSize="20dp" />
+        android:textSize="0dp" />
 
     <TextView
         android:id="@+id/speedTextDialog"
@@ -74,7 +74,7 @@
         android:layout_below="@+id/distanceDialog"
         android:layout_marginTop="-171dp"
         android:fontFamily="@font/d_din"
-        android:text="METERS"
+        android:text="MILES"
         android:textColor="@color/colorPrimary"
         android:textSize="20dp" />
 

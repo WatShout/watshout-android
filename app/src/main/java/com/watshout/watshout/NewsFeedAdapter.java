@@ -71,7 +71,6 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
 
         final Activity newsFeedItem = listItems.get(position);
-
         holder.mName.setText(newsFeedItem.getName());
 
         Long time = newsFeedItem.getTime();
@@ -80,13 +79,19 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
 
         Picasso.get()
                 .load(newsFeedItem.getProfilePicUrl())
-                .resize(64, 64)
+                .resize(128, 128)
                 .transform(new CircleTransform())
                 .placeholder(R.drawable.news_feed_loading)
                 .into(holder.mProfilePic);
 
         holder.mTime.setText(formattedTime);
-        holder.mActivityName.setText(newsFeedItem.getEventName());
+
+        if (newsFeedItem.getEventName() == null) {
+            holder.mActivityName.setText("Run");
+        } else {
+            holder.mActivityName.setText(newsFeedItem.getEventName());
+        }
+
         holder.mActivityDistance.setText(newsFeedItem.getDistance());
 
         Log.d("NFA", newsFeedItem.getTempCelsius() + ", " +

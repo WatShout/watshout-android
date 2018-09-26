@@ -457,28 +457,30 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
 
-                ref.child("users").child(uid).child("device").child("current")
-                        .removeValue();
+                if (preferences.getBoolean("currentlyTracking", false)) {
 
-                fusedLocation.resetLatLng();
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                } else {
+                    ref.child("users").child(uid).child("device").child("current")
+                            .removeValue();
 
-                sendActivityNotification();
+                    fusedLocation.resetLatLng();
+                    mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
-                ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-                actionBar.setDisplayHomeAsUpEnabled(false);
-                actionBar.setHomeButtonEnabled(false);
+                    sendActivityNotification();
 
-                Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
-                        R.anim.fui_slide_in_right);
-                ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
-                hiddenPanel.startAnimation(bottomUp);
-                hiddenPanel.setVisibility(View.VISIBLE);
+                    ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+                    actionBar.setDisplayHomeAsUpEnabled(false);
+                    actionBar.setHomeButtonEnabled(false);
 
-                popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
-                startClick();
+                    Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
+                            R.anim.fui_slide_in_right);
+                    ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+                    hiddenPanel.startAnimation(bottomUp);
+                    hiddenPanel.setVisibility(View.VISIBLE);
 
-
+                    popUp.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 0, 0);
+                    startClick();
+                }
             }
         });
 
@@ -874,15 +876,23 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 for (DataSnapshot coords : dataSnapshot.getChildren()) {
+
                     //System.out.println("COORD:" + coords.child("lat"));
                     double theLat = Double.parseDouble(coords.child("lat").getValue().toString());
                     double theLon = Double.parseDouble(coords.child("lon").getValue().toString());
-                    // if(preLat!=null) {
+
+                    //ArrayList<LatLng> latlns = new ArrayList<>();
+                    //latlns.add(new LatLng(theLat, theLon));
+
+                    //mapPlotter.massPlot(latlns);
+
+                    if(preLat!=null) {
                     preLat.add(theLat);
                     preLon.add(theLon);
-                    // }
+                     }
                     System.out.println("@#@:" + preLon);
                     System.out.println("(LATTT" + theLat + ", " + theLon + ")");
+
                     mapPlotter.addMarker(theLat, theLon);
 
                     Log.d("COORDS", theLat + ", " + theLon);
