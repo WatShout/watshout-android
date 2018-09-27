@@ -99,7 +99,7 @@ public class CalendarFragment extends android.app.Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        getActivity().setTitle("calendar");
+        getActivity().setTitle("History");
 
         mCalendarView = view.findViewById(R.id.calendarView);
         mCalendarView.setOnDayClickListener(listener);

@@ -36,7 +36,7 @@ public class SettingsFragment extends android.app.Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getActivity().setTitle("settings");
+        getActivity().setTitle("Settings");
 
         List<ParentItem> itemList = new ArrayList<ParentItem>();
 

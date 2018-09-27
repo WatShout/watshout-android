@@ -24,10 +24,9 @@
             android:id="@+id/pace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_below="@+id/distLabel"
-            android:layout_marginEnd="14dp"
-            android:text="08:35min/mi"
+            android:layout_toEndOf="@+id/uploadGpx"
+            android:text="08:35"
             android:textColor="#000000"
             android:textSize="20dp" />
 
@@ -60,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/distLabel"
             android:layout_alignTop="@+id/pace"
-            android:text="4.2mi"
+            android:text="4.25"
             android:textColor="#000000"
             android:textSize="20dp" />
 
@@ -95,8 +94,9 @@
             android:id="@+id/timeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/shrinker"
+            android:layout_marginStart="160dp"
             android:fontFamily="@font/d_din"
             android:text="TIME"
             android:textColor="#000000" />
@@ -105,8 +105,8 @@
             android:id="@+id/paceLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/pace"
             android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/uploadGpx"
             android:fontFamily="@font/d_din"
             android:text="PACE"
             android:textColor="#000000" />
@@ -131,6 +131,26 @@
             android:text="STATISTICS"
             android:textColor="#000"
             android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/textView18"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/distance"
+            android:layout_below="@+id/pace"
+            android:text="Miles"
+            android:textColor="#000"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/textView19"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/pace"
+            android:layout_below="@+id/pace"
+            android:text="minute/mile"
+            android:textColor="#000"
+            android:textSize="10sp" />
     </RelativeLayout>
 
     <android.support.v7.widget.Toolbar

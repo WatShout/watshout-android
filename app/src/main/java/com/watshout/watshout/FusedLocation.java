@@ -102,8 +102,8 @@ public class FusedLocation  {
         out = false;
         this.googleMap = googleMap;
 
-        prevLat = Double.valueOf(settings.getString("last_latitude", ""));
-        prevLon = Double.valueOf(settings.getString("last_longitude", ""));
+        prevLat = Double.valueOf(settings.getString("last_latitude", "37.4419"));
+        prevLon = Double.valueOf(settings.getString("last_longitude", "-122.1430"));
 
         Random random = new Random();
         this.name = random.nextInt(100000);

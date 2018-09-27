@@ -84,7 +84,7 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
 
         setHasOptionsMenu(true);
 
-        getActivity().setTitle("friends");
+        getActivity().setTitle("Friends");
 
         mFriendRecyclerView = view.findViewById(R.id.friendRecyclerView);
         mFriendRecyclerView.setHasFixedSize(true);
@@ -117,36 +117,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             }
         });
 
-        ref.child("friend_requests").child(uid).orderByChild("request_type")
-                .equalTo("received")
-                .addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        globalMenu.clear();
-                        globalInflater.inflate(R.menu.friend_menu_requests, globalMenu);
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        globalMenu.clear();
-                        globalInflater.inflate(R.menu.friend_menu_no_requests, globalMenu);
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
 
         // This is a very hacky solution. Essentially this makes sure refreshData()
         // only loads ONCE.
@@ -179,39 +149,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             public void onCancelled(DatabaseError databaseError) {}
         });
 
-        ref.child("friend_requests").child(uid).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                if (initialDataLoaded[0]){
-                    refreshData();
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                if (initialDataLoaded[0]){
-
-                    try {
-                        refreshData();
-                    } catch (NullPointerException e){
-                        e.printStackTrace();
-                        Toast.makeText(getActivity(), "Error retrieving friends", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
 
         ref.child("friend_data").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -225,32 +162,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
             }
         });
 
-    }
-
-    public void getFriendRequests(final RecyclerView popUpRecyclerView){
-
-        mSwipeRefreshLayout.setRefreshing(true);
-
-        Call<FriendRequestList> call = retrofitInterface.getFriendRequestList(uid);
-
-        call.enqueue(new Callback<FriendRequestList>() {
-            @Override
-            public void onResponse(Call<FriendRequestList> call, retrofit2.Response<FriendRequestList> response) {
-
-                List<FriendRequest> friendRequestList = response.body().getFriendRequests();
-                RecyclerView.Adapter adapter =
-                        new FriendRequestAdapter(friendRequestList, getActivity());
-
-                popUpRecyclerView.setAdapter(adapter);
-                mSwipeRefreshLayout.setRefreshing(false);
-
-            }
-
-            @Override
-            public void onFailure(Call<FriendRequestList> call, Throwable t) {
-
-            }
-        });
     }
 
     public void getFriendsList() {
@@ -298,187 +209,6 @@ public class FriendFragment extends android.app.Fragment implements SwipeRefresh
         getFriendsList();
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        this.globalMenu = menu;
-        this.globalInflater = inflater;
-        menu.clear();
 
-        inflater.inflate(R.menu.friend_menu_no_requests, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        switch (id) {
-
-            case R.id.open_requests:
-
-                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popupView = inflater.inflate(R.layout.popup_friend_request, null);
-                // create the popup window
-                int width = LinearLayout.LayoutParams.MATCH_PARENT;
-                int height = LinearLayout.LayoutParams.MATCH_PARENT;
-                boolean focusable = true; // lets taps outside the popup also dismiss it
-
-                PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-                popupWindow.setAnimationStyle(R.style.popup_window_animation);
-                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-
-                popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-
-                    globalMenu.clear();
-                    globalInflater.inflate(R.menu.friend_menu_no_requests, globalMenu);
-
-                    }
-                });
-
-                RelativeLayout relativeLayout = popupView.findViewById(R.id.request_relative_layout);
-
-                relativeLayout.setAlpha(1F);
-
-                RecyclerView mRequestRecyclerView = popupView.findViewById(R.id.friendRequestView);
-                mRequestRecyclerView.setHasFixedSize(true);
-                mRequestRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-                getFriendRequests(mRequestRecyclerView);
-
-                break;
-
-            case R.id.send_request:
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                AlertDialog dialog;
-                builder.setTitle("Search Friend by Email");
-
-                // Set up the input
-                final EditText input = new EditText(getActivity());
-                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-                builder.setView(input);
-
-                // Set up the buttons
-                builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        // Spinning dialog when adding friend
-                        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
-                        progressDialog.setMessage("Adding friend...");
-
-                        sendRequest(input.getText().toString(), progressDialog);
-
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                dialog = builder.create();
-                dialog.getWindow()
-                        .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                builder.show();
-
-                break;
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void sendRequest(String theirEmail, final ProgressDialog progressDialog) {
-
-        progressDialog.show();
-
-        ref.child("users").orderByChild("email").equalTo(theirEmail)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        if (dataSnapshot.getValue() != null){
-
-                            for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-
-                                final String theirUID = childSnapshot.getKey();
-
-                                ref.child("friend_data").child(uid).child(theirUID)
-                                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                                if (dataSnapshot.getValue() != null){
-
-                                                    Toast.makeText(getActivity(),
-                                                            "You are already friends with this user",
-                                                            Toast.LENGTH_SHORT).show();
-
-                                                } else {
-
-                                                    firebaseFriendRequest(theirUID);
-
-                                                    Call<FriendRequestResponse> call =
-                                                            retrofitInterface.sendFriendNotification(uid, theirUID);
-
-                                                    call.enqueue(new Callback<FriendRequestResponse>() {
-                                                        @Override
-                                                        public void onResponse(Call<FriendRequestResponse> call, retrofit2.Response<FriendRequestResponse> response) {
-
-                                                        }
-
-                                                        @Override
-                                                        public void onFailure(Call<FriendRequestResponse> call, Throwable t) {
-
-                                                        }
-                                                    });
-
-
-                                                }
-                                                progressDialog.dismiss();
-
-
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
-
-                            }
-
-
-
-                        } else {
-
-                            Toast.makeText(getActivity(), "User not found",
-                                    Toast.LENGTH_SHORT).show();
-                            progressDialog.dismiss();
-
-                        }
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.d("EMAIL", databaseError.toString());
-                        progressDialog.dismiss();
-                    }
-                });
-
-
-    }
-
-    public void firebaseFriendRequest(String theirUID){
-        ref.child("friend_requests").child(uid).child(theirUID)
-                .child("request_type").setValue("sent");
-
-        ref.child("friend_requests").child(theirUID).child(uid)
-                .child("request_type").setValue("received");
-    }
 
 }

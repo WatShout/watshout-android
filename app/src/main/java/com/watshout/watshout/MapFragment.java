@@ -279,7 +279,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = preferences.edit();
 
-        getActivity().setTitle("map");
+        getActivity().setTitle("Map");
 
         Bundle bundle = getArguments();
         String type;
