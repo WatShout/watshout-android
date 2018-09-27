@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -76,6 +77,8 @@ public class CalendarFragment extends android.app.Fragment {
 
     private RecyclerView mRecycleView;
     private RecyclerView.Adapter adapter;
+
+    private TextView mGoBack;
 
     RetrofitInterface retrofitInterface = RetrofitClient
             .getRetrofitInstance().create(RetrofitInterface.class);
@@ -173,12 +176,23 @@ public class CalendarFragment extends android.app.Fragment {
                 mRecycleView.setHasFixedSize(true);
                 mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+                mGoBack = popupView.findViewById(R.id.goBack);
+
                 adapter = new NewsFeedAdapter(listItems, getActivity(), true);
                 mRecycleView.setAdapter(adapter);
 
                 PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
                 popupWindow.setAnimationStyle(R.style.popup_window_animation);
                 popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+
+                mGoBack.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        popupWindow.dismiss();
+
+                    }
+                });
 
             } catch (NullPointerException e){ }
         }

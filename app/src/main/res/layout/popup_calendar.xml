@@ -1,13 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/calendar_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark">
+
+        <TextView
+            android:id="@+id/goBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp"
+            android:text="Back"
+            android:textColor="@color/primaryColor"
+            android:textSize="20dp" />
+
+    </RelativeLayout>
+
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/calendarRecycle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#000000" />
+        android:layout_height="522dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/colorPrimaryDark">
 
-</LinearLayout>
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>

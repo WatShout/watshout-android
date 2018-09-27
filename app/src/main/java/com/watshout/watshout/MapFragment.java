@@ -161,6 +161,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     long timeGap;
     boolean hasStrava;
 
+    boolean fabShowsData;
     DrawerLayout mDrawerLayout;
     FloatingActionButton mCenter;
 
@@ -528,6 +529,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setHomeButtonEnabled(false);
+
+            fabDialog.setImageResource(R.drawable.data);
+            fabShowsData = true;
 
             currentlyTrackingLocation = true;
             int resource = R.drawable.round_pause_button;

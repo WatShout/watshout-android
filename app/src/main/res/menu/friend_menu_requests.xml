@@ -15,4 +15,11 @@
         android:icon="@drawable/person_add"
         />
 
+    <item
+        android:id="@+id/icon"
+        android:title=""
+        app:showAsAction="always"
+        android:icon="@drawable/large_no_word"
+        />
+
 </menu>

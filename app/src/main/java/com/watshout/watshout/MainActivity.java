@@ -1,6 +1,7 @@
 package com.watshout.watshout;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -505,13 +506,25 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("TEST", "Item select");
         switch (item.getItemId()) {
             case android.R.id.home:
+                Log.d("TESTTTT", "hi");
                 mDrawerLayout.openDrawer(GravityCompat.START);
-                return true;
+                return super.onOptionsItemSelected(item);
+            case R.id.icon:
+                navigationView.getMenu().getItem(0).setChecked(true);
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, new MapFragment())
+                        .commit();
+                return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -519,6 +532,7 @@ public class MainActivity extends AppCompatActivity implements
         inflater.inflate(R.menu.image_toolbar, menu);
         return true;
     }
+
 
     private void disableNavigationViewScrollbars(NavigationView navigationView) {
         if (navigationView != null) {

@@ -50,7 +50,7 @@
             android:layout_marginBottom="18dp"
             android:background="@drawable/button_corners_black"
             android:fontFamily="@font/d_din"
-            android:text="UPLOAD RUN"
+            android:text="SAVE RUN"
             android:textColor="@color/primaryColor"
             android:textSize="18dp" />
 
