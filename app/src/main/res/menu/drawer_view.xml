@@ -35,6 +35,11 @@
             android:title="Settings" />
 
         <item
+            android:id="@+id/nav_feedback"
+            android:icon="@drawable/feedback"
+            android:title="Send Feedback" />
+
+        <item
             android:id="@+id/nav_signout"
             android:icon="@drawable/logout"
             android:title="Sign out" />

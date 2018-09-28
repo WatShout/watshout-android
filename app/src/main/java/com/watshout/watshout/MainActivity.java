@@ -381,6 +381,11 @@ public class MainActivity extends AppCompatActivity implements
                         .commit();
                 break;
 
+            case R.id.nav_feedback:
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.watshout.com/feedback"));
+                startActivity(browserIntent);
+                break;
+
             case R.id.nav_friends:
 
                 getFragmentManager()
