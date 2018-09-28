@@ -11,10 +11,10 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/friendRequestView"
             android:layout_width="match_parent"
-            android:layout_height="518dp"
+            android:layout_height="494dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="49dp"
+            android:layout_marginTop="73dp"
             android:background="@color/colorPrimaryDark"></android.support.v7.widget.RecyclerView>
 
         <TextView
@@ -22,10 +22,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="43dp"
-            android:layout_marginTop="21dp"
+            android:layout_below="@+id/otherGoBack"
+            android:layout_marginStart="72dp"
             android:text="Friend Requests"
-            android:textColor="#fff" />
+            android:textColor="#fff"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/otherGoBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp"
+            android:text="Back"
+            android:textColor="@color/primaryColor"
+            android:textSize="16sp" />
 
 </RelativeLayout>

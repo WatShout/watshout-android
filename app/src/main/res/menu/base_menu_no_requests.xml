@@ -5,14 +5,7 @@
         android:id="@+id/open_requests"
         android:title=""
         app:showAsAction="always"
-        android:icon="@drawable/notifications_ref"
-        />
-
-    <item
-        android:id="@+id/send_request"
-        android:title=""
-        app:showAsAction="always"
-        android:icon="@drawable/person_add"
+        android:icon="@drawable/notifications"
         />
 
     <item
@@ -21,5 +14,4 @@
         app:showAsAction="always"
         android:icon="@drawable/large_no_word"
         />
-
 </menu>

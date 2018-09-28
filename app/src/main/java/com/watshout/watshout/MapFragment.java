@@ -80,7 +80,7 @@ import retrofit2.Callback;
 
 import static android.content.Context.SENSOR_SERVICE;
 
-public class MapFragment extends android.app.Fragment implements OnMapReadyCallback, SensorEventListener {
+public class MapFragment extends android.app.Fragment implements OnMapReadyCallback {
 
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -89,26 +89,15 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     ArrayList<Double> preLat;
     ArrayList<Double> preLon;
     FusedLocation fusedLocation;
-    String ans;
-
-    SensorManager sensorManager;
-
 
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
-    MapView mv;
 
     RetrofitInterface retrofitInterface = RetrofitClient
             .getRetrofitInstance().create(RetrofitInterface.class);
 
-    int totalSteps;
-
     PopupWindow popUp;
-    int x = 0;
 
-    //LayoutParams params;
-
-    // General database reference
     DatabaseReference ref = FirebaseDatabase
             .getInstance()
             .getReference();
@@ -175,7 +164,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     private boolean timeRunning = false;
 
-    String[] permissions = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION};
+    String[] permissions = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_FINE_LOCATION};
 
     // For permissions
     int permCode = 200;
@@ -281,16 +271,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         getActivity().setTitle("Map");
 
-        Bundle bundle = getArguments();
-        String type;
-        try {
-            type = String.valueOf(bundle.getString("type"));
-        } catch (NullPointerException e) {
-            type = "map";
-        }
-
-        sensorManager = (SensorManager) getActivity().getSystemService(SENSOR_SERVICE);
-
         ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -321,28 +301,12 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        //final View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
         final View popUpView = inflater.inflate(R.layout.fragment_dialog, null);
         builder.setView(popUpView);
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
 
-        //mCamera = popUpView.findViewById(R.id.cameraButton);
-        /*mCamera.setBackgroundResource(R.drawable.camera);
-        mCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                //startActivityForResult(cameraIntent, CAMERA);
 
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, CAMERA);
-
-
-            }
-        }); */
-
-        FloatingActionButton fabDialog = (FloatingActionButton) popUpView.findViewById(R.id.location);
+        FloatingActionButton fabDialog = popUpView.findViewById(R.id.location);
         fabDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -352,29 +316,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                 hiddenPanel.startAnimation(bottomUp);
                 bottomUp.setAnimationListener(new Animation.AnimationListener() {
-                    public void onAnimationStart(Animation anim) {
-
-                    }
-
-                    ;
-
-                    public void onAnimationRepeat(Animation anim) {
-                    }
-
-                    ;
-
+                    public void onAnimationStart(Animation anim) { }
+                    public void onAnimationRepeat(Animation anim) { }
                     public void onAnimationEnd(Animation anim) {
                         hiddenPanel.setVisibility(View.INVISIBLE);
                         popUp.dismiss();
                     }
-
-                    ;
                 });
-
             }
         });
 
-        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        floatingActionButton = view.findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -400,10 +352,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         popUpStop = popUpView.findViewById(R.id.stop);
         popUpStart = popUpView.findViewById(R.id.popUpStart);
 
-        if (type.equals("map")) {
-            mStart.setVisibility(View.INVISIBLE);
-        }
-
         mStop.setVisibility(View.INVISIBLE);
         popUpStop.setVisibility(View.INVISIBLE);
         popUpStop.setBackgroundResource(R.drawable.stop);
@@ -418,10 +366,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mStart.setBackgroundResource(R.drawable.round_play_button);
 
         isMapMoving = true;
-        mv = view.findViewById(R.id.map);
-        mv.onCreate(null);
-        mv.onResume();
-        mv.getMapAsync(this);
 
         mCenter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -475,7 +419,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                     Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                             R.anim.fui_slide_in_right);
-                    ViewGroup hiddenPanel = (ViewGroup)popUpView.findViewById(R.id.dialogLayout);
+                    ViewGroup hiddenPanel = (ViewGroup) popUpView.findViewById(R.id.dialogLayout);
                     hiddenPanel.startAnimation(bottomUp);
                     hiddenPanel.setVisibility(View.VISIBLE);
 
@@ -508,7 +452,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         });
 
-        Log.d("RESUME", Boolean.toString(preferences.getBoolean("currentlyTracking", false)));
         if (preferences.getBoolean("currentlyTracking", false)) {
 
             numSeconds = preferences.getInt("numSeconds", 0);
@@ -549,7 +492,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         } else {
             secondsAlready = 0;
         }
-
     }
 
     public Runnable runnable = new Runnable() {
@@ -559,34 +501,18 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             long addTime = timeGap + (numSeconds * 1000) + (numMinutes * 60000) + (numHours * 3600000);
 
             MillisecondTime = (SystemClock.uptimeMillis() - StartTime) + addTime;
-
             UpdateTime = TimeBuff + MillisecondTime;
-
             Seconds = (int) (UpdateTime / 1000);
-
-            //Log.d("SECONDS", Seconds + "");
-
             Hours = Seconds / 3600;
-
             Minutes = Seconds / 60;
-
             Seconds = Seconds % 60;
-
             MilliSeconds = (int) (UpdateTime % 1000);
-
-
             timerText.setText("0" + Hours + ":" + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds));
-
             handler.postDelayed(this, 0);
-
             counter++;
         }
-
     };
-
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -597,12 +523,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    // Permission enabled
-
                 } else {
-
                     checkLocationPermissions();
-
                 }
             }
         }
@@ -620,36 +542,12 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             ActivityCompat.requestPermissions(this.getActivity(),
                     permissions,
                     permCode);
-
         }
     }
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        System.out.println("value of event is: " + event.values[0] + " "
-                );
-
-       if(currentlyTrackingLocation) {
-
-           System.out.println("Total Steps: " + totalSteps);
-           stepsDialog.setText(String.valueOf((int) (event.values[0])) + " steps");
-
-        }
-
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-
 
     @Override
     public void onResume() {
         super.onResume();
-
-        Log.d("LIFECYCLE", "onResume");
-
-        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        sensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
-
     }
 
     public void startClick() {
@@ -680,9 +578,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-
                     dataSnapshot.getRef().removeValue();
-
                 }
 
                 @Override
@@ -810,26 +706,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         });
     }
 
-    @SuppressLint("NewApi")
-    private int getSoftButtonsBarHeight() {
-        // getRealMetrics is only available with API 17 and +
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            DisplayMetrics metrics = new DisplayMetrics();
-            getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-            int usableHeight = metrics.heightPixels;
-            getActivity().getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
-            int realHeight = metrics.heightPixels;
-            if (realHeight > usableHeight)
-                return realHeight - usableHeight;
-            else
-                return 0;
-        }
-        return 0;
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         Log.d("LIFECYCLE", "onDestroy");
 
         long closeTimeStamp = SystemClock.uptimeMillis();
@@ -846,20 +726,14 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         editor.putString("latestLat", lat + "");
         editor.putString("latestLon", lon + "");
-
-
-
         editor.putBoolean("currentlyTracking", activityRunning);
 
         if (activityRunning) {
             editor.putInt("numHours", Hours);
             editor.putInt("numSeconds", Seconds);
             editor.putInt("numMinutes", Minutes);
-            Log.d("TIMING", "Setting seconds: " + Seconds + "\nSettings minutes: " + Minutes);
         }
-
         editor.apply();
-
     }
 
     @Override
@@ -879,65 +753,25 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         FirebaseUser user = mAuth.getCurrentUser();
         DatabaseReference dfRef =  FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("device").child("current");
         dfRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 for (DataSnapshot coords : dataSnapshot.getChildren()) {
 
-                    //System.out.println("COORD:" + coords.child("lat"));
                     double theLat = Double.parseDouble(coords.child("lat").getValue().toString());
                     double theLon = Double.parseDouble(coords.child("lon").getValue().toString());
 
-                    //ArrayList<LatLng> latlns = new ArrayList<>();
-                    //latlns.add(new LatLng(theLat, theLon));
-
-                    //mapPlotter.massPlot(latlns);
-
-                    if(preLat!=null) {
-                    preLat.add(theLat);
-                    preLon.add(theLon);
-                     }
-                    System.out.println("@#@:" + preLon);
-                    System.out.println("(LATTT" + theLat + ", " + theLon + ")");
+                    if (preLat != null) {
+                        preLat.add(theLat);
+                        preLon.add(theLon);
+                    }
 
                     mapPlotter.addMarker(theLat, theLon);
-
-                    Log.d("COORDS", theLat + ", " + theLon);
                 }
             }
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println("ERROR-database");
-            }
+            public void onCancelled(DatabaseError databaseError) { }
         });
-
-        //if(preLat.size()!=0)
-        // return true;
-        //return false;
     }
-
-    public String getTime() {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        DatabaseReference dfRef =  FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("device").child("current");
-        dfRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                long temp = dataSnapshot.getChildrenCount();
-                for (DataSnapshot coords : dataSnapshot.getChildren()) {
-                    if(x == 0) {
-                        ans = coords.child("time").getValue().toString();
-                        x++;
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println("ERROR-database");
-            }
-        });
-        return ans;
-    }
-
-
 }
