@@ -208,6 +208,7 @@ public class CalendarFragment extends android.app.Fragment {
 
         final ProgressDialog progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage("Loading activities...");
+        progressDialog.setCancelable(false);
         progressDialog.show();
 
         Call<NewsFeedList> call = retrofitInterface.getHistory(uid);

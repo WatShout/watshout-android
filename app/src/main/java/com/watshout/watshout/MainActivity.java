@@ -177,8 +177,8 @@ public class MainActivity extends AppCompatActivity implements
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        globalMenu.clear();
-                        globalInflater.inflate(R.menu.base_menu_requests, globalMenu);
+                        //globalMenu.clear();
+                        //globalInflater.inflate(R.menu.base_menu_requests, globalMenu);
                     }
 
                     @Override
@@ -186,8 +186,8 @@ public class MainActivity extends AppCompatActivity implements
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        globalMenu.clear();
-                        globalInflater.inflate(R.menu.base_menu_no_requests, globalMenu);
+                        //globalMenu.clear();
+                        //globalInflater.inflate(R.menu.base_menu_no_requests, globalMenu);
                     }
 
                     @Override
@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements
                 if (dataSnapshot.exists()) {
 
                     for (DataSnapshot snapshotChild : dataSnapshot.getChildren()) {
-                        double distance = Double.valueOf(snapshotChild.child("distance").getValue(String.class));
+                        double distance = snapshotChild.child("distance").getValue(Double.class);
                         total += distance;
                     }
 
@@ -309,9 +309,6 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         MapFragment activityFragment = new MapFragment();
-        Bundle activityBundle = new Bundle();
-        activityBundle.putString("type", "activity");
-        activityFragment.setArguments(activityBundle);
 
         getFragmentManager()
                 .beginTransaction()
@@ -369,20 +366,6 @@ public class MainActivity extends AppCompatActivity implements
                         .replace(R.id.screen_area, activityFragment)
                         .commit();
                 break;
-
-            /*
-            case R.id.nav_map:
-                MapFragment mapFragment = new MapFragment();
-                Bundle mapBundle = new Bundle();
-                mapBundle.putString("type", "activity");
-                mapFragment.setArguments(mapBundle);
-
-                getFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.screen_area, mapFragment)
-                        .commit();
-
-                break;*/
 
             case R.id.nav_calendar:
                 getFragmentManager()
@@ -638,11 +621,13 @@ public class MainActivity extends AppCompatActivity implements
 
     public void displayInitialSplash() {
 
-        boolean initialRun = prefs.getBoolean("initialRun", true);
+        SharedPreferences thisPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        boolean initialRun = thisPrefs.getBoolean("initialRun", true);
 
         if (initialRun) {
 
-            prefs.edit().putBoolean("initialRun", false).apply();
+            thisPrefs.edit().putBoolean("initialRun", false).apply();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle("Thank you for trying Watshout!")

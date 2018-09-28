@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ import com.watshout.watshout.pojo.Friend;
 import com.watshout.watshout.pojo.FriendRequestResponse;
 import com.watshout.watshout.pojo.FriendsList;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -136,15 +138,30 @@ public class FriendFragment extends android.app.Fragment {
 
     public void getFriendsList() {
 
+        ProgressDialog pd = new ProgressDialog(getActivity());
+        pd.setMessage("Loading Friends...");
+        pd.setCancelable(false);
+        pd.show();
+
         Call<FriendsList> call = retrofitInterface.getFriendsList(uid);
 
         call.enqueue(new Callback<FriendsList>() {
             @Override
             public void onResponse(Call<FriendsList> call, retrofit2.Response<FriendsList> response) {
                 List<Friend> friendList = response.body().getFriends();
+
                 Collections.sort(friendList);
                 friendAdapter = new FriendAdapter(friendList, getActivity());
+
+                SwipeController swipeController = new SwipeController((ArrayList<Friend>) friendList,
+                        uid, getActivity(), friendAdapter, mFriendRecyclerView);
+
                 mFriendRecyclerView.setAdapter(friendAdapter);
+
+                ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+                itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
+
+                pd.dismiss();
             }
 
             @Override
@@ -157,7 +174,7 @@ public class FriendFragment extends android.app.Fragment {
         this.globalMenu = menu;
         this.globalInflater = inflater;
         menu.clear();
-        inflater.inflate(R.menu.base_menu_no_requests, menu);
+        inflater.inflate(R.menu.add_friend_menu, menu);
     }
 
     @Override

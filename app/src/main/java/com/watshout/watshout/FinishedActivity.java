@@ -157,10 +157,6 @@ public class FinishedActivity extends AppCompatActivity{
         // load GPX from carrier class
         final XMLCreator XMLCreator = Carrier.getXMLCreator();
 
-        // Get GPX file name from Intent
-        date = getIntent().getStringExtra("GPX_NAME");
-        date = date.substring(0, date.length() - 4);
-
         mShrinker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -208,29 +204,18 @@ public class FinishedActivity extends AppCompatActivity{
                 progressDialog.setMessage("Uploading run data...");
                 progressDialog.show();
 
-                // If user checked box, then upload to Strava
-                //wantsToUploadStrava = stravaCheckBox.isChecked();
 
-                UploadToDatabase uploadToDatabase = new UploadToDatabase(uid,
-                        pc.getDistance() + "",
-                        pc.getPace(),
-                        pc.getTotalSeconds(),
-                        uploadMapURL);
+                RunCompletionUploader rcu = new RunCompletionUploader(
+                        FinishedActivity.this, uid, pc.getDistance(),
+                        pc.getPace(), pc.getTotalSeconds(), uploadMapURL);
 
-                uploadToDatabase.moveCurrentToPast(date);
-
-                // Upload GPX to Firebase Storage
-                //XMLCreator.uploadToFirebaseStorage(date, wantsToUploadStrava);
-                //XMLCreator.resetXML();
+                rcu.createActivityOnServer();
 
                 progressDialog.dismiss();
 
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(FinishedActivity.this);
-                SharedPreferences.Editor editor = preferences.edit();
-
-                // Ethan
-                editor.putBoolean("currentlyTracking", false);
-                editor.apply();
+                SharedPreferences preferences = PreferenceManager
+                        .getDefaultSharedPreferences(FinishedActivity.this);
+                preferences.edit().putBoolean("currentlyTracking", false).apply();
 
                 // Redirect to MapFragment
                 Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
@@ -252,9 +237,7 @@ public class FinishedActivity extends AppCompatActivity{
                 editor.putBoolean("currentlyTracking", false);
                 editor.apply();
 
-                // Removes current from from 'current' entry
-                UploadToDatabase uploadToDatabase = new UploadToDatabase(uid);
-                uploadToDatabase.removeCurrentEntry();
+                removeCurrentEntry();
 
                 // Redirect to MapFragment
                 Intent openMain = new Intent(getApplicationContext(), MainActivity.class);
@@ -263,66 +246,16 @@ public class FinishedActivity extends AppCompatActivity{
                 finish();
             }
         });
-
     }
 
-    // Returns distance in MILES
-    public double findDistanceFromGpx(String fileName){
-
-        File path = this.getExternalFilesDir(null);
-        File file = new File(path, fileName);
-
-        BufferedReader reader;
-
-        final double COORD_TO_MILE = 69.172;
-        final double MILE_TO_KM = 1.60934;
-        double dist = 0;
-
-        try{
-            reader = new BufferedReader(new FileReader(file));
-
-            double lon = 0;
-            double lat = 0;
-            while (true){
-                String line = reader.readLine();
-                if (line==null) break;
-
-                if (line.contains("trkpt") && !line.contains("/trkpt")){
-                    int firstQuote = line.indexOf('"');
-                    int secondQuote = line.indexOf('"',firstQuote+1);
-                    int thirdQuote = line.indexOf('"',secondQuote+1);
-                    int fourthQuote = line.indexOf('"',thirdQuote+1);
-
-                    double newLon = Double.parseDouble(line.substring(firstQuote+1,secondQuote));
-                    double newLat = Double.parseDouble(line.substring(thirdQuote+1,fourthQuote));
-
-                    // check if XMLCreator is printing anything, scanning is correct
-                    Log.i("GPX_FILE","Lat: "+newLat+", Lon: "+newLon);
-
-                    if (!(lon==0 && lat==0)){
-                        // find Euclidean/Pythagorean distance b/w two points in miles, add to dist
-                        double coordDist = Math.sqrt(((lon-newLon)*(lon-newLon))+((lat-newLat)*(lat-newLat)));
-                        dist += COORD_TO_MILE*coordDist;
-                    }
-
-                    lon = newLon;
-                    lat = newLat;
-                }
-            }
-        }catch (IOException e){
-            Log.wtf("GPX_READER","Failed to read GPX from SD card.");
-        }
-
-        // Converts miles to km before returning
-        return dist * MILE_TO_KM;
-
+    public void removeCurrentEntry() {
+        ref.child("users").child(uid).child("device").child("current").removeValue();
     }
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-
     }
 
     @Override

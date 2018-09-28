@@ -62,7 +62,7 @@
         android:layout_alignEnd="@+id/speedTextDialog"
         android:layout_below="@+id/speedTextDialog"
         android:fontFamily="@font/d_din"
-        android:text="/MI"
+        android:text="MIN/MI"
         android:textColor="@color/colorPrimary"
         android:textSize="20dp" />
 

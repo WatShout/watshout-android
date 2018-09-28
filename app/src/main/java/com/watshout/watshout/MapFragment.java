@@ -92,6 +92,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
+    MapView mv;
 
     RetrofitInterface retrofitInterface = RetrofitClient
             .getRetrofitInstance().create(RetrofitInterface.class);
@@ -254,11 +255,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         return view;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("MAP", "hello");
-    }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -266,22 +262,15 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         Log.d("LIFECYCLE", "onViewCreated");
 
+        mv = view.findViewById(R.id.map);
+        mv.onCreate(null);
+        mv.onResume();
+        mv.getMapAsync(this);
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = preferences.edit();
 
         getActivity().setTitle("Map");
-
-        ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                hasStrava = dataSnapshot.exists();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         mRelativeLayout = view.findViewById(R.id.relative);
         mDrawerLayout = MainActivity.getDrawerLayout();
@@ -304,7 +293,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         final View popUpView = inflater.inflate(R.layout.fragment_dialog, null);
         builder.setView(popUpView);
         popUp = new PopupWindow(popUpView, displayWidth, displayHeight, true);
-
 
         FloatingActionButton fabDialog = popUpView.findViewById(R.id.location);
         fabDialog.setOnClickListener(new View.OnClickListener() {
@@ -639,10 +627,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                     Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
 
-                    // Generates a current date
-                    UploadToDatabase uploadToDatabase = new UploadToDatabase();
-                    String date = uploadToDatabase.getFormattedDate();
-
                     Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.running_black);
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -653,22 +637,11 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     openNext.putExtra("UPLOAD_MAP_URL", uploadMapURL);
 
                     openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
-                    openNext.putExtra("GPX_NAME_ONLY", date);
-                    openNext.putExtra("GPX_NAME",date+".gpx");
                     openNext.putExtra("MIN", Minutes);
                     openNext.putExtra("SEC", Seconds);
 
                     String distance = distanceDialog.getText().toString();
                     openNext.putExtra("DISTANCE", distance);
-
-                    // Writes an XML file
-                    try {
-                        XMLCreator.saveFile(date);
-                    } catch (TransformerException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
 
                     Carrier.setXMLCreator(XMLCreator);
 

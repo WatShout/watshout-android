@@ -151,8 +151,9 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
             holder.mTemperature.setVisibility(View.INVISIBLE);
         }
 
-        int timeElapsed = Integer.valueOf(newsFeedItem.getTimeElapsed());
-        String formattedElapsedTime = TimeManipulator.getInstance().formatTime(timeElapsed);
+        double timeElapsed = Double.valueOf(newsFeedItem.getTimeElapsed());
+        int intTimeElapsed = (int) timeElapsed;
+        String formattedElapsedTime = TimeManipulator.getInstance().formatTime(intTimeElapsed);
         holder.mActivityTime.setText(formattedElapsedTime);
 
         holder.mActivityPace.setText(newsFeedItem.getPace());

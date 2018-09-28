@@ -40,9 +40,8 @@ public class PaceCalculator {
             int imperialMinutePace = (int) (rawMetricPace / 60);
             int imperialSecondPace = (int) (rawMetricPace - imperialMinutePace * 60);
 
-            DecimalFormat df = new DecimalFormat("##");
-            String minutes = df.format(imperialMinutePace);
-            String seconds = df.format(imperialSecondPace);
+            String minutes = String.format("%02d", imperialMinutePace);
+            String seconds = String.format("%02d", imperialSecondPace);
 
             return minutes + ":" + seconds;
 
