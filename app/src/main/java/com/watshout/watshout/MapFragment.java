@@ -488,7 +488,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
             long addTime = timeGap + (numSeconds * 1000) + (numMinutes * 60000) + (numHours * 3600000);
 
-            MillisecondTime = (SystemClock.uptimeMillis() - StartTime) + addTime;
+            MillisecondTime = (System.currentTimeMillis() - StartTime) + addTime;
             UpdateTime = TimeBuff + MillisecondTime;
             Seconds = (int) (UpdateTime / 1000);
             Hours = Seconds / 3600;
@@ -555,7 +555,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             handler.removeCallbacks(runnable);
             timeRunning = false;
         } else {
-            StartTime = SystemClock.uptimeMillis();
+            StartTime = System.currentTimeMillis();
             originalStartTime = StartTime;
             handler.postDelayed(runnable, 0);
             timeRunning = true;
@@ -651,6 +651,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                     // This seems to fix the multi-location updates
                     fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+
             }
 
             @Override
@@ -685,7 +686,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         Log.d("LIFECYCLE", "onDestroy");
 
-        long closeTimeStamp = SystemClock.uptimeMillis();
+        long closeTimeStamp = System.currentTimeMillis();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = preferences.edit();
