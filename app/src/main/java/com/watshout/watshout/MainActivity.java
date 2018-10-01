@@ -142,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements
             this.startActivity(intent);
         }
 
-
         runInitialChecks();
         updateDeviceInfo();
         checkHasNetwork();
