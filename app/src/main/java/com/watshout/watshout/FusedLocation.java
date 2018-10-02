@@ -281,7 +281,7 @@ public class FusedLocation  {
                         // lat, lon);}
                     }
                     Log.d("Distance text", distance + "");
-                    int tempDistance = (int) distance;
+                    int tempDistance = (int) distance; // change to double
                     System.out.println("UNUSUAL:" + tempDistance);
                     double miles = tempDistance * 0.000621371;
 
