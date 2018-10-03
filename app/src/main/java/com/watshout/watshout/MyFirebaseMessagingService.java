@@ -19,13 +19,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         //Log data to Log Cat
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
+//        Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
+try {
+    String title = remoteMessage.getNotification().getTitle();
+    String body = remoteMessage.getNotification().getBody();
 
-        String title = remoteMessage.getNotification().getTitle();
-        String body = remoteMessage.getNotification().getBody();
-
-        //create notification
-        createNotification(title, body);
+    //create notification
+    createNotification(title, body);
+}catch(Exception e){}
     }
 
     private void createNotification(String title, String body) {
