@@ -49,7 +49,6 @@ public class FusedLocation  {
     private static MapPlotter mapPlotter;
     private String uid;
     private ArrayList<Waypoint> trackPoints;
-    private XMLCreator XMLCreator;
     public static double latitude = 0;
     public static double longitude = 0;
     ArrayList<Double> preLat;
@@ -83,8 +82,7 @@ public class FusedLocation  {
 
     private final static String TAG = "FusedLocation";
 
-    FusedLocation(Context context, MapPlotter mapPlotter, String uid,
-                  XMLCreator XMLCreator, TextView speedTextDialog,
+    FusedLocation(Context context, MapPlotter mapPlotter, String uid, TextView speedTextDialog,
                   TextView stepsDialog, TextView distanceDialog, ArrayList preLat, ArrayList preLon,
                   GoogleMap googleMap)
             throws TransformerException, ParserConfigurationException {
@@ -93,7 +91,6 @@ public class FusedLocation  {
         this.mapPlotter = mapPlotter;
         this.uid = uid;
         this.trackPoints = new ArrayList<>();
-        this.XMLCreator = XMLCreator;
         this.speedTextDialog = speedTextDialog;
         this.stepsDialog = stepsDialog;
         this.distanceDialog = distanceDialog;
@@ -223,7 +220,7 @@ public class FusedLocation  {
                         /*This is if the app is reopened so we need to check if it is the first time.
                     The second part checks if the previousLatitude is null meaning we don't have
                     data points saved*/
-                        if(out == false && preLat!= null) {
+                        if (out == false && preLat!= null) {
                             for(int x = 0; x < preLat.size(); x ++)
                                 mapPlotter.addMarker(preLat.get(x), preLon.get(x));
                             out = true;
@@ -236,13 +233,13 @@ public class FusedLocation  {
 
                     /*This mini if statement checks if only one coordinate is in the system; then
                         distance cannot be calculated, otherwise calculate the distance*/
-                    if(prevLat<2 )
-                    {
-                        if(distance>0) {}
+                    if (prevLat < 2) {
+                        if (distance > 0) {}
                         else {distance = 0;
                         //System.out.println("Distance became 0:2");
                         }
                     }
+
                     else {
                         distance +=  calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
                                 lat*Math.PI/180, lon*Math.PI/180);
@@ -255,21 +252,12 @@ public class FusedLocation  {
                     //System.out.println("COORDS:" + lat + ", " + lon);
                         //System.out.println("Distance: " + miles);
 
-
-
                     DecimalFormat decimalFormat = new DecimalFormat("##.###");
                     distanceDialog.setText(decimalFormat.format(miles));
-                        TimeZone tz = TimeZone.getTimeZone("UTC");
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-                        df.setTimeZone(tz);
-                        String nowAsISO = df.format(new Date());
 
-                        XMLCreator.addPoint(lat, lon, altitude, 0, nowAsISO);
-                        prevLat = lat;
-                        prevLon = lon;
+                    prevLat = lat;
+                    prevLon = lon;
                     }
-
-
                 }
            }
 
