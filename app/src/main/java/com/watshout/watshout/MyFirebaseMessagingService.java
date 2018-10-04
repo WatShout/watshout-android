@@ -17,7 +17,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyAndroidFCMService";
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        //Log data to Log Cat
         Log.d(TAG, "Notification recieved");
 
         try {

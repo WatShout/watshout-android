@@ -54,7 +54,6 @@ public class FusedLocation  {
     public static double longitude = 0;
     ArrayList<Double> preLat;
     ArrayList<Double> preLon;
-    //double speed;
     double prevLat;
     double prevLon;
     double distance;
@@ -63,10 +62,10 @@ public class FusedLocation  {
 
     boolean out;
     double info [][] = new double [3][3];
-    //double bearingArr [] = new double [3];
+
     ArrayList<String> bearingArr = new ArrayList<String>();
     ArrayList<String> speedArr = new ArrayList<String>();
-    //ArrayList<String> timeArr = new ArrayList<String> ();
+
 
     TextView speedTextDialog;
     TextView stepsDialog;
@@ -107,9 +106,11 @@ public class FusedLocation  {
         out = false;
         this.googleMap = googleMap;
 
-        prevLat = Double.valueOf(settings.getString("last_latitude", "37.4419"));
-        prevLon = Double.valueOf(settings.getString("last_longitude", "-122.1430"));
+        //prevLat = Double.valueOf(settings.getString("last_latitude", "37.4419"));
+        //prevLon = Double.valueOf(settings.getString("last_longitude", "-122.1430"));
 
+        prevLat = 0;
+        prevLon = 0;
         Random random = new Random();
         this.name = random.nextInt(100000);
 
@@ -173,6 +174,7 @@ public class FusedLocation  {
 
                 DecimalFormat pace = new DecimalFormat("##");
 
+                //Checks if speed is positive and if 0, then prints 0
                 if (speed > 0) {
                     // Speed is in m/s
                     double minuteMilePace = MS_TO_MM / speed;
@@ -188,68 +190,39 @@ public class FusedLocation  {
                     speedTextDialog.setText("00:00");
                 }
 
-
-                Log.d(TAG, "\nLat: " + lat + "\nLong" + lon + "\nSpeed: " + speed
-                        + "\nAccuracy: " + accuracy);
-
                 if (MapFragment.currentlyTrackingLocation){
                     bearingArr.add(bearing + "");
                     speedArr.add(speed + "");
-                    //timeArr.add(time + "");
-                    int size = bearingArr.size();
-                   /* if(size >= 3){
-                        int a = (int)Double.parseDouble(bearingArr.get(size-1));
-                        int b = (int)Double.parseDouble(bearingArr.get(size-2));
-                        int c = (int)Double.parseDouble(bearingArr.get(size-3));
-                        int aDiff1 = (a - 90)%360;
-                        int aDiff2 = (a + 90)%360;
-                        int bDiff1 = (b - 90)%360;
-                        int bDiff2 = (b + 90)%360;
-                        if(is_angle_between(b, aDiff1, aDiff2) == false){
-                            if(is_angle_between(c, bDiff1, bDiff2) == false){Log.d("Bearing is", bearing + "");}
-                                else {Log.d("Tagis", "Method ended");
-                                return;
-                            }
-                        }
-                    }*/
-                    int speedSize = speedArr.size();
-                   /* if(speedSize >= 2) {
-                        //d = vt + 0.5(vf-v)t
-                        double vFinal = Double.parseDouble(speedArr.get(speedSize - 1));
-                        double vInitial = Double.parseDouble(speedArr.get(speedSize - 2));
-                        //long tFinal = Long.parseLong(timeArr.get(speedSize - 1));
-                        //long tInitial = Long.parseLong(timeArr.get(speedSize - 2));
-                        double aveSpeed = 0.5*(vFinal - vInitial);
-                        if(aveSpeed > 10)
-                            return;
-                    }*/
+
+                    //int size = bearingArr.size();
+                    //int speedSize = speedArr.size();
+
                    double addDistance = 0;
-                    if(out == false && preLat!= null) {
+
+                   /* if(out == false && preLat!= null) {
                         for(int x = 0; x < preLat.size(); x ++)
                             mapPlotter.addMarker(preLat.get(x), preLon.get(x));
                         out = true;
                         for(int a = 1; a < preLat.size(); a ++){
-                            //System.out.println("PREVLAT:" + prevLat + ", PREVLON" + prevLon
-                                  //  + ", LAT" + lat + ", LON" + lon);
-                          //System.out.println("ADDDISTANCE:" + addDistance);
-                            double anssd = calculationByDistance(preLat.get(a-1)*Math.PI/180,preLon.get(a-1)*Math.PI/180,
+                            //This was commented out before
+                            addDistance = calculationByDistance(preLat.get(a-1)*Math.PI/180,preLon.get(a-1)*Math.PI/180,
                                     preLat.get(a)*Math.PI/180, preLon.get(a)*Math.PI/180);
-                            System.out.println("12345:" + anssd);
+                        distance = distance + addDistance;
+                            }
 
-                        distance +=addDistance;
-                            System.out.println("GFGFGF:" + addDistance);}
-
-                    }
+                    }*/
 
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                     int usedName = preferences.getInt("fusedLocationName", -1);
-                    System.out.println("EFEFEF:" + addDistance);
+
                     if (name == usedName) {
                         bearingArr.add(bearing + "");
                         speedArr.add(speed + "");
-                        //System.out.println("USEDNAME!")
 
+                        /*This is if the app is reopened so we need to check if it is the first time.
+                    The second part checks if the previousLatitude is null meaning we don't have
+                    data points saved*/
                         if(out == false && preLat!= null) {
                             for(int x = 0; x < preLat.size(); x ++)
                                 mapPlotter.addMarker(preLat.get(x), preLon.get(x));
@@ -259,34 +232,32 @@ public class FusedLocation  {
                         mapPlotter.addMarker(lat, lon);
 
                         new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
-                        Log.d(TAG, "Uploading to Firebase");
-                        Log.d("MEM_LOCATION", name + "");
                         latLngList.add(new LatLng(lat, lon));
 
-                    if(prevLat<2 ) {
-                        if(distance>0) {
-                            System.out.println("If this prints, succesfull");
+                    /*This mini if statement checks if only one coordinate is in the system; then
+                        distance cannot be calculated, otherwise calculate the distance*/
+                    if(prevLat<2 )
+                    {
+                        if(distance>0) {}
+                        else {distance = 0;
+                        //System.out.println("Distance became 0:2");
                         }
-                        else
-                            distance = 0;
-                        }
+                    }
                     else {
-                       System.out.println("INSIDEADDDISTANCESTATEMENT");
-                        //System.out.println("PREVLAT:" + prevLat + ", PREVLON" + prevLon
-                              //  + ", LAT" + lat + ", LON" + lon);
-                        System.out.println("DFDFDF:" + addDistance);
                         distance +=  calculationByDistance(prevLat*Math.PI/180,prevLon*Math.PI/180,
                                 lat*Math.PI/180, lon*Math.PI/180);
-                        //distance += distanceBetweenTwoCoordinates(prevLat,prevLon,
-                        // lat, lon);}
+                        //System.out.println("Distance added:1");
+
                     }
-                    Log.d("Distance text", distance + "");
-                    int tempDistance = (int) distance; // change to double
-                    System.out.println("UNUSUAL:" + tempDistance);
+
+                    double tempDistance =  distance;
                     double miles = tempDistance * 0.000621371;
+                    //System.out.println("COORDS:" + lat + ", " + lon);
+                        //System.out.println("Distance: " + miles);
 
 
-                    DecimalFormat decimalFormat = new DecimalFormat("##.##");
+
+                    DecimalFormat decimalFormat = new DecimalFormat("##.###");
                     distanceDialog.setText(decimalFormat.format(miles));
                         TimeZone tz = TimeZone.getTimeZone("UTC");
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
@@ -336,7 +307,8 @@ public class FusedLocation  {
         double longDiff = finalLong - initialLong;
         double earthRadius = 6371; //In Km if you want the distance in km
 
-        double distanceTemp = 1000*2*earthRadius*Math.asin(Math.sqrt(Math.pow(Math.sin(latDiff/2.0),2)+Math.cos(initialLat)*Math.cos(finalLat)*Math.pow(Math.sin(longDiff/2),2)));
+        double distanceTemp = 1000*2*earthRadius*Math.asin(Math.sqrt(Math.pow(Math.sin(latDiff/2.0),2)+
+                Math.cos(initialLat)*Math.cos(finalLat)*Math.pow(Math.sin(longDiff/2),2)));
 
         return distanceTemp;
 
@@ -372,10 +344,10 @@ public class FusedLocation  {
 
         if (speed != 0) {
             double pace = (1 / speed) / 60 * 1000;
-            System.out.println(pace);
+
 
             int minutes = (int) Math.floor(pace);
-            System.out.println(minutes);
+
 
             int seconds = (int) Math.floor((pace - minutes) * 60);
 
@@ -405,10 +377,31 @@ public class FusedLocation  {
         return Math.pow(Math.sin(val / 2), 2);
     }
 
+    /* if(size >= 3){
+                        int a = (int)Double.parseDouble(bearingArr.get(size-1));
+                        int b = (int)Double.parseDouble(bearingArr.get(size-2));
+                        int c = (int)Double.parseDouble(bearingArr.get(size-3));
+                        int aDiff1 = (a - 90)%360;
+                        int aDiff2 = (a + 90)%360;
+                        int bDiff1 = (b - 90)%360;
+                        int bDiff2 = (b + 90)%360;
+                        if(is_angle_between(b, aDiff1, aDiff2) == false){
+                            if(is_angle_between(c, bDiff1, bDiff2) == false){Log.d("Bearing is", bearing + "");}
+                                else {Log.d("Tagis", "Method ended");
+                                return;
+                            }
+                        }
+                    }*/
 
-
-   /* public boolean method() {
-
-    }*/
+    /* if(speedSize >= 2) {
+                        //d = vt + 0.5(vf-v)t
+                        double vFinal = Double.parseDouble(speedArr.get(speedSize - 1));
+                        double vInitial = Double.parseDouble(speedArr.get(speedSize - 2));
+                        //long tFinal = Long.parseLong(timeArr.get(speedSize - 1));
+                        //long tInitial = Long.parseLong(timeArr.get(speedSize - 2));
+                        double aveSpeed = 0.5*(vFinal - vInitial);
+                        if(aveSpeed > 10)
+                            return;
+                    }*/
 
 }
