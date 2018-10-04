@@ -252,7 +252,7 @@ public class FusedLocation  {
 
 
 
-                    DecimalFormat decimalFormat = new DecimalFormat("##.######");
+                    DecimalFormat decimalFormat = new DecimalFormat("##.###");
                     distanceDialog.setText(decimalFormat.format(miles));
                         TimeZone tz = TimeZone.getTimeZone("UTC");
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
