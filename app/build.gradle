@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.watshout.watshout"
         minSdkVersion 23
-        targetSdkVersion 26
+        targetSdkVersion 27
         multiDexEnabled true
         versionCode 1
         versionName "1.0"

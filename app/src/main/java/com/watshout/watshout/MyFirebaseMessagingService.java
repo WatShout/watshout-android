@@ -17,16 +17,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyAndroidFCMService";
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        //Log data to Log Cat
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
-//        Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
-try {
-    String title = remoteMessage.getNotification().getTitle();
-    String body = remoteMessage.getNotification().getBody();
+        Log.d(TAG, "Notification recieved");
 
-    //create notification
-    createNotification(title, body);
-}catch(Exception e){}
+        try {
+            Log.d(TAG, "From: " + remoteMessage.getFrom());
+            Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
+
+            String title = remoteMessage.getNotification().getTitle();
+            String body = remoteMessage.getNotification().getBody();
+            //create notification
+            createNotification(title, body);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            //createNotification("Run In Progress", "Location Tracking Enabled");
+        }
     }
 
     private void createNotification(String title, String body) {
@@ -39,7 +43,6 @@ try {
         Uri notificationSoundURI = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder( this)
                 .setSmallIcon(R.drawable.running)
-                //.setLargeIcon(((BitmapDrawable)getResources().getDrawable(R.drawable.running)).getBitmap())
                 .setContentTitle(title)
                 .setContentText(body)
                 .setAutoCancel( true )

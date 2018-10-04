@@ -30,6 +30,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.PolyUtil;
 
 import java.util.ArrayList;
 
@@ -117,6 +118,13 @@ public class MapPlotter {
     }
 
     public void clearPolyLines() {
+        if (bigPolyLine != null) {
+            bigPolyLine.setVisible(false);
+            bigPolyLine = null;
+        }
+    }
+
+    public void oldclearPolyLines() {
 
         for (Polyline line : polylines){
 
@@ -150,11 +158,39 @@ public class MapPlotter {
         return output;
     }
 
-    public void addFriendMarker(double lat, double lon){
+    public void addFriendMarker(double lat, double lon) {
+        Marker newMarker = googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(lat, lon)));
+
+        if (markers.size() > 0) {
+            int highestIndex = markers.size() - 1;
+            markers.get(highestIndex).setIcon(null);
+            markers.get(highestIndex).setVisible(false);
+        }
+
+        markers.add(newMarker);
+
+        if (bigPolyLine != null) {
+            bigPolyLine.setVisible(false);
+        }
+
+        PolylineOptions options = new PolylineOptions();
+        options.width(10);
+        options.jointType(2);
+        int count = markers.size();
+        for(int i = 0; i< count; i++){
+            options.add(markers.get(i).getPosition());
+        }
+
+        bigPolyLine = googleMap.addPolyline(options);
+
+    }
+
+    public void oldaddFriendMarker(double lat, double lon){
         LatLng currentLocation = new LatLng(lat, lon);
         LatLng previousLocation;
 
-        if (plotCounter % 5 == 0) {
+        if (plotCounter % 10 == 0) {
             // Adds a new marker on the LOCAL map. (The one on the website is written elsewhere).
             Marker newMarker = googleMap.addMarker(new MarkerOptions()
                     .position(currentLocation));
@@ -197,7 +233,37 @@ public class MapPlotter {
         bigPolyLine = googleMap.addPolyline(options);
     }
 
-    public void addMarker(double lat, double lon){
+    public void addMarker(double lat, double lon) {
+        Marker newMarker = googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(lat, lon)));
+
+        newMarker.setIcon(null);
+        newMarker.setVisible(false);
+
+        if (markers.size() > 0) {
+            int highestIndex = markers.size() - 1;
+            markers.get(highestIndex).setIcon(null);
+            markers.get(highestIndex).setVisible(false);
+        }
+
+        markers.add(newMarker);
+
+        if (bigPolyLine != null) {
+            bigPolyLine.setVisible(false);
+        }
+
+        PolylineOptions options = new PolylineOptions();
+        options.width(10);
+        options.jointType(2);
+        int count = markers.size();
+        for(int i = 0; i< count; i++){
+            options.add(markers.get(i).getPosition());
+        }
+
+        bigPolyLine = googleMap.addPolyline(options);
+    }
+
+    public void oldAddMarker(double lat, double lon){
 
         if (plotCounter % 5 == 0) {
 

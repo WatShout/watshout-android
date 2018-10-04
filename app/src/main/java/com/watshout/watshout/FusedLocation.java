@@ -1,6 +1,9 @@
 package com.watshout.watshout;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
@@ -72,6 +75,8 @@ public class FusedLocation  {
     List<LatLng> latLngList;
     int time;
 
+    private final static int ONGOING_NOTIFICATION_ID = 65050;
+
     GoogleMap googleMap;
 
     private static final double MS_TO_MM = 26.8224;
@@ -108,6 +113,7 @@ public class FusedLocation  {
         prevLon = 0;
         Random random = new Random();
         this.name = random.nextInt(100000);
+
 
     }
 
@@ -245,7 +251,6 @@ public class FusedLocation  {
                     }
 
                     double tempDistance =  distance;
-
                     double miles = tempDistance * 0.000621371;
                     //System.out.println("COORDS:" + lat + ", " + lon);
                         //System.out.println("Distance: " + miles);
