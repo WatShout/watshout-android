@@ -122,11 +122,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     RecyclerView mRecyclerView;
 
-    Bitmap pathScreen;
-
-    XMLCreator XMLCreator;
-
-    PopupWindow popupWindow;
     LayoutInflater layoutInflater;
 
     RelativeLayout mRelativeLayout;
@@ -211,11 +206,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         mapPlotter = new MapPlotter(markerList, googleMapGlobal, true, uid, getActivity());
 
-        try {
-            XMLCreator = new XMLCreator(getActivity().getApplicationContext(), uid);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
 
         FriendDataManager friendDataManager = new FriendDataManager(uid, googleMapGlobal, mRecyclerView, getActivity(),
                 new MapRecycleViewCarrier(mRecyclerView));
@@ -225,7 +215,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         try {
             fusedLocation = new FusedLocation(getActivity().getApplicationContext(),
-                    mapPlotter, uid, XMLCreator, speedTextDialog, stepsDialog, distanceDialog, preLat, preLon,
+                    mapPlotter, uid, speedTextDialog, stepsDialog, distanceDialog, preLat, preLon,
                     googleMapGlobal);
         } catch (TransformerException e) {
             e.printStackTrace();
@@ -642,8 +632,6 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                     String distance = distanceDialog.getText().toString();
                     openNext.putExtra("DISTANCE", distance);
-
-                    Carrier.setXMLCreator(XMLCreator);
 
                     openNext.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     getActivity().getApplicationContext().startActivity(openNext);
