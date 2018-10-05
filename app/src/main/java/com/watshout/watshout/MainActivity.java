@@ -135,11 +135,17 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent();
         String packageName = this.getPackageName();
         PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-
-        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+        Log.d("BATTERY_INFOO", Boolean.toString(pm.isIgnoringBatteryOptimizations(packageName)));
+        if (pm.isIgnoringBatteryOptimizations(packageName)) {
+            intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            Log.d("BATTERY_INFO", "We are ignoring battery optimization");
+        }
+        else {
+            Log.d("BATTERY_INFO", "We are NOT ignoring battery optimization");
             intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             intent.setData(Uri.parse("package:" + packageName));
             this.startActivity(intent);
+
         }
 
         runInitialChecks();
@@ -147,6 +153,8 @@ public class MainActivity extends AppCompatActivity implements
         checkHasNetwork();
         setFCMToken();
         displayInitialSplash();
+
+        setBatteryOptimizationSplash();
 
         // Initialize navigation view
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -657,6 +665,28 @@ public class MainActivity extends AppCompatActivity implements
                     });
             builder.create();
             builder.show();
+        }
+    }
+
+    public void setBatteryOptimizationSplash() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+        SharedPreferences thisPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        boolean initialRun = thisPrefs.getBoolean("initialRun", true);
+
+        if (initialRun) {
+            builder.setTitle("Disable Battery Optimization");
+            builder.setMessage("For the smoothest Watshout experience, we strongly recommend you " +
+                    "whitelist our app from Android's standby mode. To do this, go to Settings > Battery " +
+                    "> Battery Optimization > All apps, find Watshout and select \"Don't optimize\"");
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) { }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 }
