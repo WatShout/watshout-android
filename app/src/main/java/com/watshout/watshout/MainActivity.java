@@ -659,7 +659,10 @@ public class MainActivity extends AppCompatActivity implements
             builder.setTitle("Thank you for trying Watshout!")
                     .setMessage("For optimal results during activity tracking, we recommend " +
                     "keeping Watshout running in the foreground. Potential bugs may arise if " +
-                    "the app is closed in the middle of an activity.")
+                    "the app is closed in the middle of an activity. For the smoothest Watshout " +
+                            "experience, we strongly recommend you hitelist our app from Android's " +
+                            "standby mode. To do this, go to Settings > Battery " +
+                    "> Battery Optimization > All apps, find Watshout and select \"Don't optimize\"")
                     .setPositiveButton("UNDERSTOOD", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) { }
                     });
