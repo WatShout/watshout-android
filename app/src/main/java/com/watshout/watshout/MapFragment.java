@@ -482,7 +482,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             UpdateTime = TimeBuff + MillisecondTime;
             Seconds = (int) (UpdateTime / 1000);
             Hours = Seconds / 3600;
-            Minutes = Seconds / 60;
+            Minutes = (Seconds - (Hours*3600)) / 60;
             Seconds = Seconds % 60;
             MilliSeconds = (int) (UpdateTime % 1000);
             timerText.setText("0" + Hours + ":" + String.format("%02d", Minutes) + ":"
