@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.watshout.watshout">
+    package="com.watshout.app">
 
     <uses-feature android:name="android.hardware.location.gps" />
 
@@ -37,28 +37,28 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <service
-            android:name=".MyFirebaseMessagingService">
+            android:name="com.watshout.app.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
 
         <service
-            android:name=".MyFirebaseInstanceIdService">
+            android:name="com.watshout.app.MyFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.watshout.app.MainActivity"
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/ModifiedAppCompatLight" />
 
         <activity
-            android:name=".SplashActivity"
+            android:name="com.watshout.app.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -68,13 +68,13 @@
         </activity>
 
         <activity
-            android:name=".SignInActivity"
+            android:name="com.watshout.app.SignInActivity"
             android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".InitializeNewAccountActivity"
+        <activity android:name="com.watshout.app.InitializeNewAccountActivity"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".StravaAuthenticate"
+        <activity android:name="com.watshout.app.StravaAuthenticate"
             android:screenOrientation="portrait"></activity>
 
         <meta-data
@@ -87,9 +87,9 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
-        <activity android:name=".CameraActivity" />
+        <activity android:name="com.watshout.app.CameraActivity" />
         <activity
-            android:name=".FinishedActivity"
+            android:name="com.watshout.app.FinishedActivity"
             android:screenOrientation="portrait" />
     </application>
 

@@ -3,14 +3,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.2'
     defaultConfig {
-        applicationId "com.watshout.watshout"
+        applicationId "com.watshout.app"
         minSdkVersion 23
         targetSdkVersion 27
         multiDexEnabled true
-        versionCode 1
-        versionName "1.0"
+        versionCode 10
+        versionName "v0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         resConfigs "en" // And any other languages you support
         vectorDrawables.useSupportLibrary = true
@@ -24,6 +24,11 @@ android {
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 
