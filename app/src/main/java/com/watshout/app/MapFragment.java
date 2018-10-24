@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -50,6 +51,7 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -140,6 +142,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     long originalStartTime;
 
+    TextView mTrackingText;
+    ImageView trackerImage;
+    TextView mTracking;
+
     FloatingActionButton floatingActionButton;
 
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L;
@@ -154,9 +160,13 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     // For permissions
     int permCode = 200;
 
+    ImageView mTrackingImageView;
+
     private final static int CAMERA = 350;
 
     int secondsAlready;
+
+    int counterTotal = 0;
 
     public MapFragment() {
         preLat= new ArrayList<>();
@@ -244,6 +254,73 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mv.onCreate(null);
         mv.onResume();
         mv.getMapAsync(this);
+
+        // add 'currently tracking' in database
+        ref.child("users").child(uid).child("currently_tracking").setValue(true);
+
+        mTrackingText = view.findViewById(R.id.tracking_text);
+        mTrackingText.setText("LOCATION SERVICES ARE DISABLED");
+        mTracking = view.findViewById(R.id.tracking);
+        mTracking.setVisibility(View.INVISIBLE);
+        trackerImage = view.findViewById(R.id.count_image);
+        trackerImage.setVisibility(View.INVISIBLE);
+        mTrackingImageView = view.findViewById(R.id.trackingImageView);
+        mTrackingImageView.setColorFilter(getContext().getResources().getColor(R.color.lightBlue));
+
+
+        // start listener to get number of friends who are currently tracking
+        mTracking.setText(String.format("TRACKER COUNT: %d", counterTotal));
+        ref.child("friend_data").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+
+                    Log.d("FRIENDS", child.getKey());
+
+                    ref.child("users").child(child.getKey())
+                            .addChildEventListener(new ChildEventListener() {
+                                @Override
+                                public void onChildAdded(DataSnapshot dataSnapshot, String s) { }
+
+                                @Override
+                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                    if (dataSnapshot.getKey().equals("currently_tracking")) {
+
+                                        if ((boolean) dataSnapshot.getValue()) {
+                                            counterTotal++;
+                                            mTracking.setText(String.format("TRACKER COUNT: %d", counterTotal));
+                                        } else {
+
+                                            if (counterTotal > 0) {
+                                                counterTotal--;
+                                            }
+                                            mTracking.setText(String.format("TRACKER COUNT: %d", counterTotal));
+                                        }
+
+                                    }
+
+                                }
+
+                                @Override
+                                public void onChildRemoved(DataSnapshot dataSnapshot) { }
+
+                                @Override
+                                public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) { }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -511,9 +588,18 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         }
     }
 
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ref.child("users").child(uid).child("currently_tracking").setValue(false);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
+        ref.child("users").child(uid).child("currently_tracking").setValue(true);
+
     }
 
     public void startClick() {
@@ -522,6 +608,12 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("fusedLocationName", fusedLocation.name);
         editor.apply();
+
+        mTrackingText.setText("LOCATION SERVICES ARE ENABLED");
+        trackerImage.setVisibility(View.VISIBLE);
+        mTracking.setVisibility(View.VISIBLE);
+
+        mTrackingImageView.setColorFilter(getContext().getResources().getColor(R.color.lightGreen));
 
         floatingActionButton.show();
         mStart.setVisibility(View.VISIBLE);
@@ -565,7 +657,12 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void stopClick() {
 
         Log.d("MAP", "test");
+        mTrackingText.setText("LOCATION SERVICES ARE DISABLED");
+        mTracking.setVisibility(View.INVISIBLE);
+        trackerImage.setVisibility(View.INVISIBLE);
 
+
+        mTrackingImageView.setColorFilter(getContext().getResources().getColor(R.color.lightBlue));
         floatingActionButton.show();
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
@@ -658,6 +755,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     @Override
     public void onDestroy() {
+        // set tracking to false
+        ref.child("users").child(uid).child("currently_tracking").setValue(false);
         super.onDestroy();
 
         Log.d("LIFECYCLE", "onDestroy");
@@ -688,14 +787,16 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     @Override
     public void onStop() {
-        super.onStop();
         Log.d("STOP", "onStop");
+        ref.child("users").child(uid).child("currently_tracking").setValue(false);
+        super.onStop();
     }
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         Log.d("STOP", "onDestroyView");
+        ref.child("users").child(uid).child("currently_tracking").setValue(false);
+        super.onDestroyView();
     }
 
     public void updateMapPlotter(){
