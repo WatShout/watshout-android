@@ -281,7 +281,18 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     ref.child("users").child(child.getKey())
                             .addChildEventListener(new ChildEventListener() {
                                 @Override
-                                public void onChildAdded(DataSnapshot dataSnapshot, String s) { }
+                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                                    if (dataSnapshot.getKey().equals("currently_tracking")) {
+
+                                        if ((boolean) dataSnapshot.getValue()) {
+                                            counterTotal++;
+                                            mTracking.setText(String.format("TRACKER COUNT: %d", counterTotal));
+                                        }
+
+                                    }
+
+                                }
 
                                 @Override
                                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -657,7 +668,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void stopClick() {
 
         Log.d("MAP", "test");
-        mTrackingText.setText("LOCATION SERVICES ARE DISABLED");
+        mTrackingText.setText("LOCATION IS NOT CURRENTLY BEING TRACKED");
         mTracking.setVisibility(View.INVISIBLE);
         trackerImage.setVisibility(View.INVISIBLE);
 

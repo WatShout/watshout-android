@@ -154,7 +154,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="11dp"
         android:layout_marginEnd="-159dp"
-        android:text="LOCATION SERVICES ARE ENABLED"
+        android:text="LOCATION IS NOT CURRENTLY BEING TRACKED"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="10dp" />
