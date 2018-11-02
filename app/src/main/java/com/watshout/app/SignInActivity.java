@@ -65,8 +65,7 @@ public class SignInActivity extends AppCompatActivity {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.GET_ACCOUNTS,
-                Manifest.permission.READ_CONTACTS,
-                Manifest.permission.CAMERA};
+                Manifest.permission.READ_CONTACTS};
 
         // Go through permissions, check which ones aren't granted
         List<String> request = new ArrayList<>();

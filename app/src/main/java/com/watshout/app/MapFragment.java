@@ -259,7 +259,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         ref.child("users").child(uid).child("currently_tracking").setValue(true);
 
         mTrackingText = view.findViewById(R.id.tracking_text);
-        mTrackingText.setText("LOCATION SERVICES ARE DISABLED");
+        mTrackingText.setText("LOCATION SHARING IS NOT ACTIVE");
         mTracking = view.findViewById(R.id.tracking);
         mTracking.setVisibility(View.INVISIBLE);
         trackerImage = view.findViewById(R.id.count_image);
@@ -620,7 +620,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         editor.putInt("fusedLocationName", fusedLocation.name);
         editor.apply();
 
-        mTrackingText.setText("LOCATION SERVICES ARE ENABLED");
+        // LOCATION SHARING IS NOT ACTIVE
+        // LOCATION SHARING IS ACTIVE
+
+        mTrackingText.setText("LOCATION SHARING IS ACTIVE");
         trackerImage.setVisibility(View.VISIBLE);
         mTracking.setVisibility(View.VISIBLE);
 
@@ -668,7 +671,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void stopClick() {
 
         Log.d("MAP", "test");
-        mTrackingText.setText("LOCATION IS NOT CURRENTLY BEING TRACKED");
+        mTrackingText.setText("LOCATION SHARING IS NOT ACTIVE");
         mTracking.setVisibility(View.INVISIBLE);
         trackerImage.setVisibility(View.INVISIBLE);
 

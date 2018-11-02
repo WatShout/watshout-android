@@ -659,7 +659,7 @@ public class MainActivity extends AppCompatActivity implements
                             "experience, we strongly recommend you whitelist our app from Android's " +
                             "standby mode. To do this, go to Settings > Battery " +
                     "> Battery Optimization > All apps, find Watshout and select \"Don't optimize\".")
-                    .setPositiveButton("UNDERSTOOD", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("I UNDERSTAND", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) { }
                     });
             builder.create();
