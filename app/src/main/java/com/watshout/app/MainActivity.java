@@ -148,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements
         updateDeviceInfo();
         checkHasNetwork();
         setFCMToken();
-        displayInitialSplash();
 
         setBatteryOptimizationSplash();
 
@@ -641,32 +640,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    public void displayInitialSplash() {
-
-        SharedPreferences thisPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        boolean initialRun = thisPrefs.getBoolean("initialRun", true);
-
-        if (initialRun) {
-
-            thisPrefs.edit().putBoolean("initialRun", false).apply();
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("Thank you for trying Watshout!")
-                    .setMessage("For optimal results during activity tracking, we recommend " +
-                    "keeping Watshout running in the foreground. Potential bugs may arise if " +
-                    "the app is closed in the middle of an activity. For the smoothest Watshout " +
-                            "experience, we strongly recommend you whitelist our app from Android's " +
-                            "standby mode. To do this, go to Settings > Battery " +
-                    "> Battery Optimization > All apps, find Watshout and select \"Don't optimize\".")
-                    .setPositiveButton("I UNDERSTAND", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) { }
-                    });
-            builder.create();
-            builder.show();
-        }
-    }
-
     public void setBatteryOptimizationSplash() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -685,7 +658,7 @@ public class MainActivity extends AppCompatActivity implements
             });
 
             AlertDialog dialog = builder.create();
-            dialog.show();
+            //dialog.show();
         }
     }
 }

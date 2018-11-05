@@ -61,11 +61,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        String[] dangerousPermissions = {Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.GET_ACCOUNTS,
-                Manifest.permission.READ_CONTACTS};
+        String[] dangerousPermissions = {Manifest.permission.ACCESS_FINE_LOCATION};
 
         // Go through permissions, check which ones aren't granted
         List<String> request = new ArrayList<>();

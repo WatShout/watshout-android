@@ -154,8 +154,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
     private boolean timeRunning = false;
 
-    String[] permissions = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_FINE_LOCATION};
+    String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
 
     // For permissions
     int permCode = 200;
@@ -269,7 +268,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
 
         // start listener to get number of friends who are currently tracking
-        mTracking.setText(String.format("TRACKER COUNT: %d", counterTotal));
+        mTracking.setText(String.format(" COUNT: %d", counterTotal));
         ref.child("friend_data").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -587,10 +586,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     public void checkLocationPermissions() {
         if (ContextCompat.checkSelfPermission(this.getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this.getActivity(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED) {
 
             // No explanation needed, we can request the permission.
             ActivityCompat.requestPermissions(this.getActivity(),

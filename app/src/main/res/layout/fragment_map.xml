@@ -156,7 +156,7 @@
         android:layout_alignStart="@+id/count_image"
         android:layout_marginStart="123dp"
         android:layout_marginTop="-120dp"
-        android:text="VIEWER COUNT: "
+        android:text="COUNT:"
         android:textColor="#FFFFFF"
         android:textSize="8dp" />
 
