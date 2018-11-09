@@ -143,8 +143,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     long originalStartTime;
 
     TextView mTrackingText;
-    ImageView trackerImage;
-    TextView mTracking;
+    //ImageView trackerImage;
+    //TextView mTracking;
 
     FloatingActionButton floatingActionButton;
 
@@ -258,17 +258,19 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         ref.child("users").child(uid).child("currently_tracking").setValue(true);
 
         mTrackingText = view.findViewById(R.id.tracking_text);
-        mTrackingText.setText("LOCATION SHARING IS NOT ACTIVE");
-        mTracking = view.findViewById(R.id.tracking);
-        mTracking.setVisibility(View.INVISIBLE);
-        trackerImage = view.findViewById(R.id.count_image);
-        trackerImage.setVisibility(View.INVISIBLE);
+        //mTrackingText.setText("LOCATION SHARING IS NOT ACTIVE");
+        //mTracking = view.findViewById(R.id.tracking);
+        //mTracking.setVisibility(View.INVISIBLE);
+        //trackerImage = view.findViewById(R.id.count_image);
+        //trackerImage.setVisibility(View.INVISIBLE);
         mTrackingImageView = view.findViewById(R.id.trackingImageView);
         mTrackingImageView.setColorFilter(getContext().getResources().getColor(R.color.lightBlue));
 
 
         // start listener to get number of friends who are currently tracking
-        mTracking.setText(String.format(" COUNT: %d", counterTotal));
+        //mTracking.setText(String.format(" COUNT: %d", counterTotal));
+        //mTrackingText.setText(String.format("YOUR LOCATION IS BEING SHARED WITH %d FRIENDS", counterTotal));
+        mTrackingText.setText("YOUR LOCATION IS NOT BEING SHARED");
         ref.child("friend_data").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -286,7 +288,9 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                                         if ((boolean) dataSnapshot.getValue()) {
                                             counterTotal++;
-                                            mTracking.setText(String.format("TRACKER COUNT: %d", counterTotal));
+                                            if (activityRunning) {
+                                                mTrackingText.setText(String.format("YOUR LOCATION IS BEING SHARED WITH %d FRIENDS", counterTotal));
+                                            }
                                         }
 
                                     }
@@ -300,13 +304,17 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
                                         if ((boolean) dataSnapshot.getValue()) {
                                             counterTotal++;
-                                            mTracking.setText(String.format("TRACKER COUNT: %d", counterTotal));
+                                            if (activityRunning) {
+                                                mTrackingText.setText(String.format("YOUR LOCATION IS BEING SHARED WITH %d FRIENDS", counterTotal));
+                                            }
                                         } else {
 
                                             if (counterTotal > 0) {
                                                 counterTotal--;
                                             }
-                                            mTracking.setText(String.format("TRACKER COUNT: %d", counterTotal));
+                                            if (activityRunning) {
+                                                mTrackingText.setText(String.format("YOUR LOCATION IS BEING SHARED WITH %d FRIENDS", counterTotal));
+                                            }
                                         }
 
                                     }
@@ -619,9 +627,10 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         // LOCATION SHARING IS NOT ACTIVE
         // LOCATION SHARING IS ACTIVE
 
-        mTrackingText.setText("LOCATION SHARING IS ACTIVE");
-        trackerImage.setVisibility(View.VISIBLE);
-        mTracking.setVisibility(View.VISIBLE);
+        mTrackingText.setText(String.format("YOUR LOCATION IS BEING SHARED WITH %d FRIENDS", counterTotal));
+        //mTrackingText.setText("LOCATION SHARING IS ACTIVE");
+        //trackerImage.setVisibility(View.VISIBLE);
+        //mTracking.setVisibility(View.VISIBLE);
 
         mTrackingImageView.setColorFilter(getContext().getResources().getColor(R.color.lightGreen));
 
@@ -668,8 +677,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         Log.d("MAP", "test");
         mTrackingText.setText("LOCATION SHARING IS NOT ACTIVE");
-        mTracking.setVisibility(View.INVISIBLE);
-        trackerImage.setVisibility(View.INVISIBLE);
+        //mTracking.setVisibility(View.INVISIBLE);
+        //trackerImage.setVisibility(View.INVISIBLE);
 
 
         mTrackingImageView.setColorFilter(getContext().getResources().getColor(R.color.lightBlue));

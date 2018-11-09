@@ -115,13 +115,11 @@ public class SignInActivity extends AppCompatActivity {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
 
-                String msg = "Thank you for trying out Watshout! Please note that our initial " +
-                        "launch is only open to users with .edu email addresses and users on our " +
-                        "whitelist.";
+                String msg = "Only open to .edu emails and users on our whitelist";
                 SpannableString spanMsg = new SpannableString(msg);
                 Linkify.addLinks(spanMsg, Linkify.ALL);
 
-                builder.setTitle("Watshout Closed Beta");
+                builder.setTitle("Watshout Early Release");
                 builder.setMessage(spanMsg);
 
                 builder.setNegativeButton("Join whitelist", new DialogInterface.OnClickListener() {
