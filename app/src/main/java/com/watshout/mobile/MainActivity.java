@@ -187,32 +187,6 @@ public class MainActivity extends AppCompatActivity implements
         // Placeholder until DB call
         mDistance.setText("N/A");
 
-        // TODO
-        ref.child("friend_requests").child(uid).orderByChild("request_type")
-                .equalTo("received")
-                .addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        //globalMenu.clear();
-                        //globalInflater.inflate(R.menu.base_menu_requests, globalMenu);
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        //globalMenu.clear();
-                        //globalInflater.inflate(R.menu.base_menu_no_requests, globalMenu);
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) { }
-                });
-
         // Download and update the profile picture
         ref.child("users").child(uid).child("profile_pic_format")
             .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -442,47 +416,11 @@ public class MainActivity extends AppCompatActivity implements
                         .commit();
                 return super.onOptionsItemSelected(item);
             case R.id.open_requests:
-
-                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popupView = inflater.inflate(R.layout.popup_friend_request, null);
-                // create the popup window
-                int width = LinearLayout.LayoutParams.MATCH_PARENT;
-                int height = LinearLayout.LayoutParams.MATCH_PARENT;
-                boolean focusable = true; // lets taps outside the popup also dismiss it
-
-                PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-                popupWindow.setAnimationStyle(R.style.popup_window_animation);
-                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-
-                TextView goBack = popupView.findViewById(R.id.otherGoBack);
-
-                goBack.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        popupWindow.dismiss();
-                    }
-                });
-
-                popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                    @Override
-                    public void onDismiss() {
-
-                        globalMenu.clear();
-                        globalInflater.inflate(R.menu.base_menu_no_requests, globalMenu);
-
-                    }
-                });
-
-                RelativeLayout relativeLayout = popupView.findViewById(R.id.request_relative_layout);
-
-                relativeLayout.setAlpha(1F);
-
-                RecyclerView mRequestRecyclerView = popupView.findViewById(R.id.friendRequestView);
-                mRequestRecyclerView.setHasFixedSize(true);
-                mRequestRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-
-                getFriendRequests(mRequestRecyclerView);
-
+                navigationView.getMenu().getItem(3).setChecked(true);
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.screen_area, new FriendFragment())
+                        .commit();
                 return super.onOptionsItemSelected(item);
 
             default:
@@ -498,6 +436,7 @@ public class MainActivity extends AppCompatActivity implements
         globalInflater = inflater;
         globalMenu = menu;
         inflater.inflate(R.menu.base_menu_no_requests, menu);
+        getFriendRequests();
         return true;
     }
 
@@ -511,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    public void getFriendRequests(final RecyclerView popUpRecyclerView){
+    public void getFriendRequests(){
 
         Call<FriendRequestList> call = retrofitInterface.getFriendRequestList(uid);
 
@@ -520,11 +459,11 @@ public class MainActivity extends AppCompatActivity implements
             public void onResponse(Call<FriendRequestList> call, retrofit2.Response<FriendRequestList> response) {
 
                 List<FriendRequest> friendRequestList = response.body().getFriendRequests();
-                RecyclerView.Adapter adapter =
-                        new FriendRequestAdapter(friendRequestList, MainActivity.this);
 
-                popUpRecyclerView.setAdapter(adapter);
-
+                if (friendRequestList.size() > 0) {
+                    globalMenu.clear();
+                    globalInflater.inflate(R.menu.base_menu_requests, globalMenu);
+                }
             }
 
             @Override

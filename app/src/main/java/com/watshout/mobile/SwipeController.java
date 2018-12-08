@@ -36,12 +36,12 @@ class SwipeController extends Callback {
 
     final ColorDrawable background = new ColorDrawable(Color.RED);
 
-    RecyclerView.Adapter adapter;
+    FriendAdapter adapter;
     RecyclerView recyclerView;
 
 
     SwipeController(ArrayList<Friend> listItems, String myUID, Context context,
-                    RecyclerView.Adapter adapter, RecyclerView recyclerView) {
+                    FriendAdapter adapter, RecyclerView recyclerView) {
 
         this.listItems = listItems;
         this.myUID = myUID;
@@ -102,7 +102,7 @@ class SwipeController extends Callback {
 
 
     private void removeFriend(String theirName, final String theirUID, final int index,
-                              final RecyclerView.Adapter adapter) {
+                              final FriendAdapter adapter) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -115,8 +115,10 @@ class SwipeController extends Callback {
                         ref.child("friend_data").child(myUID).child(theirUID).removeValue();
                         ref.child("friend_data").child(theirUID).child(myUID).removeValue();
 
+                        adapter.listItems.remove(index);
+                        adapter.cutoff -= 1;
                         adapter.notifyItemRemoved(index);
-                        recyclerView.setAdapter(adapter);
+                        adapter.notifyItemRangeChanged(index, adapter.listItems.size());
 
                     }
                 })
@@ -139,6 +141,8 @@ class SwipeController extends Callback {
                 })
                 .create()
                 .show();
+
+        adapter.notifyItemChanged(index);
 
     }
 

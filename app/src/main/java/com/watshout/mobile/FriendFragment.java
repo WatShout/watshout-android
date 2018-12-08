@@ -32,6 +32,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.watshout.mobile.pojo.Friend;
+import com.watshout.mobile.pojo.FriendObject;
+import com.watshout.mobile.pojo.FriendRequest;
+import com.watshout.mobile.pojo.FriendRequestList;
 import com.watshout.mobile.pojo.FriendRequestResponse;
 import com.watshout.mobile.pojo.FriendsList;
 
@@ -90,37 +93,6 @@ public class FriendFragment extends android.app.Fragment {
         friendAdapter = new FriendLoadingAdapter(0);
         mFriendRecyclerView.setAdapter(friendAdapter);
 
-        // This is a very hacky solution. Essentially this makes sure refreshData()
-        // only loads ONCE.
-        final boolean[] initialDataLoaded = new boolean[1];
-        initialDataLoaded[0] = false;
-
-        // This loads whenever a friend is added or removed. The janky boolean
-        // makes sure getFriendsList() doesn't look N times upon startup
-        ref.child("friend_data").child(uid).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (initialDataLoaded[0]){
-                    getFriendsList();
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                if (initialDataLoaded[0]){
-                    getFriendsList();
-                }
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
 
         // This does an initial load and populates friends list
         ref.child("friend_data").child(uid).addListenerForSingleValueEvent(
@@ -128,7 +100,6 @@ public class FriendFragment extends android.app.Fragment {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     getFriendsList();
-                    initialDataLoaded[0] = true;
                 }
 
                 @Override
@@ -151,23 +122,51 @@ public class FriendFragment extends android.app.Fragment {
                 List<Friend> friendList = response.body().getFriends();
 
                 Collections.sort(friendList);
-                friendAdapter = new FriendAdapter(friendList, getActivity());
 
-                SwipeController swipeController = new SwipeController((ArrayList<Friend>) friendList,
-                        uid, getActivity(), friendAdapter, mFriendRecyclerView);
+                Call<FriendRequestList> friendRequestCall = retrofitInterface.getFriendRequestList(uid);
 
-                mFriendRecyclerView.setAdapter(friendAdapter);
+                friendRequestCall.enqueue(new Callback<FriendRequestList>() {
+                    @Override
+                    public void onResponse(Call<FriendRequestList> call, retrofit2.Response<FriendRequestList> response) {
 
-                ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
-                itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
+                        List<FriendRequest> friendRequestList = response.body().getFriendRequests();
 
-                pd.dismiss();
+                        if (friendRequestList.size() > 0) {
+                            globalMenu.clear();
+                            globalInflater.inflate(R.menu.base_menu_requests, globalMenu);
+                        }
+
+                        List<FriendObject> everything = new ArrayList<>();
+                        everything.addAll(friendList);
+                        everything.addAll(friendRequestList);
+
+                        friendAdapter = new FriendAdapter(everything, getActivity(), friendList.size());
+
+                        SwipeController swipeController = new SwipeController((ArrayList<Friend>) friendList,
+                                uid, getActivity(), (FriendAdapter) friendAdapter, mFriendRecyclerView);
+
+                        mFriendRecyclerView.setAdapter(friendAdapter);
+
+                        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+                        itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
+
+                        pd.dismiss();
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<FriendRequestList> call, Throwable t) {
+
+                    }
+                });
+
             }
 
             @Override
             public void onFailure(Call<FriendsList> call, Throwable t) { }
         });
     }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

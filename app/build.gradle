@@ -9,7 +9,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 27
         multiDexEnabled true
-        versionCode 10
+        versionCode 11
         versionName "v0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         resConfigs "en" // And any other languages you support
