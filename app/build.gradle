@@ -5,11 +5,11 @@ android {
     compileSdkVersion 27
     buildToolsVersion '28.0.2'
     defaultConfig {
-        applicationId "com.watshout.app"
+        applicationId "com.watshout.mobile"
         minSdkVersion 23
         targetSdkVersion 27
         multiDexEnabled true
-        versionCode 10
+        versionCode 11
         versionName "v0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         resConfigs "en" // And any other languages you support
