@@ -60,7 +60,6 @@ public class SettingsFunctions {
                             Toast.makeText(context, "You are already authenticated with Strava!",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-
                             Intent intent = new Intent(context, StravaAuthenticate.class);
                             context.startActivity(intent);
                         }

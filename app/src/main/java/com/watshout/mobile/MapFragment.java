@@ -267,6 +267,20 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         mTrackingImageView.setColorFilter(getContext().getResources().getColor(R.color.lightBlue));
 
 
+        ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    hasStrava = true;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         // start listener to get number of friends who are currently tracking
         //mTracking.setText(String.format(" COUNT: %d", counterTotal));
         //mTrackingText.setText(String.format("YOUR LOCATION IS BEING SHARED WITH %d FRIENDS", counterTotal));

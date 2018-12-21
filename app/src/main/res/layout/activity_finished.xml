@@ -151,6 +151,17 @@
             android:text="minute/mile"
             android:textColor="#000"
             android:textSize="10sp" />
+
+        <CheckBox
+            android:id="@+id/stravaBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="259dp"
+            android:layout_marginTop="59dp"
+            android:text="UPLOAD TO STRAVA"
+            android:textSize="8sp" />
     </RelativeLayout>
 
     <android.support.v7.widget.Toolbar

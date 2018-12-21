@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -52,6 +53,7 @@ public class FinishedActivity extends AppCompatActivity{
     TextView mPaceLabel;
     TextView mStatisticsText;
     ImageView mShrinker;
+    CheckBox mStrava;
 
     RelativeLayout mBottomLayout;
 
@@ -101,6 +103,7 @@ public class FinishedActivity extends AppCompatActivity{
         mStatisticsText = findViewById(R.id.statText);
         uploadGpx = findViewById(R.id.uploadGpx);
         mBottomLayout = findViewById(R.id.bottomLayout);
+        mStrava = findViewById(R.id.stravaBox);
 
         final float scale = getResources().getDisplayMetrics().density;
         int pixels = (int) (250 * scale + 0.5f);
@@ -122,7 +125,7 @@ public class FinishedActivity extends AppCompatActivity{
         loadMapImage();
 
         if (!hasStrava) {
-            //stravaCheckBox.setVisibility(View.INVISIBLE);
+            mStrava.setVisibility(View.INVISIBLE);
         }
 
         // load time and distance data
@@ -194,10 +197,11 @@ public class FinishedActivity extends AppCompatActivity{
                 progressDialog.setMessage("Uploading run data...");
                 progressDialog.show();
 
+                boolean strava = mStrava.isChecked();
 
                 RunCompletionUploader rcu = new RunCompletionUploader(
                         FinishedActivity.this, uid, pc.getDistance(),
-                        pc.getPace(), pc.getTotalSeconds(), uploadMapURL);
+                        pc.getPace(), pc.getTotalSeconds(), uploadMapURL, strava);
 
                 rcu.createActivityOnServer();
 

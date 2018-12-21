@@ -2,14 +2,26 @@ package com.watshout.mobile;
 
 import android.content.Intent;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.samsandberg.stravaauthenticator.StravaAuthenticateActivity;
 import com.samsandberg.stravaauthenticator.StravaScopes;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-
 public class StravaAuthenticate extends StravaAuthenticateActivity {
+
+    FirebaseUser thisUser = FirebaseAuth.getInstance().getCurrentUser();
+    String uid = thisUser.getUid();
+
+    DatabaseReference ref = FirebaseDatabase
+            .getInstance()
+            .getReference();
 
     /*****************************************
      * Methods override START
@@ -58,11 +70,8 @@ public class StravaAuthenticate extends StravaAuthenticateActivity {
      */
     protected Intent getStravaActivityIntent() {
         String token = StravaAuthenticateActivity.getStravaAccessToken(this);
-
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("STRAVA_TOKEN", token);
-
-        return intent;
+        ref.child("users").child(uid).child("strava_token").setValue(token);
+        return new Intent(this, MainActivity.class);
     }
 
     /**

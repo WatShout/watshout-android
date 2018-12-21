@@ -28,11 +28,12 @@ public class RunCompletionUploader {
     private int totalSeconds;
     private String mapURL;
     private String date;
-    private Long uploadTime;
+    private long uploadTime;
+    private boolean strava;
 
     public RunCompletionUploader(Context context, String uid, double distance,
                                  String pace, int totalSeconds,
-                                 String mapURL) {
+                                 String mapURL, boolean strava) {
         this.context = context;
         this.uid = uid;
         this.distance = distance;
@@ -41,6 +42,7 @@ public class RunCompletionUploader {
         this.mapURL = mapURL;
         this.date = createFormattedDate();
         this.uploadTime = System.currentTimeMillis();
+        this.strava = strava;
     }
 
     public void createActivityOnServer() {
@@ -56,6 +58,26 @@ public class RunCompletionUploader {
                 Log.d(TAG, "Activity uploaded successfully!");
                 Toast.makeText(context, "Activity uploaded successfully!", Toast.LENGTH_SHORT).show();
 
+                if (strava) {
+
+                    String uploadStravaURL = EndpointURL.getInstance().getStravaURL(uid, date);
+                    StringRequest createStravaRequest = new StringRequest(Request.Method.GET,
+                            uploadStravaURL, new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Toast.makeText(context, "Uploaded to Strava!",
+                                    Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Worked");
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d(TAG, "Did not work" + error);
+                        }
+                    });
+
+                    queue.add(createStravaRequest);
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -98,7 +120,4 @@ public class RunCompletionUploader {
         return fullDate;
 
     }
-
-
-
 }
