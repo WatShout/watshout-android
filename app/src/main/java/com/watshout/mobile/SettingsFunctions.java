@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -48,6 +49,8 @@ public class SettingsFunctions {
 
     public void connectStrava() {
 
+        Log.d("SETTINGS_MENU", "Test");
+
 
         viewHolder.individualSetting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,7 +63,6 @@ public class SettingsFunctions {
                             Toast.makeText(context, "You are already authenticated with Strava!",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-
                             Intent intent = new Intent(context, StravaAuthenticate.class);
                             context.startActivity(intent);
                         }

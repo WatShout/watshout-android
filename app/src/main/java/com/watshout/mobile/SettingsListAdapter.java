@@ -47,7 +47,7 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
 
         settingsLabels[0][0] = "Email";
         settingsLabels[0][1] = "Password";
-        //settingsLabels[2][2] = "Linked accounts";
+        settingsLabels[0][2] = "Connect with Strava";
 
         //settingsLabels[3][0] = "Pair a device";
 
@@ -244,7 +244,7 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 settingsFunctions.messagePresets();
                 break;
 
-            case "Linked accounts":
+            case "Connect with Strava":
                 settingsFunctions.connectStrava();
                 break;
 
