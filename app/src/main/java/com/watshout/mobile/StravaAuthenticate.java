@@ -46,7 +46,7 @@ public class StravaAuthenticate extends StravaAuthenticateActivity {
      * (default public)
      */
     protected Collection<String> getStravaScopes() {
-        return Arrays.asList(StravaScopes.SCOPE_PUBLIC);
+        return Arrays.asList(StravaScopes.SCOPE_VIEW_PRIVATE_AND_WRITE);
     }
 
     /**
