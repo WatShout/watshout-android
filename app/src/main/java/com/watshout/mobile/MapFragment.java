@@ -9,6 +9,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -61,6 +65,7 @@ import com.google.maps.android.PolyUtil;
 import com.watshout.mobile.pojo.FriendRequestResponse;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,11 +75,17 @@ import javax.xml.transform.TransformerException;
 import retrofit2.Call;
 import retrofit2.Callback;
 
+import static android.content.Context.SENSOR_SERVICE;
+
 public class MapFragment extends android.app.Fragment implements OnMapReadyCallback {
 
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
+
+    SensorManager mSensorManager;
+    List<Sensor> sensors;
+    Sensor sensor;
 
     ArrayList<Double> preLat;
     ArrayList<Double> preLon;
@@ -129,6 +140,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     TextView speedTextDialog;
     TextView stepsDialog;
     TextView distanceDialog;
+
 
     int numSeconds;
     int numMinutes;
@@ -421,6 +433,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         stepsDialog = popUpView.findViewById(R.id.stepsDialog);
         distanceDialog = popUpView.findViewById(R.id.distanceDialog);
         timerText = popUpView.findViewById(R.id.timerText1);
+
 
         handler = new Handler();
 
@@ -844,4 +857,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onCancelled(DatabaseError databaseError) { }
         });
     }
+
+
+
 }
