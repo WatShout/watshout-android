@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements
                     DecimalFormat decimalFormat = new DecimalFormat("##.##");
                     String totalDistance = decimalFormat.format(total);
 
-                    mDistance.setText(totalDistance);
+                    mDistance.setText(totalDistance + " miles");
                 }
             }
 
