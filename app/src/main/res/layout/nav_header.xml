@@ -135,7 +135,7 @@
         android:textColor="#000"
         android:textSize="22dp" />
 
-    <TextView
+   <!-- <TextView
         android:id="@+id/textView17"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -143,5 +143,5 @@
         android:layout_toEndOf="@+id/nav_header_name"
         android:text="miles"
         android:textColor="#000"
-        android:textSize="10sp" />
+        android:textSize="10sp" />-->
 </RelativeLayout>
