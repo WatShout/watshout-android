@@ -2,6 +2,10 @@ package com.watshout.mobile;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.preference.PreferenceManager;
 import android.widget.TextView;
@@ -23,7 +27,9 @@ import java.util.Random;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-public class FusedLocation  {
+import static android.content.Context.SENSOR_SERVICE;
+
+public class FusedLocation implements SensorEventListener {
 
     private Context context;
     private static MapPlotter mapPlotter;
@@ -37,7 +43,11 @@ public class FusedLocation  {
     double prevLon;
     double distance;
 
+    double recentHeight;
+
     public int name;
+
+    boolean hasBarometer;
 
     boolean out;
     double info [][] = new double [3][3];
@@ -48,11 +58,16 @@ public class FusedLocation  {
 
     TextView speedTextDialog;
     TextView stepsDialog;
+
     static TextView distanceDialog;
     SharedPreferences settings;
     SharedPreferences.Editor editor;
     List<LatLng> latLngList;
     int time;
+
+    SensorManager mSensorManager;
+    List<Sensor> sensors;
+    Sensor sensor;
 
     private final static int ONGOING_NOTIFICATION_ID = 65050;
 
@@ -124,6 +139,20 @@ public class FusedLocation  {
 
     public LocationCallback buildLocationCallback() {
 
+        mSensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
+        sensors = mSensorManager.getSensorList(Sensor.TYPE_PRESSURE);
+
+
+        if (sensors.size() > 0)
+        {
+            hasBarometer = true;
+            sensor = sensors.get(0);
+            mSensorManager.registerListener(this, sensor,
+                    SensorManager.SENSOR_DELAY_NORMAL);
+        }
+        else
+            hasBarometer = false;
+
         LocationCallback locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -141,9 +170,14 @@ public class FusedLocation  {
                 double lon = location.getLongitude();
                 double speed = location.getSpeed();
                 double bearing = location.getBearing();
-                double altitude = location.getAltitude();
+                double altitude;
+                if(hasBarometer)
+                 altitude = recentHeight;
+                else
+                    altitude = location.getAltitude();
                 long time = location.getTime();
                 float accuracy = location.getAccuracy();
+
 
                 // Center map on current location
                 LatLng now = new LatLng(lat, lon);
@@ -371,5 +405,28 @@ public class FusedLocation  {
                         if(aveSpeed > 10)
                             return;
                     }*/
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // when pressure value is changed, this method will be called.
+        float pressure_value = 0.0f;
+        float height = 0.0f;
+
+        // if you use this listener as listener of only one sensor (ex, Pressure), then you don't need to check sensor type.
+        if (Sensor.TYPE_PRESSURE == event.sensor.getType()) {
+            pressure_value = event.values[0];
+            //System.out.println("PRESSURE " + pressure_value);
+            height = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure_value);
+            recentHeight = height;
+            //heightDialog.setText(height + " m");
+           // System.out.println("HEIGHT " + height);
+        }
+    }
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Do something here if sensor accuracy changes.
+        // You must implement this callback in your code.
+
+    }
 
 }
