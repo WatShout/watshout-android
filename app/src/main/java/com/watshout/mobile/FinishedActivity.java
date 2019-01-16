@@ -141,6 +141,8 @@ public class FinishedActivity extends AppCompatActivity{
         uploadMapURL = getIntent().getStringExtra("UPLOAD_MAP_URL");
         overlayMapURL = getIntent().getStringExtra("OVERLAY_MAP_URL");
 
+        // ETHAN: this is for the Instagram v0.3 update
+        /*
         Target mTarget = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -183,6 +185,7 @@ public class FinishedActivity extends AppCompatActivity{
         };
 
         Picasso.get().load(overlayMapURL).into(mTarget);
+        */
 
 
         loadMapImage();
