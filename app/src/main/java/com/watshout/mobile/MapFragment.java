@@ -744,6 +744,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     String baseMapURL = EndpointURL.getInstance().getCreateMapURL() + encodedPath;
                     String displayMapURL = baseMapURL + "&size=" + 400 + "x" + 640;
                     String uploadMapURL = baseMapURL + "&size=" + 600 + "x" + 300;
+                    String overlayMapURL = baseMapURL + "&size=600x600";
 
                     Intent openNext = new Intent(getActivity().getApplicationContext(), FinishedActivity.class);
 
@@ -755,6 +756,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
                     openNext.putExtra("MAP_IMAGE", bitmapdata);
                     openNext.putExtra("DISPLAY_MAP_URL", displayMapURL);
                     openNext.putExtra("UPLOAD_MAP_URL", uploadMapURL);
+                    openNext.putExtra("OVERLAY_MAP_URL", overlayMapURL);
 
                     openNext.putExtra("STRAVA", Boolean.toString(hasStrava));
                     openNext.putExtra("MIN", Minutes);

@@ -62,8 +62,6 @@ public class RunCompletionUploader {
 
                     String uploadStravaURL = EndpointURL.getInstance().getStravaURL(uid, date);
 
-                    // Log.d("URL_STRAVA", uploadStravaURL);
-
                     StringRequest createStravaRequest = new StringRequest(Request.Method.GET,
                             uploadStravaURL, new Response.Listener<String>() {
                         @Override

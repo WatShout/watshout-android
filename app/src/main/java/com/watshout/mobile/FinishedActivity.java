@@ -4,12 +4,19 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -20,12 +27,22 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.text.DecimalFormat;
 
 public class FinishedActivity extends AppCompatActivity{
@@ -54,6 +71,7 @@ public class FinishedActivity extends AppCompatActivity{
     TextView mStatisticsText;
     ImageView mShrinker;
     CheckBox mStrava;
+    String overlayMapURL;
 
     RelativeLayout mBottomLayout;
 
@@ -121,6 +139,51 @@ public class FinishedActivity extends AppCompatActivity{
         hasStrava = Boolean.valueOf(getIntent().getStringExtra("STRAVA"));
         displayMapURL = getIntent().getStringExtra("DISPLAY_MAP_URL");
         uploadMapURL = getIntent().getStringExtra("UPLOAD_MAP_URL");
+        overlayMapURL = getIntent().getStringExtra("OVERLAY_MAP_URL");
+
+        Target mTarget = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Bitmap newBitMap = bitmap.copy(bitmap.getConfig(), true);
+                Canvas canvas = new Canvas(newBitMap);
+                Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+                p.setTextSize(40f);
+                p.setColor(Color.BLACK);
+                canvas.drawText("Testing Hello", 50, 50, p);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                newBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
+
+                Log.d("MAPMAP", data.toString());
+
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                StorageReference storageReference = storage.getReference().child("users")
+                        .child(uid).child("overlayImages").child(Long.toString(System.currentTimeMillis()) + ".jpg");
+
+                UploadTask uploadTask = storageReference.putBytes(data);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.d("MAPMAP", "FAILED");
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d("MAPMAP", "Uploaded successfully");
+                    }
+                });
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) { }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) { }
+        };
+
+        Picasso.get().load(overlayMapURL).into(mTarget);
+
 
         loadMapImage();
 
