@@ -90,15 +90,15 @@
         android:textColor="@android:color/white"
         android:textSize="70dp" />
 
-   <!-- <TextView
-        android:id="@+id/heightDialog"
+    <TextView
+        android:id="@+id/heartRateDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="230dp"
         android:fontFamily="@font/d_din"
-        android:text="0 Meters"
+        android:text="0 bpm"
         android:textColor="@android:color/white"
         android:textSize="40dp" /> -->
 

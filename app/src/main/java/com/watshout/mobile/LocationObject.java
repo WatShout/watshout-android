@@ -18,6 +18,7 @@ class LocationObject {
     public double battery;
     public double altitude;
     public long time;
+    public String heartRate;
 
     private DatabaseReference ref;
 
@@ -25,7 +26,8 @@ class LocationObject {
 
     }
 
-    LocationObject(Context context, String uid, double lat, double lon, double bearing, double speed, double altitude, long time){
+    LocationObject(Context context, String uid, double lat, double lon, double bearing,
+                   double speed, double altitude, long time, String heartRate){
 
         this.lat = lat;
         this.lon = lon;
@@ -34,6 +36,7 @@ class LocationObject {
         this.battery = getBatteryPercentage(context);
         this.altitude = altitude;
         this.time = time;
+        this.heartRate = heartRate;
         this.ref = FirebaseDatabase
                 .getInstance()
                 .getReference()

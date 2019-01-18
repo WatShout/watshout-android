@@ -3,7 +3,11 @@ package com.watshout.mobile;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Point;
+import android.net.Uri;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 import com.watshout.mobile.pojo.Activity;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -154,6 +159,17 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
 
         if (isHistory) {
 
+            holder.mShareButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String type = "image/*";
+                    String filename = "/instagram_watch.jpg";
+                    String mediaPath = Environment.getExternalStorageDirectory() + filename;
+                    createInstagramIntent(type, mediaPath);
+
+                }
+            });
+
             holder.mDeleteActivity.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -191,6 +207,29 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
             holder.mDeleteActivity.setVisibility(View.INVISIBLE);
         }
 
+
+
+    }
+
+    private void createInstagramIntent(String type, String mediaPath){
+
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        // Create the new Intent using the 'Send' action.
+        Intent share = new Intent(Intent.ACTION_SEND);
+
+        // Set the MIME type
+        share.setType(type);
+
+        // Create the URI from the media
+        File media = new File(mediaPath);
+        Uri uri = Uri.fromFile(media);
+
+        // Add the URI to the Intent.
+        share.putExtra(Intent.EXTRA_STREAM, uri);
+
+        // Broadcast the Intent.
+        context.startActivity(Intent.createChooser(share, "Share to"));
     }
 
     @Override
@@ -206,6 +245,9 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
         TextView mActivityDistance;
         TextView mActivityTime;
         TextView mActivityPace;
+
+        TextView mShareButton;
+
         ImageView mMap;
         LinearLayout mLinearLayout;
         ImageView mDeleteActivity;
@@ -220,6 +262,7 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
             mName = itemView.findViewById(R.id.news_feed_name);
             mTime = itemView.findViewById(R.id.news_feed_time);
             mMap = itemView.findViewById(R.id.news_feed_map);
+            mShareButton = itemView.findViewById(R.id.shareButton);
             mActivityName = itemView.findViewById(R.id.news_feed_activity_name);
             mActivityDistance = itemView.findViewById(R.id.news_feed_activity_distance);
             mActivityTime = itemView.findViewById(R.id.news_feed_activity_time);
@@ -259,5 +302,7 @@ public class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHo
                 .into(mImageView);
 
     }
+
+
 
 }

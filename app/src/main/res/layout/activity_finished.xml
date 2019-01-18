@@ -53,6 +53,7 @@
             android:textColor="@color/primaryColor"
             android:textSize="18dp" />
 
+
         <TextView
             android:id="@+id/distance"
             android:layout_width="wrap_content"

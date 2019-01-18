@@ -118,6 +118,18 @@
                     android:textColor="#fff"
                     android:textSize="10dp" />
 
+                <Button
+                    android:id="@+id/shareButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/news_feed_activity_name"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="sans-serif"
+                    android:text="Share"
+                    android:textColor="#fff"
+                    android:textSize="10dp" />
+
                 <TextView
                     android:id="@+id/news_feed_activity_distance"
                     android:layout_width="wrap_content"

@@ -1,5 +1,15 @@
 package com.watshout.mobile;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -7,6 +17,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.widget.TextView;
 
@@ -21,8 +32,11 @@ import org.alternativevision.gpx.beans.Waypoint;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -43,6 +57,8 @@ public class FusedLocation implements SensorEventListener {
     double prevLon;
     double distance;
 
+    ScanCallback scanCallback;
+
     double recentHeight;
 
     public int name;
@@ -60,14 +76,17 @@ public class FusedLocation implements SensorEventListener {
     TextView stepsDialog;
 
     static TextView distanceDialog;
+    TextView heartRateDialog;
     SharedPreferences settings;
     SharedPreferences.Editor editor;
     List<LatLng> latLngList;
     int time;
 
     SensorManager mSensorManager;
-    List<Sensor> sensors;
-    Sensor sensor;
+    List<Sensor> sensorsBarometer;
+    //List<Sensor> sensorsHeartRate;
+    Sensor sensorBarometer;
+    //Sensor sensorHeartRate;
 
     private final static int ONGOING_NOTIFICATION_ID = 65050;
 
@@ -78,7 +97,7 @@ public class FusedLocation implements SensorEventListener {
     private final static String TAG = "FusedLocation";
 
     FusedLocation(Context context, MapPlotter mapPlotter, String uid, TextView speedTextDialog,
-                  TextView stepsDialog, TextView distanceDialog, ArrayList preLat, ArrayList preLon,
+                  TextView stepsDialog, TextView distanceDialog, TextView heartRateDialog, ArrayList preLat, ArrayList preLon,
                   GoogleMap googleMap)
             throws TransformerException, ParserConfigurationException {
 
@@ -89,6 +108,7 @@ public class FusedLocation implements SensorEventListener {
         this.speedTextDialog = speedTextDialog;
         this.stepsDialog = stepsDialog;
         this.distanceDialog = distanceDialog;
+        this.heartRateDialog = heartRateDialog;
         this.settings = PreferenceManager.getDefaultSharedPreferences(context);
         this.editor = settings.edit();
         this.latLngList = new ArrayList<>();
@@ -137,17 +157,20 @@ public class FusedLocation implements SensorEventListener {
 
     }
 
+
+
     public LocationCallback buildLocationCallback() {
 
         mSensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
-        sensors = mSensorManager.getSensorList(Sensor.TYPE_PRESSURE);
+        sensorsBarometer = mSensorManager.getSensorList(Sensor.TYPE_PRESSURE);
 
+        //sensorsHeartRate = mSensorManager.getSensorList(Sensor.TYPE_HEART_RATE);
 
-        if (sensors.size() > 0)
+        if (sensorsBarometer.size() > 0)
         {
             hasBarometer = true;
-            sensor = sensors.get(0);
-            mSensorManager.registerListener(this, sensor,
+            sensorBarometer = sensorsBarometer.get(0);
+            mSensorManager.registerListener(this, sensorBarometer,
                     SensorManager.SENSOR_DELAY_NORMAL);
         }
         else
@@ -241,8 +264,8 @@ public class FusedLocation implements SensorEventListener {
                         }
 
                         mapPlotter.addMarker(lat, lon);
-
-                        new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time).uploadToFirebase();
+                        String heartRateString = heartRateDialog.getText().toString();
+                        new LocationObject(context, uid, lat, lon, speed, bearing, altitude, time, heartRateString).uploadToFirebase();
                         latLngList.add(new LatLng(lat, lon));
 
                     /*This mini if statement checks if only one coordinate is in the system; then
@@ -284,6 +307,9 @@ public class FusedLocation implements SensorEventListener {
         return locationCallback;
 
     }
+
+
+
 
     public LocationRequest buildLocationRequest() {
 

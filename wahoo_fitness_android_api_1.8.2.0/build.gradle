@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('wahoo_fitness_android_api_1.8.2.0.aar'))

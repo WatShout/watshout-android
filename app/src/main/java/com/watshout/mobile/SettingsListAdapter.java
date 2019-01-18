@@ -144,7 +144,7 @@ public class SettingsListAdapter extends BaseExpandableListAdapter {
                 viewHolder.mIcon.setImageResource(R.drawable.person);
                 break;
             case 9999:
-                viewHolder.mIcon.setImageResource(R.drawable.watch);
+                viewHolder.mIcon.setImageResource(R.drawable.instagram_watch);
                 break;
             case 1:
                 viewHolder.mIcon.setImageResource(R.drawable.legal);

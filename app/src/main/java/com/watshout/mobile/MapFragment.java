@@ -3,6 +3,17 @@ package com.watshout.mobile;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +24,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -67,7 +79,10 @@ import com.watshout.mobile.pojo.FriendRequestResponse;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -83,13 +98,16 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     LocationRequest locationRequest;
     LocationCallback locationCallback;
 
-    SensorManager mSensorManager;
-    List<Sensor> sensors;
-    Sensor sensor;
+    //ScanCallback scanCallback;
+
+
 
     ArrayList<Double> preLat;
     ArrayList<Double> preLon;
     FusedLocation fusedLocation;
+
+    BluetoothAdapter mBluetoothAdapter;
+    BluetoothLeScanner mBluetoothLeScanner;
 
     ArrayList<Marker> markerList;
     MapPlotter mapPlotter;
@@ -140,6 +158,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
     TextView speedTextDialog;
     TextView stepsDialog;
     TextView distanceDialog;
+    TextView heartRateDialog;
+
 
 
     int numSeconds;
@@ -224,7 +244,7 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
 
         try {
             fusedLocation = new FusedLocation(getActivity().getApplicationContext(),
-                    mapPlotter, uid, speedTextDialog, stepsDialog, distanceDialog, preLat, preLon,
+                    mapPlotter, uid, speedTextDialog, stepsDialog, distanceDialog, heartRateDialog, preLat, preLon,
                     googleMapGlobal);
         } catch (TransformerException e) {
             e.printStackTrace();
@@ -237,6 +257,14 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         locationRequest = fusedLocation.buildLocationRequest();
         locationCallback = fusedLocation.buildLocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
+        //System.out.println("Building");
+        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivity(enableBtIntent);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
+        mBluetoothLeScanner.startScan(mScanCallback);
+        //System.out.println("Done building");
 
         googleMapGlobal.setMyLocationEnabled(true);
         googleMapGlobal.getUiSettings().setMyLocationButtonEnabled(false);
@@ -433,6 +461,8 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
         stepsDialog = popUpView.findViewById(R.id.stepsDialog);
         distanceDialog = popUpView.findViewById(R.id.distanceDialog);
         timerText = popUpView.findViewById(R.id.timerText1);
+
+        heartRateDialog = popUpView.findViewById(R.id.heartRateDialog);
 
 
         handler = new Handler();
@@ -857,6 +887,239 @@ public class MapFragment extends android.app.Fragment implements OnMapReadyCallb
             public void onCancelled(DatabaseError databaseError) { }
         });
     }
+
+    protected ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            processDeviceDiscovered(result.getDevice(),result.getRssi(),result.getScanRecord().getBytes());
+            //System.out.println("Success!!! !");
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+            //System.out.println("Failed!!! !");
+        }
+    };
+
+    private  BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+            processDeviceDiscovered(device,rssi,scanRecord);
+        }
+    };
+
+    public enum AD_TYPE
+    {
+        GAP_ADTYPE_UNKNOWN(0),
+        GAP_ADTYPE_FLAGS(1)                         ,
+        GAP_ADTYPE_16BIT_MORE(2)                    , //!< Service: More 16-bit UUIDs available
+        GAP_ADTYPE_16BIT_COMPLETE(3)                , //!< Service: Complete list of 16-bit UUIDs
+        GAP_ADTYPE_32BIT_MORE(4)                    , //!< Service: More 32-bit UUIDs available
+        GAP_ADTYPE_32BIT_COMPLETE(5)                , //!< Service: Complete list of 32-bit UUIDs
+        GAP_ADTYPE_128BIT_MORE(6)                   , //!< Service: More 128-bit UUIDs available
+        GAP_ADTYPE_128BIT_COMPLETE(7)               , //!< Service: Complete list of 128-bit UUIDs
+        GAP_ADTYPE_LOCAL_NAME_SHORT(8)              , //!< Shortened local name
+        GAP_ADTYPE_LOCAL_NAME_COMPLETE(9)           , //!< Complete local name
+        GAP_ADTYPE_POWER_LEVEL(10)                  , //!< TX Power Level: 0xXX: -127 to +127 dBm
+        GAP_ADTYPE_OOB_CLASS_OF_DEVICE(11)          , //!< Simple Pairing OOB Tag: Class of device (3 octets)
+        GAP_ADTYPE_OOB_SIMPLE_PAIRING_HASHC(12)     , //!< Simple Pairing OOB Tag: Simple Pairing Hash C (16 octets)
+        GAP_ADTYPE_OOB_SIMPLE_PAIRING_RANDR(13)     , //!< Simple Pairing OOB Tag: Simple Pairing Randomizer R (16 octets)
+        GAP_ADTYPE_SM_TK(14)                        , //!< Security Manager TK Value
+        GAP_ADTYPE_SM_OOB_FLAG(15)                  , //!< Secutiry Manager OOB Flags
+        GAP_ADTYPE_SLAVE_CONN_INTERVAL_RANGE(16)    , //!< Min and Max values of the connection interval (2 octets Min, 2 octets Max) (0xFFFF indicates no conn interval min or max)
+        GAP_ADTYPE_SIGNED_DATA(17)                  , //!< Signed Data field
+        GAP_ADTYPE_SERVICES_LIST_16BIT(18)          , //!< Service Solicitation: list of 16-bit Service UUIDs
+        GAP_ADTYPE_SERVICES_LIST_128BIT(19)         , //!< Service Solicitation: list of 128-bit Service UUIDs
+        GAP_ADTYPE_SERVICE_DATA(20)                 , //!< Service Data
+        GAP_ADTYPE_MANUFACTURER_SPECIFIC(0xFF);       //!< Manufacturer Specific Data: first 2 octets contain the Company Identifier Code followed by the additional manufacturer specific data
+
+        private int numVal;
+
+        AD_TYPE(int numVal) {
+            this.numVal = numVal;
+        }
+
+        public int getNumVal() {
+            return numVal;
+        }
+
+    };
+
+    public static PolarSensor.AD_TYPE getCode(byte type){
+        try {
+            return type == -1 ? PolarSensor.AD_TYPE.GAP_ADTYPE_MANUFACTURER_SPECIFIC : PolarSensor.AD_TYPE.values()[type];
+        }catch (ArrayIndexOutOfBoundsException ex){
+            return PolarSensor.AD_TYPE.GAP_ADTYPE_UNKNOWN;
+        }
+    }
+
+    public static HashMap<PolarSensor.AD_TYPE,byte[]> advertisementBytes2Map(byte[] record){
+        int offset=0;
+        HashMap<PolarSensor.AD_TYPE,byte[]> adTypeHashMap = new HashMap<>();
+        try {
+            while ((offset + 2) < record.length) {
+                PolarSensor.AD_TYPE type = getCode(record[offset + 1]);
+                int fieldLen = record[offset];
+                if (fieldLen <= 0) {
+                    // skip if incorrect adv is detected
+                    break;
+                }
+                if (adTypeHashMap.containsKey(type) && type == PolarSensor.AD_TYPE.GAP_ADTYPE_MANUFACTURER_SPECIFIC) {
+                    byte data[] = new byte[adTypeHashMap.get(type).length + fieldLen - 1];
+                    System.arraycopy(record, offset + 2, data, 0, fieldLen - 1);
+                    System.arraycopy(adTypeHashMap.get(type), 0, data, fieldLen - 1, adTypeHashMap.get(type).length);
+                    adTypeHashMap.put(type, data);
+                } else {
+                    byte data[] = new byte[fieldLen - 1];
+                    System.arraycopy(record, offset + 2, data, 0, fieldLen - 1);
+                    adTypeHashMap.put(type, data);
+                }
+                offset += fieldLen + 1;
+            }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // corrupted adv data find
+        }
+        return adTypeHashMap;
+    }
+
+
+    //private BluetoothAdapter bluetoothAdapter;
+    private BluetoothManager btManager;
+    private Context context;
+
+    public final UUID HR_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
+    public final UUID HR_SERVICE = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb");
+    public static final UUID DESCRIPTOR_CCC = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
+    private void processDeviceDiscovered(final BluetoothDevice device, int rssi, byte[] scanRecord){
+        Map<PolarSensor.AD_TYPE,byte[]> content = advertisementBytes2Map(scanRecord);
+        //System.out.println("Device:" + device.getAddress());
+        if( content.containsKey(PolarSensor.AD_TYPE.GAP_ADTYPE_LOCAL_NAME_COMPLETE) ) {
+            String name = new String(content.get(PolarSensor.AD_TYPE.GAP_ADTYPE_LOCAL_NAME_COMPLETE));
+            System.out.println("Name is" + name);
+            if (name.startsWith("Polar ")) {
+                String names[] = name.split(" ");
+                if (names.length > 2) {
+                    String deviceId = names[names.length-1];
+                    if( deviceId.equals("3909C82D")){ // TODO NOTE REPLACE with your device id
+                        //System.out.println("INSIDE");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            mBluetoothLeScanner.stopScan(mScanCallback);
+                        } else {
+                            mBluetoothAdapter.stopLeScan(leScanCallback);
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            device.connectGatt(context,false,bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+                        } else {
+                            device.connectGatt(context,false,bluetoothGattCallback);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            super.onConnectionStateChange(gatt, status, newState);
+            if (newState == BluetoothGatt.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) {
+                //System.out.println("Connected!");
+                gatt.discoverServices();
+            } else if(newState == BluetoothGatt.STATE_DISCONNECTED){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mBluetoothLeScanner.startScan(mScanCallback);
+                } else {
+                    mBluetoothAdapter.startLeScan(leScanCallback);
+                }
+            }
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            super.onServicesDiscovered(gatt, status);
+            //System.out.println("Discovered!");
+            for (BluetoothGattService gattService : gatt.getServices()) {
+                if( gattService.getUuid().equals(HR_SERVICE) ){
+                    for (BluetoothGattCharacteristic characteristic : gattService.getCharacteristics()) {
+                        if( characteristic.getUuid().equals(HR_MEASUREMENT) ){
+                            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(DESCRIPTOR_CCC);
+                            gatt.setCharacteristicNotification(characteristic, true);
+                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                            gatt.writeDescriptor(descriptor);
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicRead(gatt, characteristic, status);
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicWrite(gatt, characteristic, status);
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            super.onCharacteristicChanged(gatt, characteristic);
+            //System.out.println("Changed!");
+            if (characteristic.getUuid().equals(HR_MEASUREMENT)) {
+                byte[] data = characteristic.getValue();
+                int hrFormat = data[0] & 0x01;
+                boolean sensorContact = true;
+                final boolean contactSupported = !((data[0] & 0x06) == 0);
+                if( contactSupported ) {
+                    sensorContact = ((data[0] & 0x06) >> 1) == 3;
+                }
+                int energyExpended = (data[0] & 0x08) >> 3;
+                int rrPresent = (data[0] & 0x10) >> 4;
+                final int hrValue = (hrFormat == 1 ? data[1] + (data[2] << 8) : data[1]) & (hrFormat == 1 ? 0x0000FFFF : 0x000000FF);
+                System.out.println("Heart Rate:" + hrValue);
+                heartRateDialog.setText(hrValue + "bpm");
+                if( !contactSupported && hrValue == 0 ){
+                    // note does this apply to all sensors, also 3rd party
+                    sensorContact = false;
+                }
+                final boolean sensorContactFinal = sensorContact;
+                int offset = hrFormat + 2;
+                int energy = 0;
+                if (energyExpended == 1) {
+                    energy = (data[offset] & 0xFF) + ((data[offset + 1] & 0xFF) << 8);
+                    offset += 2;
+                }
+                final ArrayList<Integer> rrs = new ArrayList<>();
+                if (rrPresent == 1) {
+                    int len = data.length;
+                    while (offset < len) {
+                        int rrValue = (int) ((data[offset] & 0xFF) + ((data[offset + 1] & 0xFF) << 8));
+                        offset += 2;
+                        rrs.add(rrValue);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorRead(gatt, descriptor, status);
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorWrite(gatt, descriptor, status);
+        }
+
+        @Override
+        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+            super.onMtuChanged(gatt, mtu, status);
+        }
+    };
 
 
 
