@@ -17,6 +17,7 @@ class LocationObject {
     public double bearing;
     public double battery;
     public double altitude;
+    public int hr;
     public long time;
 
     private DatabaseReference ref;
@@ -41,6 +42,7 @@ class LocationObject {
                 .child(uid)
                 .child("device")
                 .child("current");
+        this.hr = 0;
     }
 
     public void uploadToFirebase(){

@@ -194,6 +194,8 @@ public class FinishedActivity extends AppCompatActivity{
             mStrava.setVisibility(View.INVISIBLE);
         }
 
+        mStrava.setChecked(true);
+
         // load time and distance data
         final int min = getIntent().getIntExtra("MIN",0);
         final int sec = getIntent().getIntExtra("SEC",0);
