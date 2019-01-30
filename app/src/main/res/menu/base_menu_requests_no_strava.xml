@@ -1,0 +1,32 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/strava_icon"
+        android:title="Connect to Strava"
+        app:showAsAction="always"
+        android:icon="@drawable/square_strava_logo"
+        />
+
+    <item
+        android:id="@+id/send_request"
+        android:title=""
+        app:showAsAction="always"
+        android:icon="@drawable/person_add"
+        />
+
+    <item
+        android:id="@+id/open_requests"
+        android:title=""
+        app:showAsAction="always"
+        android:icon="@drawable/notifications_ref"
+        />
+
+    <item
+        android:id="@+id/icon"
+        android:title=""
+        app:showAsAction="always"
+        android:icon="@drawable/large_no_word"
+        />
+
+</menu>

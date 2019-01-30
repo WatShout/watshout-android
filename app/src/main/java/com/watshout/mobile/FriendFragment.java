@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -133,7 +132,7 @@ public class FriendFragment extends android.app.Fragment {
 
                         if (friendRequestList.size() > 0) {
                             globalMenu.clear();
-                            globalInflater.inflate(R.menu.base_menu_requests, globalMenu);
+                            globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
                         }
 
                         List<FriendObject> everything = new ArrayList<>();
