@@ -417,8 +417,10 @@ public class MainActivity extends AppCompatActivity implements
                 return super.onOptionsItemSelected(item);
 
             case R.id.strava_icon:
-                Log.d("STRAVA_ICON", "Pressed!");
-                return super.onOptionsItemSelected(item);
+                Intent intent = new Intent(getApplicationContext(), StravaAuthenticate.class);
+                startActivity(intent);
+                return false;
+                //return super.onOptionsItemSelected(item);
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -432,8 +434,7 @@ public class MainActivity extends AppCompatActivity implements
         MenuInflater inflater = getMenuInflater();
         globalInflater = inflater;
         globalMenu = menu;
-        inflater.inflate(R.menu.base_menu_no_requests_no_strava, menu);
-        checkForStrava();
+        inflater.inflate(R.menu.base_menu_no_requests_has_strava, menu);
         getFriendRequestsAndStrava();
         return true;
     }
@@ -446,27 +447,6 @@ public class MainActivity extends AppCompatActivity implements
                 navigationMenuView.setVerticalScrollBarEnabled(false);
             }
         }
-    }
-
-    public void checkForStrava() {
-        ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                globalMenu.clear();
-                if (dataSnapshot.exists()) {
-                    Log.d("STRAVA_ICON", dataSnapshot.toString());
-                    globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
-                } else {
-                    Log.d("STRAVA_ICON", "Doesn't exist");
-                    globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     public void getFriendRequestsAndStrava(){
@@ -485,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements
                         globalMenu.clear();
                         if (dataSnapshot.exists() && friendRequestList.size() > 0) {
                             Log.d("STRAVA_ICON", "has strava has requests");
-                            globalInflater.inflate(R.menu.base_menu_requests_has_strava, globalMenu);
+                            globalInflater.inflate(R.menu.base_menu_requests_has_strava, globalMenu); //TODO: change this back
                         } else if (dataSnapshot.exists() && friendRequestList.size() == 0) {
                             Log.d("STRAVA_ICON", "has strava no requests");
                             globalInflater.inflate(R.menu.base_menu_no_requests_has_strava, globalMenu);
