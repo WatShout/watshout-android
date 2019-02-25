@@ -457,36 +457,38 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onResponse(Call<FriendRequestList> call, retrofit2.Response<FriendRequestList> response) {
 
-                List<FriendRequest> friendRequestList = response.body().getFriendRequests();
+                if (response.body() != null) {
+                    List<FriendRequest> friendRequestList = response.body().getFriendRequests();
 
-                ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        globalMenu.clear();
-                        if (dataSnapshot.exists() && friendRequestList.size() > 0) {
-                            Log.d("STRAVA_ICON", "has strava has requests");
-                            globalInflater.inflate(R.menu.base_menu_requests_has_strava, globalMenu); //TODO: change this back
-                        } else if (dataSnapshot.exists() && friendRequestList.size() == 0) {
-                            Log.d("STRAVA_ICON", "has strava no requests");
-                            globalInflater.inflate(R.menu.base_menu_no_requests_has_strava, globalMenu);
-                        } else if (!dataSnapshot.exists() && friendRequestList.size() > 0) {
-                            Log.d("STRAVA_ICON", "no strava has requests");
-                            globalInflater.inflate(R.menu.base_menu_no_requests_no_strava, globalMenu);
-                        } else {
-                            Log.d("STRAVA_ICON", "no strava no requests");
-                            globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
+                    ref.child("users").child(uid).child("strava_token").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            globalMenu.clear();
+                            if (dataSnapshot.exists() && friendRequestList.size() > 0) {
+                                Log.d("STRAVA_ICON", "has strava has requests");
+                                globalInflater.inflate(R.menu.base_menu_requests_has_strava, globalMenu); //TODO: change this back
+                            } else if (dataSnapshot.exists() && friendRequestList.size() == 0) {
+                                Log.d("STRAVA_ICON", "has strava no requests");
+                                globalInflater.inflate(R.menu.base_menu_no_requests_has_strava, globalMenu);
+                            } else if (!dataSnapshot.exists() && friendRequestList.size() > 0) {
+                                Log.d("STRAVA_ICON", "no strava has requests");
+                                globalInflater.inflate(R.menu.base_menu_no_requests_no_strava, globalMenu);
+                            } else {
+                                Log.d("STRAVA_ICON", "no strava no requests");
+                                globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
+                            }
                         }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    if (friendRequestList.size() > 0) {
+                        globalMenu.clear();
+                        globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
                     }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                if (friendRequestList.size() > 0) {
-                    globalMenu.clear();
-                    globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
                 }
             }
 

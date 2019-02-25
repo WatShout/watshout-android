@@ -128,28 +128,35 @@ public class FriendFragment extends android.app.Fragment {
                     @Override
                     public void onResponse(Call<FriendRequestList> call, retrofit2.Response<FriendRequestList> response) {
 
-                        List<FriendRequest> friendRequestList = response.body().getFriendRequests();
+                        if (response.body() != null) {
+                            List<FriendRequest> friendRequestList = response.body().getFriendRequests();
 
-                        if (friendRequestList.size() > 0) {
-                            globalMenu.clear();
-                            globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
+                            if (friendRequestList.size() > 0) {
+                                globalMenu.clear();
+                                globalInflater.inflate(R.menu.base_menu_requests_no_strava, globalMenu);
+                            }
+
+                            List<FriendObject> everything = new ArrayList<>();
+                            everything.addAll(friendList);
+                            everything.addAll(friendRequestList);
+
+                            friendAdapter = new FriendAdapter(everything, getActivity(), friendList.size());
+
+                            SwipeController swipeController = new SwipeController((ArrayList<Friend>) friendList,
+                                    uid, getActivity(), (FriendAdapter) friendAdapter, mFriendRecyclerView);
+
+                            mFriendRecyclerView.setAdapter(friendAdapter);
+
+                            ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+                            itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
+
+                            pd.dismiss();
+                        }
+                        else {
+                            pd.dismiss();
+                            Toast.makeText(getContext(), "An error occurred", Toast.LENGTH_SHORT).show();
                         }
 
-                        List<FriendObject> everything = new ArrayList<>();
-                        everything.addAll(friendList);
-                        everything.addAll(friendRequestList);
-
-                        friendAdapter = new FriendAdapter(everything, getActivity(), friendList.size());
-
-                        SwipeController swipeController = new SwipeController((ArrayList<Friend>) friendList,
-                                uid, getActivity(), (FriendAdapter) friendAdapter, mFriendRecyclerView);
-
-                        mFriendRecyclerView.setAdapter(friendAdapter);
-
-                        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
-                        itemTouchhelper.attachToRecyclerView(mFriendRecyclerView);
-
-                        pd.dismiss();
 
                     }
 
